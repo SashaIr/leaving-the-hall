@@ -45,17 +45,25 @@ RequestProject/
 
 ## Scope and modeling choices
 
-The algebraic part uses a level-graded path-algebra presentation with vertex
+The algebraic part defines a level-graded path-algebra presentation with vertex
 idempotents, level-indexed arrows and loops, all relations `(R1)`–`(R6)` and
-their starred counterparts.  The elements `y_i` and `z_i` are derived words,
-not generators.  The concrete action on symmetric functions remains represented
-abstractly by an algebra homomorphism rather than by a plethystic datatype;
-inverses belonging to the `u`-adic completion are supplied as two-sided inverse
-data.
+their starred counterparts.  In both the full presentation and the local
+`ThetaData` interface, `y_i` and normalized `z_i/(qt)` are recursive words, not
+generators.  `ThetaData` records one generic level in one ambient ring and now
+contains all twelve local `R` assumptions, but it is not equivalent to the
+level-graded quotient because it suppresses vertices and path typing.
+
+The concrete action on symmetric functions is represented only abstractly by an
+already-supplied algebra homomorphism; no plethystic carrier is constructed.
+Likewise, inverses belonging to the `u`-adic completion are supplied as
+two-sided inverse data rather than constructed in a formal-series ring.
 
 Within that scope, the formalization constructs the full quotient algebra,
-packages its actions, proves the transformed-operator identities, and gives the
-universal descended homomorphism directly from that quotient.  It also proves the abstract conjugation identity
+packages abstract actions, proves finite transformed-operator identities, and
+proves the universal descent theorem: a generator assignment descends provided
+preservation of the complete relation family is supplied.  It does not yet
+supply that preservation proof for the paper's particular `Θ` assignment on the
+full completed quotient.  It also proves the abstract conjugation identity
 `Θ(L) = U L U⁻¹` from intertwining and the corresponding commutation and
 conjugation theorems for the natural-composition operators `D_γ`.
 

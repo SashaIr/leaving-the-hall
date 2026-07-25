@@ -47,6 +47,17 @@ example {𝕜 : Type*} [Field 𝕜] {q cQ2 : 𝕜} (ρ : DyckRepU 𝕜 q cQ2) :
       ρ.Θy1 * ρ.Θdps = ρ.w 1 * ρ.yy 1 * ρ.dps :=
   ⟨ρ.theta_z1_dp, ρ.theta_y1_dps⟩
 
+/-- The explicit inverse-form commutation relation with `D₁`. -/
+example {𝕜 : Type*} [Field 𝕜] {q cQ2 : 𝕜} (ρ : DyckRepU 𝕜 q cQ2) :
+    ρ.thetaDOneWord = ρ.dPositiveSeries :=
+  ρ.thetaDOneWord_eq_series
+
+/-- The explicit inverse-form commutation relation with `e₁` at level zero. -/
+example {𝕜 : Type*} [Field 𝕜] {q cQ2 : 𝕜} (ρ : DyckRepU 𝕜 q cQ2)
+    (hlevel : ρ.level = 0) :
+    ρ.thetaE1Word = ρ.e1Word + (ρ.dPositiveSeries - ρ.dOneWord) :=
+  ρ.thetaE1Word_eq hlevel
+
 /-- `s*` annihilates `(d₊*)^k ε₀` for `k ≥ 1`. -/
 example {𝕜 : Type*} [Field 𝕜] {q cQ2 : 𝕜} (ρ : DyckRepU 𝕜 q cQ2)
     (k : ℕ) (hk : 1 ≤ k) (e0 : ρ.carrier) (hq : q ≠ 0)

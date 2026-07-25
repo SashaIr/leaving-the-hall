@@ -1,3 +1,143 @@
+# Summary of changes for run c136417a-b249-4970-ab99-3bdaf99fcbb5
+Implemented and verified the requested strengthening.
+
+- `ThetaData` now records a fixed generic level and includes local forms of all `(R1)`–`(R6)` and `(R1*)`–`(R6*)` relations.
+- Removed `yy` and `zz` as structure fields. They are now recursively defined words in `T`, `Tinv`, `d₊`, `d₋`, and `d₊*`, with `zz` explicitly representing the normalized `z/(qt)`.
+- Added the paper’s level-dependent `(Q2)` coefficient condition `cQ2 = -q^level`.
+- Used the observation that `Θ` fixes `d₋`, the `T_i`, and scalars to prove:
+  - `s` commutes with `d₋`;
+  - recomputing derived `y₁` after replacing `d₊` by `Θ(d₊)` gives exactly `(1-s)y₁`;
+  - `s*` and `(1+s*)⁻¹` commute with `d₋`;
+  - recomputing normalized `z₁` after replacing `d₊*` by `Θ(d₊*)` gives exactly `(1+s*)⁻¹z₁`.
+- Added explicit `e₁` and `D₁` relations in `DGamma.lean`. Writing
+  `D⁺ = d₋(1+uy₁)⁻¹(-y₁)d₊*`, Lean now proves:
+  - `Θ(D₁) = D⁺`;
+  - `Θ(e₁) = e₁ + D⁺ - D₁` at level zero;
+  - the corresponding operator/intertwiner forms `U D₁ = D⁺ U` and `U e₁ = (e₁ + D⁺ - D₁) U`.
+  These are the finite inverse forms of the paper’s commutator identities; coefficientwise infinite sums still require a formal power-series completion.
+- Expanded `README.md`, `docs/AQT_FILES.md`, and `docs/SOURCE_AND_SCOPE.md` to distinguish precisely:
+  - the genuine level-graded quotient from the fixed-level toy interface;
+  - proved theorems from assumed structure fields;
+  - the abstract action from the unimplemented concrete symmetric-function action;
+  - universal quotient descent from a proof that the paper’s particular `Θ` preserves every relation.
+
+The complete project builds successfully, the edited Lean sources contain no `sorry` or `admit`, and the new principal theorems use only the permitted standard axioms. Changes were committed and pushed in commit `946db9e`.
+
+# Summary of changes for run f78a6abb-1e0e-42ae-94ae-dfed04d8212f
+Your reading is correct: `Theta.lean` does **not** construct `Θ` directly on the `Aqt` defined in `Algebra.lean`. There are three different layers in the current code, and earlier descriptions blurred them.
+
+## 1. What `Algebra.lean` contains
+
+`Algebra.lean` is the actual generators-and-relations object called `Aqt q t`.
+
+It includes:
+
+- level-indexed vertices `eps k`;
+- level-indexed `T_i`, `T_i⁻¹`, `d₊`, `d₋`, and `d₊*`;
+- the Hecke, braid, and distant-commutation relations;
+- all of `(R1)`–`(R6)` and `(R1*)`–`(R6*)`;
+- `(Q1)`, `(Q1*)`, and `(Q2)`;
+- `y_i` and the normalized `z_i/(qt)` as recursively defined words, not independent generators.
+
+Thus the defining relation families from Definitions 3.1 and 3.9 of the paper are represented there. The starred identifications are encoded by using one `eps`, one `d₋`, and an explicit inverse generator `Tinv`.
+
+There are some presentational differences from the paper:
+
+- Lean uses a unital free algebra with infinitely many orthogonal idempotents. This is best viewed as a unitalized encoding of the paper’s infinite path algebra; the global unit is not one of the paper’s individual vertex idempotents.
+- Explicit support and orthogonality relations for paths and vertices are added to encode quiver typing.
+- `Tinv` is an explicit generator with two inverse relations, rather than inverse notation.
+- The paper works over `ℚ(q,t)`, whereas Lean allows an arbitrary field and arbitrary elements `q,t`. At exceptional specializations such as `q = 1`, the formulas containing inverses do not model the rational-function algebra faithfully: Lean’s field inverse of zero is zero. No nonvanishing assumptions are built into `Aqt`.
+- The code defines this presentation directly; it does not prove a separate equivalence theorem with the paper’s “free product of `A_q` and `A_{q⁻¹}`” formulation.
+
+So `Algebra.lean` is recognizably the intended full presentation, subject to those encoding and specialization qualifications.
+
+## 2. What the algebra in `Theta.lean` is
+
+`ThetaData` is **not `Aqt`**, nor another quotient presentation intended to equal it. Its `carrier` is an arbitrary ring equipped with named elements and a selected list of assumed identities.
+
+It suppresses all levels and vertex idempotents. Consequently it assumes only a single generic copy of operators such as `dp`, `dm`, `dps`, `T i`, `yy i`, and `zz i`.
+
+Its fields include assumptions corresponding to:
+
+- Hecke, braid, and `T` commutation;
+- `(R2)`, `(R3)`, `(R6)` and their starred forms;
+- `(Q1)`, `(Q1*)`, and `(Q2)`;
+- several identities involving `y_i` and `z_i` that are consequences/propositions in the paper, such as their commutation relations and symmetric-polynomial identities.
+
+It omits, among other things:
+
+- vertices and path support;
+- `(R1)`, `(R4)`, `(R5)` and their starred forms;
+- the level dependence of `(Q2)`.
+
+Those omitted relations are not being asserted false or removed from `Aqt`; they are simply absent from this local calculation interface. Conversely, the `y/z` commutation fields are not extra defining relations imposed on `Aqt`; they are hypotheses supplied to the local calculations, corresponding to identities that should be derived in the genuine algebra.
+
+The scalar `cQ2` makes the limitation especially clear. In the paper, normalized `(Q2)` at level `k` has coefficient `-q^k`. A single ungraded `ThetaData` has one fixed `cQ2`, so it cannot simultaneously represent every level of the full graded algebra.
+
+`DyckRepU` adds further data:
+
+- a scalar `u`;
+- chosen two-sided inverses called `w` and `minv`.
+
+In the paper these inverses live naturally in `Aqt[[u]]` or the degree completion. Lean does not construct that completion. Instead, existence of the inverses is assumed as structure data in an arbitrary ring. This makes the finite algebraic calculations valid whenever such inverses are supplied, but it is not a construction of the paper’s completed algebra.
+
+## 3. What is actually proved about `Θ`
+
+Inside that abstract single-level environment, `Theta.lean` genuinely proves several finite identities, including:
+
+- commutation of the supplied inverses with relevant operators;
+- preservation of the local `(R2)` and `(R2*)` identities;
+- the key identities behind the paper’s `lem:theta_q2`;
+- preservation of the local `(Q2)` identity;
+- the two displayed formulas corresponding to `cor:theta_yz`.
+
+These are real algebraic implication theorems, but they are conditional on all the fields of `ThetaData`/`DyckRepU`.
+
+What is **not** proved is the paper’s full Theorem `thm:Theta_def`. In particular, the project does not currently:
+
+1. construct the completed algebra `Aqt[[u]]` or its degree completion;
+2. define one level-aware generator assignment from the genuine `Gen` of `Algebra.lean` into that completion;
+3. derive the `ThetaData` assumptions from `Aqt`;
+4. prove that this assignment preserves every constructor of `Rel`, especially `(R1)`, `(R3)`–`(R6)`, all starred counterparts, and the general `(Q1)` families;
+5. show that the separately defined `Θy1` and `Θz1` are the images of the recursively defined `yy` and `zz` words under that homomorphism.
+
+## 4. What `ThetaDescent.lean` proves
+
+`thetaDescent` is a correct universal-property lemma:
+
+> if a proposed assignment on the genuine generators preserves every relation in the full `Rel q t`, then it induces an algebra homomorphism from `Aqt q t`.
+
+However, preservation of all those relations is an **input hypothesis** named `preserves`. The file does not construct that proof from the calculations in `Theta.lean`. Therefore it proves the general mechanism for passing to the quotient, not that the paper’s particular `Θ` actually satisfies the mechanism.
+
+This is the most important gap behind your confusion. Saying that “`Θ` passes to the quotient” without the qualification “provided the full relation-preservation hypothesis” overstates the present result.
+
+## 5. The claimed action on symmetric functions
+
+`Rep.lean` defines an `AqtAction` to be an already-given homomorphism
+
+`Aqt q t →ₐ Module.End 𝕜 V`.
+
+That is the correct abstract type for an action, but the paper’s concrete space
+
+`V = ⨁ₖ Λ ⊗ 𝕜[y₁^{±1},…,yₖ^{±1}]`
+
+and the explicit plethystic formulas for its operators are not implemented. No concrete instance of `AqtAction` for symmetric functions is constructed. Thus the action is specified only as an interface, not formalized from the paper.
+
+Likewise, `PreserveKernel.lean` proves useful conditional algebraic statements about `(I1)` and `(I2)`, but its level-specific `(I2)` and `(Q2)` facts and the annihilation assumptions are passed as hypotheses. It is not a proof about a constructed concrete symmetric-function representation.
+
+## Bottom line
+
+The current project contains:
+
+- a reasonably close level-graded presentation of `Aqt` in `Algebra.lean`;
+- valid finite `Θ` calculations in a separate, stronger, ungraded hypothesis structure;
+- a generic quotient-descent theorem;
+- an abstract type for representations.
+
+It does **not yet connect those pieces** to prove the paper’s complete statement that its specific `Θ` is an endomorphism of the completed full `Aqt`, and it does not implement the concrete symmetric-function action. Your description—“`Theta.lean` contains some algebra that is not `Aqt`, with some relations missing and some added”—is therefore accurate. The intended interpretation is that this is a local calculation environment, but the missing bridge to the genuine `Aqt` is mathematically substantive, not merely organizational.
+
+No files were changed.
+
 # Summary of changes for run 90f3921b-88cb-4111-bb66-e778053fab24
 You were right: `Rep.lean` still primarily exposed the old single-level operator structure rather than a genuine `Aqt` action. I corrected that.
 

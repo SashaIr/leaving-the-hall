@@ -1,4 +1,4 @@
-import RequestProject.Aqt.Theta
+import RequestProject.Aqt.PreserveKernel
 
 /-!
 # Conjugation and commutation with the `D_γ` operators
@@ -56,6 +56,104 @@ def thetaDGammaTail : List ℕ → ρ.carrier
 def thetaDGamma : List ℕ → ρ.carrier
   | [] => 0
   | g :: gs => ρ.dm * (-ρ.Θy1) ^ (g - 1) * ρ.thetaDGammaTail gs
+
+/-- The level-zero word acting as multiplication by `e₁` in the paper. -/
+def e1Word : ρ.carrier := ρ.dm * ρ.dp
+
+/-- The alternative level-zero word for `D₁`.  On the concrete action it is
+`d₋ (-y₁) d₊*`. -/
+def dOneWord : ρ.carrier := ρ.dm * (-ρ.yy 1) * ρ.dps
+
+/-- Algebraic replacement for the generating series `∑_{n≥1} u^(n-1) Dₙ`:
+the inverse `w₁=(1+u y₁)⁻¹` is its geometric-series factor. -/
+def dPositiveSeries : ρ.carrier := ρ.dm * ρ.w 1 * (-ρ.yy 1) * ρ.dps
+
+/-- The word obtained by applying `Θ` to `e₁ = d₋d₊`. -/
+def thetaE1Word : ρ.carrier := ρ.dm * ρ.Θdp
+
+/-- The word obtained by applying `Θ` to `D₁ = d₋(-y₁)d₊*`. -/
+def thetaDOneWord : ρ.carrier := ρ.dm * (-ρ.Θy1) * ρ.Θdps
+
+/-- **Explicit `Θ`--`D₁` commutation relation.**  The transform of `D₁` is
+the complete positive `D` generating series.  This is the finite inverse form
+of `Θ D₁ = (∑_{n≥1} u^(n-1) Dₙ) Θ` before adjoining an external intertwiner. -/
+theorem thetaDOneWord_eq_series : ρ.thetaDOneWord = ρ.dPositiveSeries := by
+  unfold thetaDOneWord dPositiveSeries
+  calc
+    ρ.dm * -ρ.Θy1 * ρ.Θdps = -ρ.dm * (ρ.Θy1 * ρ.Θdps) := by noncomm_ring
+    _ = -ρ.dm * (ρ.w 1 * ρ.yy 1 * ρ.dps) := by rw [ρ.theta_y1_dps]
+    _ = ρ.dm * ρ.w 1 * -ρ.yy 1 * ρ.dps := by noncomm_ring
+
+/-- **Explicit `Θ`--`e₁` commutation relation at level zero.**  Here `(Q2)`
+has coefficient `-1`.  The correction is the positive `D` series with its
+`D₁` term removed, matching
+`[Θ,e₁] = ∑_{n≥2} u^(n-1) Dₙ · Θ` after introducing the intertwiner. -/
+theorem thetaE1Word_eq (hlevel : ρ.level = 0) :
+    ρ.thetaE1Word = ρ.e1Word + (ρ.dPositiveSeries - ρ.dOneWord) := by
+  have hc : cQ2 = -1 := by simpa [hlevel] using ρ.Q2scalar
+  have hQ : ρ.zz 1 * ρ.dp = -(ρ.yy 1 * ρ.dps) := by
+    simpa [hc] using ρ.Q2
+  have hw : ρ.w 1 - 1 = -(ρ.u • (ρ.w 1 * ρ.yy 1)) := ρ.w1_sub_one
+  unfold thetaE1Word e1Word dPositiveSeries dOneWord Θdp sElt
+  rw [sub_mul, one_mul]
+  have hs : ρ.u • (ρ.w 1 * ρ.yy 1 * ρ.zz 1) * ρ.dp =
+      -(ρ.u • (ρ.w 1 * ρ.yy 1 * ρ.yy 1 * ρ.dps)) := by
+    rw [smul_mul_assoc, mul_assoc (ρ.w 1 * ρ.yy 1), hQ]
+    simp only [mul_neg, smul_neg, mul_assoc]
+  rw [hs]
+  have hcorr :
+      ρ.dm * ρ.w 1 * (-ρ.yy 1) * ρ.dps - ρ.dm * (-ρ.yy 1) * ρ.dps =
+        ρ.dm * (ρ.u • (ρ.w 1 * ρ.yy 1 * ρ.yy 1 * ρ.dps)) := by
+    have hmul := congrArg (fun x => ρ.dm * x * (-ρ.yy 1) * ρ.dps) hw
+    simp only [sub_mul, mul_sub, neg_mul, mul_neg, smul_mul_assoc,
+      mul_smul_comm, mul_assoc, one_mul, neg_neg] at hmul ⊢
+    rw [neg_sub] at hmul
+    rw [sub_eq_add_neg] at hmul
+    simpa only [sub_neg_eq_add, neg_add_rev, neg_neg, add_comm] using hmul
+  calc
+    ρ.dm * (ρ.dp - -(ρ.u • (ρ.w 1 * ρ.yy 1 * ρ.yy 1 * ρ.dps))) =
+        ρ.dm * ρ.dp + ρ.dm * (ρ.u • (ρ.w 1 * ρ.yy 1 * ρ.yy 1 * ρ.dps)) := by
+          rw [sub_neg_eq_add, mul_add]
+    _ = ρ.dm * ρ.dp +
+        (ρ.dm * ρ.w 1 * (-ρ.yy 1) * ρ.dps - ρ.dm * (-ρ.yy 1) * ρ.dps) := by rw [hcorr]
+
+
+/-- Operator-form `Θ`--`D₁` commutation.  If `U` implements `Θ` on the
+constituent generators, then
+`U D₁ = (positive D series) U`. -/
+theorem intertwine_dOne (U : ρ.carrier)
+    (hm : U * ρ.dm = ρ.dm * U)
+    (hy : U * ρ.yy 1 = ρ.Θy1 * U)
+    (hps : U * ρ.dps = ρ.Θdps * U) :
+    U * ρ.dOneWord = ρ.dPositiveSeries * U := by
+  unfold dOneWord
+  calc
+    U * (ρ.dm * -ρ.yy 1 * ρ.dps) = (U * ρ.dm) * -ρ.yy 1 * ρ.dps := by
+      simp only [mul_assoc]
+    _ = (ρ.dm * U) * -ρ.yy 1 * ρ.dps := by rw [hm]
+    _ = ρ.dm * (U * -ρ.yy 1) * ρ.dps := by simp only [mul_assoc]
+    _ = ρ.dm * (-ρ.Θy1 * U) * ρ.dps := by rw [mul_neg, hy, neg_mul]
+    _ = ρ.dm * -ρ.Θy1 * (U * ρ.dps) := by simp only [mul_assoc]
+    _ = ρ.dm * -ρ.Θy1 * (ρ.Θdps * U) := by rw [hps]
+    _ = ρ.thetaDOneWord * U := by simp only [thetaDOneWord, mul_assoc]
+    _ = ρ.dPositiveSeries * U := by rw [ρ.thetaDOneWord_eq_series]
+
+/-- Operator-form `Θ`--`e₁` commutation at level zero:
+`U e₁ = (e₁ + positive-series - D₁) U`. -/
+theorem intertwine_e1 (U : ρ.carrier) (hlevel : ρ.level = 0)
+    (hm : U * ρ.dm = ρ.dm * U)
+    (hp : U * ρ.dp = ρ.Θdp * U) :
+    U * ρ.e1Word =
+      (ρ.e1Word + (ρ.dPositiveSeries - ρ.dOneWord)) * U := by
+  unfold e1Word
+  calc
+    U * (ρ.dm * ρ.dp) = (U * ρ.dm) * ρ.dp := by rw [mul_assoc]
+    _ = (ρ.dm * U) * ρ.dp := by rw [hm]
+    _ = ρ.dm * (U * ρ.dp) := by rw [mul_assoc]
+    _ = ρ.dm * (ρ.Θdp * U) := by rw [hp]
+    _ = ρ.thetaE1Word * U := by simp only [thetaE1Word, mul_assoc]
+    _ = (ρ.e1Word + (ρ.dPositiveSeries - ρ.dOneWord)) * U := by
+      rw [ρ.thetaE1Word_eq hlevel]
 
 /-- Intertwining is preserved by natural powers. -/
 lemma intertwine_pow {U x tx : ρ.carrier} (h : U * x = tx * U) :
