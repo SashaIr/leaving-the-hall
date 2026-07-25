@@ -61,21 +61,21 @@ else emit block `0^a 1^b 0` and area entry `numN ρ`, recursing on `ρ ++ ρ'`. 
 def psiPath (π : List Bool) : List Bool × List ℕ :=
   let a := cUD π
   let rest := π.drop (2 * a + 1)
-  match h : firstDDidx rest with
+  match _h : firstDDidx rest with
   | none => (List.replicate a false, [0])
   | some i =>
      let b := min (((rest.take i).reverse.takeWhile id).length)
                   (((rest.drop i).takeWhile (· = false)).length - 1)
      let ρ := rest.take (i - b)
      let ρ' := rest.drop (i + b + 1)
-     if he : ρ ++ ρ' = [] then (List.replicate a false ++ List.replicate b true, [0])
+     if _he : ρ ++ ρ' = [] then (List.replicate a false ++ List.replicate b true, [0])
      else
        let r := psiPath (ρ ++ ρ')
        (List.replicate a false ++ List.replicate b true ++ [false] ++ r.1, numN ρ :: r.2)
   termination_by π.length
   decreasing_by
     have hrest : rest ≠ [] := by
-      intro hc; rw [hc] at h; simp [firstDDidx] at h
+      intro hc; rw [hc] at _h; simp [firstDDidx] at _h
     have hpos : 0 < rest.length := List.length_pos_of_ne_nil hrest
     have hrl : rest.length = π.length - (2 * a + 1) := by simp [rest, List.length_drop]
     have hle : (ρ ++ ρ').length ≤ rest.length :=
@@ -186,7 +186,7 @@ theorem takeWhile_repl_true (m : ℕ) (X : List Bool) :
     (List.replicate m true ++ X).takeWhile id = List.replicate m true ++ X.takeWhile id := by
   induction m with
   | zero => simp
-  | succ n ih => rw [List.replicate_succ, List.cons_append, List.takeWhile_cons]; simp [ih]
+  | succ n ih => rw [List.replicate_succ, List.cons_append, List.takeWhile_cons]; simp
 
 /-- `takeWhile (· = false)` passes through a leading `E^m`. -/
 theorem takeWhile_repl_false (m : ℕ) (X : List Bool) :
@@ -194,7 +194,7 @@ theorem takeWhile_repl_false (m : ℕ) (X : List Bool) :
       = List.replicate m false ++ X.takeWhile (· = false) := by
   induction m with
   | zero => simp
-  | succ n ih => rw [List.replicate_succ, List.cons_append, List.takeWhile_cons]; simp [ih]
+  | succ n ih => rw [List.replicate_succ, List.cons_append, List.takeWhile_cons]; simp
 
 /-- No leading North run when the head is not a North step. -/
 theorem takeWhile_id_head_ne (L : List Bool) (h : L.head? ≠ some true) :
@@ -204,7 +204,7 @@ theorem takeWhile_id_head_ne (L : List Bool) (h : L.head? ≠ some true) :
   | cons y ys =>
       simp only [List.head?_cons, ne_eq, Option.some.injEq] at h
       have : y = false := by cases y <;> simp_all
-      subst this; simp [List.takeWhile_cons]
+      subst this; simp
 
 /-- No leading East run when the head is not an East step. -/
 theorem takeWhile_false_head_ne (L : List Bool) (h : L.head? ≠ some false) :
@@ -214,7 +214,7 @@ theorem takeWhile_false_head_ne (L : List Bool) (h : L.head? ≠ some false) :
   | cons y ys =>
       simp only [List.head?_cons, ne_eq, Option.some.injEq] at h
       have : y = true := by cases y <;> simp_all
-      subst this; simp [List.takeWhile_cons]
+      subst this; simp
 
 /-- The first piece of `splitAtRow` is a prefix, so shares the head of the path. -/
 theorem splitAtRow_fst_head (p : List Bool) (h : ℕ) :

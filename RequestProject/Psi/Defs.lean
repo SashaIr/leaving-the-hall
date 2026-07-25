@@ -52,7 +52,7 @@ properties are fully proved (no `sorry`, only the standard axioms):
   `isValid_head_le`, `tau_headD_le_numN`), and the structural key lemma
   `phi_split_noDD` (splitting below the first column height exposes no `DD`).
 * `phi_riseComp` — rise-composition preservation `μ(c(Φ(w,av))) = μ(τ)`
-  (`lem:comp`), for valid data.
+  (the formal counterpart of `lem:comp` in the source paper), for valid data.
   This is proved by the same descent recursion as `phi_area`: on the algebra
   side `muVec_tauOf_descent` (built on `tauOf_descent`, `muVecAux_map_add` and
   `muVecAux_head_shift`) and on the geometry side the contraction/rise-run

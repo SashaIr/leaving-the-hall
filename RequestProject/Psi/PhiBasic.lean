@@ -100,11 +100,11 @@ theorem numN_append (p q : List Bool) : numN (p ++ q) = numN p + numN q := by
 theorem numN_replicate_true (n : Nat) : numN (List.replicate n true) = n := by
   induction n with
   | zero => simp [numN]
-  | succ m ih => rw [List.replicate_succ]; unfold numN at ih ⊢; simp [List.filter_cons, ih]
+  | succ m ih => rw [List.replicate_succ]; unfold numN at ih ⊢; simp
 theorem numN_replicate_false (n : Nat) : numN (List.replicate n false) = 0 := by
   induction n with
   | zero => simp [numN]
-  | succ m ih => rw [List.replicate_succ]; unfold numN at ih ⊢; simp [List.filter_cons, ih]
+  | succ m ih => rw [List.replicate_succ]; unfold numN at ih ⊢; simp
 theorem numN_fUD (a : Nat) : numN (fUD a) = a := by
   induction a with
   | zero => simp [fUD, numN]
@@ -115,7 +115,7 @@ theorem numN_cons (a : Bool) (t : List Bool) :
     numN (a :: t) = (if a = true then 1 else 0) + numN t := by
   cases a with
   | false => simp [numN]
-  | true => simp [numN, List.filter_cons]; omega
+  | true => simp [numN]; omega
 theorem numN_count (p : List Bool) (le sn : Bool) :
     numN p = countRises p le sn + countValleys p le
       + (if le = false ∧ sn = false ∧ p.head? = some true then 1 else 0) := by

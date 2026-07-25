@@ -272,7 +272,7 @@ theorem countValleys_append (p q : List Bool) (le : Bool) :
     countValleys (p ++ q) le = countValleys p le + countValleys q (stEast p le) := by
   induction p generalizing le with
   | nil => simp [countValleys, stEast]
-  | cons a t ih => cases a <;> simp [countValleys, stEast, ih] <;> omega
+  | cons a t ih => cases a <;> (simp [countValleys, stEast, ih] <;> omega)
 theorem stEast_append (p q : List Bool) (x : Bool) :
     stEast (p ++ q) x = stEast q (stEast p x) := by
   induction p generalizing x with

@@ -656,7 +656,7 @@ theorem phi_psi_some (n : ℕ)
     have hpsi : psiPath π = (List.replicate a false ++ List.replicate b true, [0]) := by
       rw [hbase]; exact psiPath_base a b
     rw [hpsi, hbase, phiPath.eq_1, if_pos (by simpa using noDescent_sorted a b)]
-    simp [List.filter_append, List.filter_replicate, List.append_assoc]
+    simp [List.filter_append, List.append_assoc]
   · have hpsi : psiPath π = (List.replicate a false ++ List.replicate b true ++ [false]
           ++ (psiPath (ρ ++ ρ')).1, numN ρ :: (psiPath (ρ ++ ρ')).2) := by
       rw [hπ]; exact psiPath_step a b ρ ρ' hb1 hρU hρDD hmax hemp
@@ -686,7 +686,7 @@ theorem phi_psi (π : List Bool) (h : IsDyck π) (hne : π ≠ []) :
       rw [hpsi]
       conv_rhs => rw [dyck_leading π hd hne, hrf]
       rw [phiPath.eq_1, if_pos (by simpa using noDescent_sorted (cUD π) 0)]
-      simp [List.filter_replicate, List.append_assoc]
+      simp [List.append_assoc]
     · exact phi_psi_some n IH π hlen hd hne i hfd
 
 

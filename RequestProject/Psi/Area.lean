@@ -44,7 +44,7 @@ theorem areaH_append (p q : List Bool) (ht : Int) (le : Bool) :
     areaH (p ++ q) ht le = areaH p ht le + areaH q (runHeight p ht) (stEast p le) := by
   induction p generalizing ht le with
   | nil => simp [areaH, runHeight, stEast]
-  | cons a t ih => cases a <;> simp [areaH, runHeight, stEast, ih] <;> ring
+  | cons a t ih => cases a <;> (simp [areaH, runHeight, stEast, ih] <;> ring)
 
 theorem areaH_shift (p : List Bool) (ht d : Int) (le : Bool) :
     areaH p (ht + d) le = areaH p ht le + d * (countValleys p le) := by
@@ -55,7 +55,7 @@ theorem areaH_shift (p : List Bool) (ht d : Int) (le : Bool) :
     | true =>
       simp only [areaH, countValleys]
       rw [show ht + d + 1 = (ht + 1) + d from by ring, ih]
-      cases le <;> simp <;> ring
+      cases le <;> (simp <;> ring)
     | false =>
       simp only [areaH, countValleys]
       rw [show ht + d - 1 = (ht - 1) + d from by ring, ih]
@@ -178,7 +178,7 @@ theorem hasDD_append_false (s t : List Bool) (hs : hasDD s = false) (ht : hasDD 
       | nil => simp [stEast] at hse
       | cons y ys =>
         have hst : stEast (a :: y :: ys) false = stEast (y :: ys) false := by
-          cases a <;> simp only [stEast] <;> exact stEast_nonempty (y::ys) (by simp) _ _
+          cases a <;> (simp only [stEast] <;> exact stEast_nonempty (y::ys) (by simp) _ _)
         rw [hst] at hbound; exact hbound hse
 
 /-- A prefix of a path with no `DD` has no `DD`. -/

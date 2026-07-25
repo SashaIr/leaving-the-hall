@@ -285,18 +285,11 @@
 \begin{abstract}
     Recent major breakthroughs in $q,t$-combinatorics include the introduction of the Dyck path algebra $\A_{q,t}$ by Carlsson and Mellit and of the Catalanimals by Blasiak et al., both leading (among other things) to independent proofs of (different extensions of) the rational shuffle conjecture of Bergeron et al.
 
-    Our first main contribution is an explicit simple formula inside the algebra $\A_{q,t}$ for the Negut operators, leading to a direct elementary connection between the original operators of the rational shuffle conjecture and the corresponding Catalanimals. Our formula bypasses the elliptic Hall algebra, turning these operators into transparent, workable tools that we can compute exactly and efficiently on any symmetric function (not just on the constants).
+    The first main contribution of this paper is an explicit simple formula inside the algebra $\A_{q,t}$ for the Negut operators, leading to a direct elementary connection between the original operators of the rational shuffle conjecture and the corresponding Catalanimals. Our formula bypasses the elliptic Hall algebra, turning these operators into transparent, workable tools that we can compute exactly and efficiently on any symmetric function (not just on the constants).
 
-    Our second main result is a series of Lean-formalized new formulas involving these operators and the Theta operators introduced by D'Adderio et al., obtained by extending the latter to the whole algebra $\A_{q,t}$. As a notable byproduct we prove the Theta conjecture of D'Adderio et al., conjecturally related to the Frobenius characteristic of suitable diagonal coinvariants.
+    Our second main contribution is a Lean-formalized extension of the Theta operators of D'Adderio et al.\ to the whole algebra $\A_{q,t}$, which allows us to obtain a series of new combinatorial results in the form of explicit formulas.
 
-    %***
-    %    The study of Macdonald polynomials, diagonal harmonics, and the shuffle theorem has driven some of the most exciting developments in algebraic combinatorics over the last thirty years. However, recent breakthroughs in the rational and decorated frameworks have often relied on heavy external machinery. Consequently, the core operators involved have remained notoriously difficult to manipulate and virtually impossible to compute outside of highly specific cases.
-        
-    %    In this paper, we bypass the need for these external dependencies by introducing a completely self-contained framework. We define these operators explicitly as elements of an extended Dyck path algebra, yielding a direct formula via plethystic operations. This transitions the operators from theoretical black boxes into transparent, workable tools. Crucially, they can now be applied to any symmetric function, manipulated with ease, and computed directly and efficiently in computer algebra systems like SageMath.
-        
-    %    To demonstrate the flexibility of this new approach, we develop their properties from scratch to provide a purely combinatorial re-proof of the rational shuffle theorem. In doing so, we show a direct match between the algebraic elements introduced by Mellit and the combinatorial generating functions of Blasiak et al. Finally, as a proof of concept for our methods, we prove the $q=1$ case of the Theta conjecture.
-        
-    %    Ultimately, this explicit, bottom-up approach provides a more accessible and computationally powerful foundation for tackling the next generation of shuffle-like conjectures.
+    Finally, our third and last contribution is a series of formulas relating the aforementioned Theta operators to the Negut operators, which we exploit to give a (partially) Lean-formalized proof of the Theta conjecture of D'Adderio et al., related to the Frobenius characteristic of certain diagonal coinvariants.
 \end{abstract}
 
 \maketitle
@@ -312,34 +305,21 @@ The combinatorial side of this story solidified when Haglund et al.\ formulated 
 
 The first breakthrough occurred in \cite{CarlssonMellit2018ShuffleConjecture}, where Carlsson and Mellit proved the compositional shuffle conjecture. For their proof, they introduced their algebra $\A_{q,t}$, which turned out to be a powerful tool for proving several other conjectures. For example, in \cite{Mellit2021Rational} Mellit used the algebra $\A_{q,t}$ to prove the compositional rational shuffle conjecture as well.
 
-%One of the first shuffle-like formulas was conjectured in 2007 by Loehr and Warrington \cite{LoehrWarrington2007Square}. They predicted an expression of $\nabla \omega(p_n)$ in terms of \emph{square paths}, i.e.\ lattice paths from $(0,0)$ to $(n,n)$ using only North and East steps and ending with an East step (without the restriction of staying above the main diagonal). Their formula was proved by Sergel in \cite{Sergel2017SquarePaths} to be a consequence of the shuffle theorem.
-
-
-%in \cite{HaglundRemmelWilson2018DeltaConjecture} Haglund, Remmel and Wilson extended the conjecture to two \emph{Delta conjectures} for $\Delta_{e_{n-k-1}}'e_n$ (at $k=0$ gives back the shuffle conjecture), named after the Delta operators, also introduced in \cite{BergeronGarsiaHaimanTesler1999IdentitiesPositivityConjectures}, which somehow generalize the $\nabla$ operator. These extensions, known as \emph{rise version} and \emph{valley version}, involve labeled Dyck paths with two distinct kinds of decorations.
-
 Around the time of the announcement of the proof of Carlsson and Mellit \cite{CarlssonMellit2018ShuffleConjecture}, Haglund, Remmel, and Wilson formulated their \emph{Delta conjecture} \cite{HaglundRemmelWilson2018DeltaConjecture}: this is actually a pair of conjectures for the symmetric function $\Delta'_{e_{n-k-1}}e_n$ in terms of decorated Dyck paths, where $k$ decorations are placed on either \emph{rises} or \emph{valleys} of the path. The symmetric function operator $\Delta'_f$ (also introduced in \cite{BergeronGarsiaHaimanTesler1999IdentitiesPositivityConjectures}) acts diagonally on the Macdonald polynomials and in a sense generalizes $\nabla$. In \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators} a compositional refinement of the Delta conjecture has been proposed, through a new tool: \emph{Theta operators} $\Theta_f$. Finally, the rise version of the compositional Delta conjecture was proved in \cite{DAdderioMellit2022CompositionalDelta}, using once again the $\A_{q,t}$ algebra. Remarkably, the valley version of the Delta conjecture is still wide open (cf.\ \cite{DAdderioIraci2023} for some very partial result).
 
-It should be noted that in \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators}, the authors tried to merge the two versions of the Delta conjecture into what they called the \emph{Theta conjecture}, suggesting a combinatorial interpretation for $\Theta_{e_k} \Theta_{e_l} \nabla e_{n-k-l}|_{q=1}$ in terms of labeled Dyck paths supporting decorations on both rises and valleys, giving a formula that specializes to the two versions of the Delta conjecture when $k$ or $l$ are set to $0$. The suggested formula still lacks a dinv statistic, which justifies the specialization $q=1$. Due to its conjectural connection to the coinvariants of the diagonal action of $\mathfrak{S}_n$ on polynomials in two sets of $n$ commuting variables and two sets of $n$ anticommuting variables (cf. \cite[Section 8]{DAdderioIraciVandenWyngaerd2021ThetaOperators}), we consider finding such statistic an outstanding open problem in $q,t$-combinatorics (cf.\ \cite{IraciNadeauVandenWyngaerd2024Smirnov} for some partial progress). %As a proof of concept for our new methods, in this paper we actually prove \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} when $q=1$.
+It should be noted that in \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators}, the authors tried to merge the two versions of the Delta conjecture into what they called the \emph{Theta conjecture}, suggesting a combinatorial interpretation for $\Theta_{e_k} \Theta_{e_l} \nabla e_{n-k-l}|_{q=1}$ in terms of labeled Dyck paths supporting decorations on both rises and valleys, giving a formula that specializes to the two versions of the Delta conjecture when $k$ or $l$ are set to $0$. The suggested formula still lacks a dinv statistic, which justifies the specialization $q=1$. Due to its conjectural connection to the coinvariants of the diagonal action of $\mathfrak{S}_n$ on polynomials in two sets of $n$ commuting variables and two sets of $n$ anticommuting variables (cf. \cite[Section 8]{DAdderioIraciVandenWyngaerd2021ThetaOperators}), we consider finding such statistic an outstanding open problem in $q,t$-combinatorics (cf.\ \cite{IraciNadeauVandenWyngaerd2024Smirnov} for some partial progress).
 
 Soon after the proof of the rise version of the compositional Delta conjecture in \cite{DAdderioMellit2022CompositionalDelta}, in \cite{BHMPS2023ShuffleAnyLine} Blasiak et al.\ provided their independent proof of the rational shuffle conjecture (which encompasses the shuffle conjecture), in fact extending these formulas to labeled Dyck paths staying weakly above ``any line''. This was the first of an outstanding series of articles by the same authors \cites{BHMPS2023ProofExtendedDelta,BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}, which settles and extends several outstanding conjectures in the field. The proofs in \cite{BHMPS2023ShuffleAnyLine} are divided into two steps. The first step shows that the combinatorial side of the formulas coincides with a certain Hall-Littlewood series. The other step consists of proving that this Hall-Littlewood series matches the symmetric functions side of the old conjectures: to achieve this, the authors have to use an action of the elliptic Hall algebra $\mathcal{E}$, via a not very explicit isomorphism with the shuffle algebra studied by Negut in \cite{Negut2014ShuffleAlgebra}. In particular, it is shown that certain elements $\D_\gamma$ in $\mathcal{E}$ (called Negut elements in \cites{BHMPS2023ShuffleAnyLine,BHMPS2023ProofExtendedDelta} and \cite{BenDaliBonzomDoulega2026PathOperators}) act as the relevant operators on the constant symmetric function $1$. Generalizations of these Hall-Littlewood series are called \emph{Catalanimals} in \cites{BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}.
 
 The first main contribution of the present article is to connect the two approaches to the rational shuffle conjecture that we recalled above: we provide a simple explicit formula for the operators $\D_\gamma$ on symmetric functions corresponding to the Negut elements $D_\gamma$, by identifying them inside the $\A_{q,t}$ algebra of Carlsson and Mellit. The advantage of our formula is threefold: (1) since we reprove in an elementary way that $\D_\gamma$ acting on $1$ gives the Hall-Littlewood series (Catalanimal) obtained in \cite{BHMPS2023ShuffleAnyLine}, our results connect this series to the original operators of the rational shuffle conjecture bypassing completely the elliptic Hall algebra $\mathcal{E}$; (2) our formula gives a way to compute the action of $D_\gamma$ on any symmetric function (not just on the constants) much more efficiently with any computer algebra system (such as SageMath); (3) our formula allows to commute the action of $D_\gamma$ with other operators, providing new interesting formulas.
 
-Our second main contribution is related to point (3) above: after extending the Theta operator $\Theta_{e_k}$ to the full algebra $\A_{q,t}$, commuting it with our $\D_\gamma$, we prove new interesting formulas involving the Theta operators. As a notable application, we prove the Theta conjecture \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators}.
+Our second main contribution is an extension of the Theta operators $\Theta_{e_k}$ to the whole algebra $\A_{q,t}$, broadening the scope of these operators to a whole new framework. 
+In this context, these operators are easier to compute and manipulate, allowing us to obtain a series of new combinatorial results in the form of explicit formulas. This extension has been formalized in Lean 4 using Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}, a powerful AI agent for formal verification.
 
-%DA FINIRE... VADO A PRANZO...
-%
-%Around the same time as the formulation of the Delta conjecture, the story was extended to rectangular Dyck paths: paths from $(0,0)$ to $(m,n)$ staying above the main diagonal. In \cite{BergeronGarsiaSergelXin2016PlethysticOperators}, building on the work in \cite{GorskyNegut2015RefinedKnotInvariants}, Bergeron, Garsia, Sergel, and Xin conjectured that a certain symmetric function related to the elliptic Hall algebra studied by Schiffmann and Vasserot \cite{SchiffmannVasserot2011EllipticHallAlgebra} can be expressed in terms of rectangular Dyck paths. Their prediction was recently proved by Mellit \cite{Mellit2021Rational} using the Dyck path algebra and a combinatorial arguments involving braids; the statements was also independently proved (and strengthened) in \cite{BHMPS2023ShuffleAnyLine}, using operators arising from the shuffle algebra \cite{Negut2014ShuffleAlgebra}.
-%
-%In this paper, we bypass the need for external theory (such as braids or the shuffle algebra), defining our own version of these operators as elements of an extended Dyck path algebra, exhibiting an explicit formula via plethystic operations.
-%
-%The original operators are defined via an implicit homomorphism, making them extremely hard to manipulate, and only computable in special cases when applied to the constant symmetric function $1$.
-%Thanks to our formula, we can instead apply these operators to any symmetric function, manipulate the elements with significant more ease, and even compute them directly and efficiently with any algebra system (such as SageMath).
-%
-%We then prove their exprected properties from scratch, and use these properties to re-prove the rational shuffle theorem. In particular, we show that our operators to can recover both the algebra elements from \cite{Mellit2021Rational} and the combinatorial generating functions from \cite{BHMPS2023ShuffleAnyLine}; we show directly that they match, making the proof a purely combinatorial one.
+The third and last main contribution of this paper is related to point (3) above: after extending the Theta operator $\Theta_{e_k}$ to the full algebra $\A_{q,t}$, we derive the commutation relations with our $\D_\gamma$, and use these relations to prove new interesting formulas involving the Theta operators. As a notable application, we prove the Theta conjecture \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} using (among other tools) a bijective argument that we also formalized in Lean 4 using \emph{Aristotle}.
 
-We would like to mention that our formulas have potentially many more applications to various open problems in the literature. Just to name a few, we remark that the decorated framework of the Delta conjectures and the rational framework of the rational shuffle conjecture have recently been unified in \cites{IraciPagariaPaolini2026FallingStars}, where a decorated version of the rational shuffle theorem has been first conjectured and then proved, thanks to techniques introduced in \cite{GillespieGorskyGriffin2025Skewing}.
-%Our formulas adapt to this context as well, allowing us to prove \cite[Conjecture~4.4]{IraciPagariaPaoliniVandenWyngaerd2023} and relate the expressions involved in the rise and the fall versions of the decorated rational shuffle theorem.
+We would like to mention that our formulas have potentially many more applications to various open problems in the literature. Just to name a few, we remark that the decorated framework of the Delta conjectures and the rational framework of the rational shuffle conjecture have recently been unified in \cite{IraciPagariaPaolini2026FallingStars}, where a decorated version of the rational shuffle theorem has been first conjectured and then proved, thanks to techniques introduced in \cite{GillespieGorskyGriffin2025Skewing}.
+
 Our formulas adapt to this context as well, and in principle they can be used to prove several of the conjectures appearing in these papers. For the moment, we deem them outside the scope of this paper, and leave them for future work.
 
 This paper is structured as follows. In \Cref{sec:symmetric_functions} we introduce the symmetric function tools we need and in \Cref{sec:Aqt} we do the same with the Dyck path algebra $\A_{q,t}$; in \Cref{sec:Dgamma}, we give an alternative definition for the $\D_\gamma$ operators as elements of $\A_{q,t}$, and prove that they satisfy all the properties we expect; in \Cref{sec:Theta}, we define an endomorphism $\Theta$ of $\A_{q,t}$, show that it extends the usual $\Theta_f$ operators on symmetric functions, and derive its commutation relations with the $\D_\gamma$ operators; finally, in \Cref{sec:theta_conjecture}, we demonstrate the power of these new operators by proving the Theta conjecture.
@@ -348,16 +328,13 @@ This paper is structured as follows. In \Cref{sec:symmetric_functions} we introd
 \section{Symmetric function tools}
 \label{sec:symmetric_functions}
 
-
-% For all undefined notation and unproven identities, we refer to \cite{DAdderioIraciVandenWyngaerd2022TheBible}*{Section~1}, where definitions, proofs, and/or references can be found.
-
 We denote by $\Lambda$ the graded algebra of symmetric functions with coefficients in $\mathbb{Q}(q,t)$, and by $\<\, , \>$ the \emph{Hall scalar product} on $\Lambda$, defined by declaring that the Schur functions form an orthonormal basis.
 
 The standard bases of the symmetric functions that will appear in our calculations are the monomial $\{m_\lambda\}_{\lambda}$, complete $\{h_{\lambda}\}_{\lambda}$, elementary $\{e_{\lambda}\}_{\lambda}$, power $\{p_{\lambda}\}_{\lambda}$, and Schur $\{s_{\lambda}\}_{\lambda}$ bases.
 
 For $f \in \Lambda$, we denote by $f^\perp$ the operator that is the adjoint of the product by $f$ with respect to the Hall scalar product, that is, for every $g, h \in \Lambda$, we have $\< f^\perp g, h \> = \< g, fh \>$.
 
-For a partition $\mu \vdash n$, we denote by \[ \Ht_\mu \coloneqq \Ht_\mu[X] = \Ht_\mu[X; q,t] = \sum_{\lambda \vdash n} \widetilde{K}_{\lambda \mu}(q,t) s_{\lambda} \] the \emph{(modified) Macdonald polynomials}, where \[ \widetilde{K}_{\lambda \mu} \coloneqq \widetilde{K}_{\lambda \mu}(q,t) = K_{\lambda \mu}(q,1/t) t^{n(\mu)} \] are the \emph{(modified) Kostka coefficients} (see \cite{Haglund2008Book}*{Chapter~2} for more details).
+For a partition $\mu \vdash n$, we denote by \[ \Ht_\mu \coloneqq \Ht_\mu[X] = \Ht_\mu[X; q,t] = \sum_{\lambda \vdash n} \widetilde{K}_{\lambda \mu}(q,t) s_{\lambda} \] the \emph{(modified) Macdonald polynomials}, where \[ \widetilde{K}_{\lambda \mu} \coloneqq \widetilde{K}_{\lambda \mu}(q,t) = K_{\lambda \mu}(q,1/t) t^{n(\mu)} \] are the \emph{(modified) Kostka coefficients} (see \cite[Chapter~2]{Haglund2008Book} for more details).
 
 Macdonald polynomials form a basis of the algebra of symmetric functions $\Lambda$. This is a modification of the basis introduced by Macdonald \cite{Macdonald1995Book}.
 
@@ -383,20 +360,20 @@ For every partition $\mu$, we define the following constants:
 
 Notice that in the definition of $\Pi_\mu$, the exponents $a_{\mu}'$ and $l_{\mu}'$ are evaluated with respect to the shape $\mu$, not $\mu / (1)$, the latter only denoting that we should skip the cell $(1,1)$ in the product (otherwise the product would be $0$).
 
-We will make extensive use of the \emph{plethystic notation} (cf. \cite{Haglund2008Book}*{Chapter~1}).
+We will make extensive use of the \emph{plethystic notation} (cf. \cite[Chapter~1]{Haglund2008Book}).
 
 \begin{definition}
-    For any meaningful expression $X$, we define the \emph{plethystic exponential} $\Exp[X]$  as
+    For every expression $X$ for which plethystic substitution is defined, we define the \emph{plethystic exponential} $\Exp[X]$  as
     \[\Exp[X] \coloneqq \sum_{n\geq 0} h_n[X].\]
 \end{definition}
 
 \begin{definition}
-    For any meaningful expression $Y$, we define the \emph{(plethystic) translation operator} $\mathcal{T}_Y$ by setting, for every $F[X] \in \Lambda$,
+    For every expression $Y$ for which plethystic substitution is defined, we define the \emph{(plethystic) translation operator} $\mathcal{T}_Y$ by setting, for every $F[X] \in \Lambda$,
     \[ \mathcal{T}_Y F[X] \coloneqq F[X+Y]. \]
 \end{definition}
 
 \begin{definition}
-    For any meaningful expression $Z$, we define the \emph{(plethystic) multiplication operator} $\mathcal{P}_Z$ by setting, for every $F[X]\in \Lambda$,
+    For every expression $Z$ for which plethystic substitution is defined, we define the \emph{(plethystic) multiplication operator} $\mathcal{P}_Z$ by setting, for every $F[X]\in \Lambda$,
     \[ \mathcal{P}_Z F[X] \coloneqq \Exp[XZ] F[X]. \]
 \end{definition}
 
@@ -405,9 +382,10 @@ These operators are related via the following relation, which is straightforward
     \label{eq:TPExp}
     \mathcal{T}_Y \mathcal{P}_Z= \Exp[YZ] \mathcal{P}_Z \mathcal{T}_Y.
 \end{equation}
-We also need several linear operators on $\Lambda$.
 
-\begin{definition}[{\cite{BergeronGarsia1999ScienceFiction}*{3.11}}]
+Recall the definitions of these linear operators on $\Lambda$.
+
+\begin{definition}[{\cite[Equation~(3.11)]{BergeronGarsia1999ScienceFiction}}]
     \label{def:nabla}
     We define the linear operator $\nabla \colon \Lambda \rightarrow \Lambda$ on the eigenbasis of Macdonald polynomials as \[ \nabla \Ht_\mu = e_{\lvert \mu \rvert}[B_\mu] \Ht_\mu. \]
 \end{definition}
@@ -426,7 +404,7 @@ Observe that, on the vector space of homogeneous symmetric functions of degree $
 
 From now on, let $M \coloneqq (1-q)(1-t)$.
 
-\begin{definition}[{\cite{DAdderioIraciVandenWyngaerd2021ThetaOperators}*{(28)}}]
+\begin{definition}[{\cite[Equation~(28)]{DAdderioIraciVandenWyngaerd2021ThetaOperators}}]
     \label{def:theta}
     For any symmetric function $f \in \Lambda^{(n)}$ we define the \emph{Theta operators} on $\Lambda$ in the following way: for every $F \in \Lambda^{(m)}$ we set
     \begin{equation*}
@@ -444,7 +422,7 @@ From now on, let $M \coloneqq (1-q)(1-t)$.
 It is clear that $\Theta_f$ is linear. In addition, if $f$ is homogeneous of degree $k$, then so is $\Theta_f$:
 \[\Theta_f \Lambda^{(n)} \subseteq \Lambda^{(n+k)} \qquad \text{ for } f \in \Lambda^{(k)}. \]
 
-Finally, we need to refer to \cite{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures}*{Algorithm~4.1} (see also \cite{BergeronGarsiaSergelXin2016PlethysticOperators}*{Definition~1.1, Theorem~2.5}).
+Finally, we need to refer to \cite[Algorithm~4.1]{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures} (see also \cite[Definition~1.1, Theorem~2.5]{BergeronGarsiaSergelXin2016PlethysticOperators}).
 
 \begin{definition}
     Let $m, n > 0$. Let $a,b,c,d \in \mathbb{N}$ be such that $a+c=m$, $b+d=n$, $ad-bc = \gcd(m,n)$. We recursively define $Q_{m,n}$ as an operator on $\Lambda$ by \[ Q_{m,n} = \frac{1}{M} \left( Q_{c,d} Q_{a,b} - Q_{a,b} Q_{c,d} \right), \] with the base cases \[ Q_{1,0} = D_0 = \mathsf{id} - M \Delta_{e_1} \quad \text{ and } \quad Q_{0,1} = - \underline{e_1} \] (where $\underline{f}$ is the multiplication by $f$).
@@ -509,7 +487,7 @@ The Carlsson--Mellit algebra, or Dyck path algebra $\A_{q,t}$ was first introduc
 
 \begin{definition}[{\cite[Definition~3.9]{Mellit2021Rational}}]
     \label{def:Aqt}
-    The algebra $\A_{q,t}$ (over $\Q(q,t)$) is the quotient of the free product of the algebras $\A_q$ and $A_{q^{-1}}$ by the relations given below. To distinguish elements of the second algebra from the corresponding elements of the first algebra, we mark the former with $*$. Set $z_i = y_i^*$, and $\z_i = z_i/qt$. The relations are
+    The algebra $\A_{q,t}$ (over $\Q(q,t)$) is the quotient of the free product of the algebras $\A_q$ and $\A_{q^{-1}}$ by the relations given below. To distinguish elements of the second algebra from the corresponding elements of the first algebra, we mark the former with $*$. Set $z_i = y_i^*$, and $\z_i = z_i/qt$. The relations are
     \[ \epsilon_k^* = \epsilon_k, \quad T_i^* = T_i^{-1}, \quad d_-^* = d_-, \]
     and
     \begin{align}
@@ -1026,30 +1004,30 @@ With an abuse of notation, we will denote the descent composition of $w$ with $\
     If we consider the word $w=34229845$, then its descent set is $\{2,5,6\}$ and its descent composition is $(2,3,1,2)$.
 \end{example}
 
-Let $\gamma \in \mathbb{N}^\ell$ with $\lvert \gamma \rvert = n$, that is, $\gamma = (\gamma_1,\dots,\gamma_\ell) \vDash n$ is a weak composition of $n$ of length at most $\ell$. We can give a combinatorial interpretation of $\left.\D_\gamma\cdot1\right|_{q=1}$.
+Let $\gamma \in \mathbb{N}^\ell$ with $\lvert \gamma \rvert = n$, that is, $\gamma = (\gamma_1,\dots,\gamma_\ell) \vDash n$ is a weak composition of $n$ of length at most $\ell$. The expression $\left.\D_\gamma\cdot1\right|_{q=1}$ has a known combinatorial interpretation \cite[Equation~(48)]{BHMPS2023ShuffleAnyLine}, which we recover from our definition.
 
 \begin{definition}
-    We define the \emph{path associated to $\gamma$}, denoted with $\delta(\gamma)$, as the lattice path in the grid $n\times\ell$, starting at $(0,0)$ and ending at $(\ell,n)$, that alternates $\gamma_i$ North unitary steps and one unitary East step, for $i=1,\dots,\ell$.
+    We define the \emph{path associated to $\gamma$}, denoted with $\delta(\gamma)$, as the lattice path in the grid $n\times\ell$, starting at $(0,0)$ and ending at $(\ell,n)$, that alternates $\gamma_i$ vertical unitary steps and one unitary horizontal step, for $i=1,\dots,\ell$.
 \end{definition}
 
 \begin{definition}
-    We define the \emph{set of paths above $\delta\left(\gamma\right)$}, denoted with $\R(\gamma)$, as the set of lattice paths in the grid $n\times\ell$, starting at $(0,0)$ and ending at $(\ell,n)$, staying weakly above the path $\delta(\gamma)$.%, together with a positive integer label on each of theirs vertical steps such that labels on consecutive vertical steps must be strictly increasing (from bottom to top). We will draw the labels of vertical steps in the square to its right.
+    We define the \emph{set of paths above $\delta\left(\gamma\right)$}, denoted with $\R(\gamma)$, as the set of lattice paths in the grid $n\times\ell$, starting at $(0,0)$ and ending at $(\ell,n)$, staying weakly above the path $\delta(\gamma)$.
 \end{definition}
 
 \begin{definition}
-    Given an element $\tau\in \R(\gamma)$ we define its \emph{area}, denoted with $\area(\tau)$, as the number of whole squares between $\tau$ and $\delta(\gamma)$.% We define its monomial $\displaystyle x^\tau=\prod_{i=1}^nx_{l_i(\tau)}$, where $l_i(\tau)$ is the label of the $i$-th North step of $\tau$, as the product of the variables corresponding to the labels of $\tau$.
+    Given an element $\tau\in \R(\gamma)$ we define its \emph{area}, denoted with $\area(\tau)$, as the number of whole squares between $\tau$ and $\delta(\gamma)$.
 \end{definition}
 
 \begin{remark}
     \label{rmk:heights}
-    A lattice path $\rho$ can be encoded by the vector of the heights of its East steps $(\rho_1,\dots,\rho_\ell)$. Unless otherwise specified, we will assume that the path lies in the $\rho_\ell\times\ell$ grid.
+    A lattice path $\rho$ can be encoded by the vector of the heights of its horizontal steps $(\rho_1,\dots,\rho_\ell)$. Unless otherwise specified, we will assume that the path lies in the $\rho_\ell\times\ell$ grid.
 
     With this notation we have that $\delta(\gamma)$ is the path $(\gamma_1,\gamma_1+\gamma_2,\dots,\gamma_1+\dots+\gamma_\ell)$ and that a path $\tau=(\tau_1,\dots,\tau_\ell)$ is in $\R(\gamma)$ if and only if $\tau \geq \delta(\gamma)$ componentwise.
 \end{remark}
 
 \begin{definition}
     Given a lattice path $\rho$, %starting in $(0,0)$ and ending in $(\ell,n)$, 
-    we define its \emph{rise composition $\mu(\rho)$} as the composition that records how many consecutive North steps $\rho$ has. Namely, if $(\rho_1,\dots,\rho_\ell)$ is the vector of the heights of the Eats steps of $\rho$, then $\mu(\rho)$ is the composition obtained from $(\rho_1,\rho_2-\rho_1,\dots,\rho_\ell-\rho_{\ell-1})$ after removing the zeros.
+    we define its \emph{rise composition $\mu(\rho)$} as the composition that records how many consecutive vertical steps $\rho$ has. Namely, if $(\rho_1,\dots,\rho_\ell)$ is the vector of the heights of the horizontal steps of $\rho$, then $\mu(\rho)$ is the composition obtained from $(\rho_1,\rho_2-\rho_1,\dots,\rho_\ell-\rho_{\ell-1})$ after removing the zeros.
 \end{definition}
 
 In particular, $\gamma$ (stripped of the zeros) is the rise composition of $\delta(\gamma)$, and for any $\tau \in \R(\gamma)$ we have that $\mu(\tau) \vDash n$ is a composition of $n$ of length at most $\ell$.
@@ -1064,30 +1042,14 @@ In particular, $\gamma$ (stripped of the zeros) is the rise composition of $\del
         \draw[step=1.0, gray!60, thin] (0,0) grid (4,8);
         \draw[blue!60, line width = 1.6 pt] (0,0) -- (0,1) -- (0,2) -- (1,2) -- (1,3) --  (1,4) -- (1,5) -- (2,5) --(2,6) -- (3,6) -- (3,7) -- (3,8) -- (4,8); 
         \begin{scope}[shift={(7,0)}]
-        \fill[green!20] (0,2) rectangle (1,3);
-        \fill[green!20] (0,3) rectangle (1,4);
-        \fill[green!20] (1,5) rectangle (2,6);
-        \draw[step=1.0, gray!60, thin] (0,0) grid (4,8);
-        \draw[blue!60, line width = 1.6 pt] (0,0) -- (0,1) -- (0,2) -- (1,2) -- (1,3) --  (1,4) -- (1,5) -- (2,5) --(2,6) -- (3,6) -- (3,7) -- (3,8) -- (4,8);
-        \begin{scope}[shift={(-0.05,0.05)}]
-        \draw[red!60, line width = 1.6 pt] (0,-0.05) -- (0,1) -- (0,4) -- (1,4) -- (1,6) --  (3,6) -- (3,7) -- (3,8) -- (4.05,8); 
-        \end{scope}
-        %\node at (0.5,0.5) {$2$};
-        %\draw (0.5,0.5) circle (.4cm);
-        %\node at (0.5,1.5) {$3$};
-        %\draw (0.5,1.5) circle (.4cm);
-        %\node at (0.5,2.5) {$4$};
-        %\draw (0.5,2.5) circle (.4cm);
-        %\node at (0.5,3.5) {$7$};
-        %\draw (0.5,3.5) circle (.4cm);
-        %\node at (1.5,4.5) {$2$};
-        %\draw (1.5,4.5) circle (.4cm);
-        %\node at (1.5,5.5) {$4$};
-        %\draw (1.5,5.5) circle (.4cm);
-        %\node at (3.5,6.5) {$1$};
-        %\draw (3.5,6.5) circle (.4cm);
-        %\node at (3.5,7.5) {$5$};
-        %\draw (3.5,7.5) circle (.4cm);
+            \fill[green!20] (0,2) rectangle (1,3);
+            \fill[green!20] (0,3) rectangle (1,4);
+            \fill[green!20] (1,5) rectangle (2,6);
+            \draw[step=1.0, gray!60, thin] (0,0) grid (4,8);
+            \draw[blue!60, line width = 1.6 pt] (0,0) -- (0,1) -- (0,2) -- (1,2) -- (1,3) --  (1,4) -- (1,5) -- (2,5) --(2,6) -- (3,6) -- (3,7) -- (3,8) -- (4,8);
+            \begin{scope}[shift={(-0.05,0.05)}]
+                \draw[red!60, line width = 1.6 pt] (0,-0.05) -- (0,1) -- (0,4) -- (1,4) -- (1,6) --  (3,6) -- (3,7) -- (3,8) -- (4.05,8); 
+            \end{scope}
         \end{scope}
     \end{tikzpicture}
     \caption{In blue the path $\delta(\gamma)$ and in red a path of $\R(\gamma)$. The three green squares are the ones that contribute to the $\area$.}
@@ -1124,7 +1086,8 @@ In this section, we define an endomorphism $\Theta$ of $\A_{q,t}$, giving its ac
 
 Then, we show that this operator extends the $\Theta_f$ operators from \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators} to the whole $\A_{q,t}$, and use this extension to prove some commutation relations with the $\D_\gamma$ operators.
 
-We tried to the best of our abilities to make the computations in this section easy to follow, but we understand that they can still be hard to read. To increase trust in these results, and spare the reader the necessity to process the computations, we include a Lean formalization of these results, provided by Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}, in this GitHub repository. %TODO Make the repo and add the link.
+We tried to the best of our abilities to make the computations in this section easy to follow, but we understand that they can still be hard to read. To increase trust in these results, and spare the reader the necessity to process the computations, we include a Lean formalization of these results in the GitHub repository  \cite{Iraci2026code}, assisted by Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}.
+
 
 \subsection{The Theta operator as endomorphism of \texorpdfstring{$\A_{q,t}$}{Aqt}}
 
@@ -1192,7 +1155,7 @@ It is easy to check the following identities:
     \[q^{-1} T_1 s T_1 T_1^{-1} + s T_1^{-1} = T_1^{-1} s + T_1^{-1} q^{-1} T_1 s T_1 \]
     and so
     \[ [T_1, s + q^{-1} T_1 s T_1] = 0. \]
-    An analog reasoning shows $[T_1, q T_1^{-1} s^* T_1^{-1} + s^*] = 0$.
+    An analogous argument shows $[T_1, q T_1^{-1} s^* T_1^{-1} + s^*] = 0$.
     This concludes the proof.
 \end{proof}
 
@@ -1204,7 +1167,7 @@ Notice that $\z_i= q^i T_{i \searrow 1} \z_1  T_{1 \nearrow i}$ and $\Theta \z_i
 \end{lemma}
 
 \begin{proof}
-    The elements $T_j$ for $j>1$ commutes with $y_1$ and $\z_1$, so we need to prove only the case $i=1$:
+    The elements $T_j$ for $j>1$ commute with $y_1$ and $\z_1$, so we need to prove only the case $i=1$:
     \begin{equation}
         \label{eq:r10_step1}
         T_1(1+s^*)^{-1} \z_1 T_1 (1-s) = (1-s) T_1 \left( 1 + \left( 1 - \z_1 q^{-1} T^2_1 \right) y_1 \right)^{-1} \z_1 T_1.
@@ -1257,7 +1220,7 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
 \end{lemma}
 
 \begin{proof}
-    The elements $T_j$ for $j>1$ commutes with $y_1$ and $\z_1$, so we need to prove only the case $i=1$:
+    The elements $T_j$ for $j>1$ commute with $y_1$ and $\z_1$, so we need to prove only the case $i=1$:
     \begin{equation}
         \label{eq:r10*_step1}
         qT^{-1}_1 (1-s) y_1 T^{-1}_1 (1+s^*)^{-1} = (1+s^*)^{-1}  \left(1 - y_2 (1 + y_2)^{-1} T_1^{-1} \z_1 T_1 \right) y_2
@@ -1397,7 +1360,7 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
         & = \Theta(q d_+ [d_+, d_-]).
     \end{align*}
 
-    The proof of the dual relations for $A_{q^{-1}}$ is identical to the one for \eqref{eq:r1}--\eqref{eq:r6}, and we omit it.
+    The proof of the dual relations for $\A_{q^{-1}}$ is identical to the one for \eqref{eq:r1}--\eqref{eq:r6}, and we omit it.
 
     Equation \eqref{eq:r10}; we have
     \begin{align*}
@@ -1507,9 +1470,9 @@ The following result proves that $\Theta$ induces an operator on $V$.
     so the relation is exactly preserved.
     
     Next, we check \eqref{eq:I2}. We have
-    \[ \Theta((d_+ + y_1 d_+^*) d_+^{*k} \epsilon_0) = ((1-s)d_+ + (1-s) y_1 (1+s^*)^{-1} d_+^*) ((1+s^*)^{-1} d_+^*)^k \epsilon_0, \]
+    \[ \Theta((d_+ + q^k y_1 d_+^*) d_+^{*k} \epsilon_0) = ((1-s)d_+ + q^k (1-s) y_1 (1+s^*)^{-1} d_+^*) ((1+s^*)^{-1} d_+^*)^k \epsilon_0, \]
     and again by \Cref{lem:s*_acts_as_0} we can disregard $s^*$ everywhere and obtain
-    \[ \Theta((d_+ + y_1 d_+^*) d_+^{*k} \epsilon_0) = (1-s) (d_+ + y_1 d_+^*) (d_+^*)^k \epsilon_0 = 0, \]
+    \[ \Theta((d_+ + q^k y_1 d_+^*) d_+^{*k} \epsilon_0) = (1-s) (d_+ + q^k y_1 d_+^*) (d_+^*)^k \epsilon_0 = 0, \]
     as desired.
 \end{proof}
 
@@ -1535,7 +1498,7 @@ The following result proves that $\Theta$ induces an operator on $V$.
     and
     \[ \Theta' \D_1 = \Theta' d_- (-y_1) d_+^* = d_- (1+y_1)^{-1} (-y_1) d_+^* \Theta' = \sum_{n \geq 1} \D_n \Theta', \]
     so \[ [\Theta', \underline{e}_1] = \sum_{n \geq 2} \D_n \Theta' \quad \text{ and } \quad [\Theta', \D_1] = \sum_{n \geq 2} \D_n \Theta'. \]   
-    But now by \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators}*{Proposition~10.1} and \cite{Romero2022}*{Proposition~1.2}, up to our redefinition of the signs, these are exactly the commutation relations satisfied by $\Theta(u)$ (the operator on $\Lambda$). Since $\underline{e}_1$ and $\D_1$ generate $\Lambda$, then $\Theta = \Theta'$, as desired.
+    But now by \cite[Proposition~10.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} and \cite[Proposition~1.2]{Romero2022}, up to our redefinition of the signs, these are exactly the commutation relations satisfied by $\Theta(u)$ (the operator on $\Lambda$). Since $\underline{e}_1$ and $\D_1$ generate $\Lambda$, then $\Theta = \Theta'$, as desired.
 \end{proof}
 
 \subsection{Relations between \texorpdfstring{$\Theta$}{Theta} and \texorpdfstring{$\D_\gamma$}{Dgamma}}
@@ -1587,14 +1550,6 @@ The goal of this subsection is to derive the commutation relations between $\The
     as desired.
 \end{proof}
 
-% \begin{corollary}
-%     For $\alpha \vDash n$, we have
-%     \[ \Xi \; e_\alpha = \sum_{w \in \shuffle_i i^{\alpha_i}} \D_{\Des(w)}. \]
-% \end{corollary}
-
-% \begin{proof}
-%     \todo[inline]{Can we even prove this?}
-% \end{proof}
 
 \section{The Theta Conjecture}
 \label{sec:theta_conjecture}
@@ -1609,13 +1564,13 @@ In this section, we use all the stuff above to show that the Theta Conjecture \c
 
 The roadmap is the following. First, we give all the combinatorial definitions appearing in this theorem; then, we show that the statement holds for $k+l=n-1$; next, we use this result to prove the statement for paths with touch number $n-k-l$; finally, we use give a combinatorial interpretation of a symmetric function identity that allows us to complete the proof.
 
-\subsection{The combinatorics of the Theta Conjecture}
 
+\subsection{The combinatorics of the Theta Conjecture}
 
 It is now time to give some more precise definitions of the combinatorics of the Delta conjecture.
 
 \begin{definition}
-    A \emph{Dyck path} of size $n$ is a lattice path starting at $(0,0)$, ending at $(n,n)$, using only unit North and East steps, and staying weakly above the line $x=y$. A \emph{labeled Dyck path} is a Dyck path together with a positive integer label on each of its vertical steps such that labels on consecutive vertical steps must be strictly increasing (from bottom to top). We will draw the labels of the vertical steps in the square to its right.
+    A \emph{Dyck path} of size $n$ is a lattice path starting at $(0,0)$, ending at $(n,n)$, using only unit vertical up steps and horizontal right steps, and staying weakly above the line $x=y$. A \emph{labeled Dyck path} is a Dyck path together with a positive integer label on each of its vertical steps such that labels on consecutive vertical steps must be strictly increasing (from bottom to top). We will draw the labels of the vertical steps in the square to its right.
 
     A \emph{rise} of a labeled Dyck path is a vertical step that is preceded by another vertical step.
 
@@ -1740,14 +1695,14 @@ From the commutation relations between $\Theta$ and $\D_\gamma$ established in C
         \sum_{\pi \in \LD(k+l+1)^{\ast k, \bullet l}} t^{\area(\pi)} x^\pi
         = \sum_{\pi \in \DP(k+l+1)^{\ast k, \bullet l}} t^{\area(\pi)} e_{\mu(\cc(\pi))}
     \]
-    where $\DP(n)^{\ast k, \bullet l}$ is the set of decorated Dyck paths (with no labels), where, in the not labeled setting, every valley is considered as contractible.
+    where $\DP(n)^{\ast k, \bullet l}$ is the set of decorated Dyck paths (with no labels), where, in the unlabeled setting, every valley is considered contractible.
 \end{remark}
 
 From now on, we will refer to the elements of $\DP(k+l+1)^{\ast k, \bullet l}$ by indicating only their paths, with the understanding that every vertical step except the first is decorated.
 
-To prove Theorem~\ref{thm:theta_theta_e1} is enough to find a bijection $\Psi$ between $\DP(k+l+1)^{\ast k, \bullet l}$ and the set
+To prove Theorem~\ref{thm:theta_theta_e1}, it is enough to find a bijection $\Psi$ between $\DP(k+l+1)^{\ast k, \bullet l}$ and the set
 \[ \{ (w, \tau) \mid w\in W \left(0^l,1^k\right), \tau \in \R(\Des(0w)) \} \]
-that preserves both the area and the rise composition.
+that preserves both the area and the rise composition. This bijection has been implemented and proof-checked in Lean 4 \cite{Iraci2026code}.
 
 In other words, for every $\pi \in \DP(k+l+1)^{\ast k, \bullet l}$ with $\Psi(\pi) = (w,\tau)$ for some $w \in W\left(0^l,1^k\right)$ and $\tau \in \R(\Des(0w))$, we have $\area(\pi)=\area(\tau)$ and $\mu(\cc(\pi))=\mu(\tau)$.
 
@@ -1765,9 +1720,9 @@ Notice that $\area(\tau)$ depends on $\Des(0w)$, and thus on $w$. We define the 
 
         \item Let $a$ be the maximum integer such that $\pi = (UD)^a \overline{\pi}$, for some (non-empty) Dyck path $\overline{\pi}$. Append $0^a$ to $w$. \label{step:valleys}
 
-        \item Let $b$ be the maximum integer such that $\overline{\pi} = U \pi_1 \,U^b D^{b+1} \pi_2$, for some lattice paths $\pi_1$ and $\pi_2$ such that $\pi_1$ contains no two consecutive East steps. Append $1^b$ to $w$. \label{step:rises}
+        \item Let $b$ be the maximum integer such that $\overline{\pi} = U \pi_1 \,U^b D^{b+1} \pi_2$, for some lattice paths $\pi_1$ and $\pi_2$ such that $\pi_1$ contains no two consecutive horizontal steps. Append $1^b$ to $w$. \label{step:rises}
 
-        \item Let $h$ be the height (that is, the number of North steps) of $\pi_1$. Append $(\ell(0w)+h)$ to $\tau$ and repeat the process with $\pi' = \pi_1 \pi_2$. Notice that we are removing one $U$ step and one $D$ step. \label{step:induction}
+        \item Let $h$ be the height (that is, the number of vertical steps) of $\pi_1$. Append $(\ell(0w)+h)$ to $\tau$ and repeat the process with $\pi' = \pi_1 \pi_2$. Notice that we are removing one $U$ step and one $D$ step. \label{step:induction}
     \end{enumerate}
 
     We end when $\pi_1 \pi_2$ is empty, and we define $\Psi(\pi) = (w,\tau)$.
@@ -1781,7 +1736,7 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
 \end{lemma}
 
 \begin{proof}
-    In order to prove this statement, it is convenient to change framework and work with falls and valleys instead, as in \Cref{rmk:rises-falls-correspondence}. We also identify the valleys of $\pi$ with the East steps that precede them, and compute the area by counting the number of whole squares under the valleys.
+    In order to prove this statement, it is convenient to change framework and work with falls and valleys instead, as in \Cref{rmk:rises-falls-correspondence}. We also identify the valleys of $\pi$ with the horizontal steps that precede them, and compute the area by counting the number of whole squares under the valleys.
 
     In Step~\ref{step:valleys} of \Cref{def:psi}, we remove exactly $a$ valleys from $\pi$, and we append $0^a$ to the word $w$, so the numbers match; in Step~\ref{step:rises}, we remove exactly $b$ decorated falls and append $1^b$, so the numbers match again.
 
@@ -1789,7 +1744,7 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
     we either complete the process by going from $UD$ to the empty path, or we
     remove exactly one valley: we can equivalently think of its contribution to $w$ as either the starting $0$ in $0w$ (which does not correspond to a valley) or as the starting $0$ of $w'$, if it is non-empty.
     
-    If the $D$ step between $\pi_1$ and $\pi_2$ is a valley in $\overline{\pi}$, then we remove exactly one valley. If it is not a valley, then it is a fall, so it is followed by an East step. Then by construction $\pi_1$ must end with an East step (otherwise $b$ is not maximal), and that step is a valley that becomes a fall in $U \pi_1 D \pi_2$ after removing $U^b D^b$, so in the end we remove exactly one valley.
+    If the $D$ step between $\pi_1$ and $\pi_2$ is a valley in $\overline{\pi}$, then we remove exactly one valley. If it is not a valley, then it is a fall, so it is followed by a horizontal step. Then by construction $\pi_1$ must end with a horizontal step (otherwise $b$ is not maximal), and that step is a valley that becomes a fall in $U \pi_1 D \pi_2$ after removing $U^b D^b$, so in the end we remove exactly one valley.
 
     If $\pi_1 \pi_2$ is empty, the thesis follows. Otherwise, by induction, $\Psi(\pi_1 \pi_2) = (w',\tau')$ for some $w' \in W(0^{l-a},1^{k-b})$ and $\tau' \in \R(\Des(0w'))$. Since $w = 0^a 1^b 0 w'$, we have $w \in W(0^l,1^k)$. The only thing to check is that $\tau_1 \leq \tau'_1 + a + b + 1$, which is true because $\tau_1 = a + b + h + 1$ and $h \leq \tau'_1$ by construction. Therefore, $\tau \in \R(\Des(0w))$, as desired.
 \end{proof}
@@ -1802,7 +1757,7 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
 \begin{proof}
     In Step~\ref{step:0}, the path doesn't change; in Step~\ref{step:valleys} of \Cref{def:psi}, the area does not change because we are only removing steps on the main diagonal; in Step~\ref{step:rises}, we only removed decorated falls, and these do not contribute to the area.
 
-    Let $v$ be the number of valleys in $\pi_1$. Each of these valleys now contributes one less to the area, since we removed the first North step. The valley that gets removed (or converted into a rise) in Step~\ref{step:induction} is at height $h$, and it is preceded by $v$ East steps, so it contributes $h-v$ to the area. Ultimately, the area goes down by $h$.
+    Let $v$ be the number of valleys in $\pi_1$. Each of these valleys now contributes one less to the area, since we removed the first vertical step. The valley that gets removed (or converted into a rise) in Step~\ref{step:induction} is at height $h$, and it is preceded by $v$ horizontal steps, so it contributes $h-v$ to the area. Ultimately, the area goes down by $h$.
 
     Since there are $h$ cells in the first column between $\tau$ and $\delta(\Des(0w))$, the thesis follows by induction.
 \end{proof}
@@ -1813,8 +1768,25 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
 \end{lemma}
 
 \begin{proof}
-    By construction, $\mu(\cc(\pi))_1 = \mu(\tau)_1 = a+b+h+1$, and inductively $\mu(\cc(\pi')) = \mu(\tau')$. %TODO
-    \todo[inline]{Complete this proof.}
+    By construction, $\mu(\cc(\pi))_1 = \mu(\tau)_1 = a+b+h+1$, and inductively $\mu(\cc(\pi')) = \mu(\tau')$.
+    
+    We have that $\pi = (UD)^a U \pi_1 U^b D^{b+1} \pi_2$. $\pi_1$ has no two consecutive $D$ steps, so $\cc(\pi) = U^a U U^h U^b D^b \cc(\pi_2)$. We distinguish two cases.
+
+    \textbf{Case 1: $\pi_2$ starts with a $D$ step.}    
+    If $\pi_2$ starts with a $D$ step, then $\pi_1$ must end with a $D$ step (by maximality of $b$), so $\mu(\cc(\pi')) = (h, \mu(\cc(\pi_2)))$. In this case, since $\pi_1$ and $\pi_2$ are separated by at least two $D$ steps,
+    \[ \mu(\cc(\pi)) = (a+b+h+1, \mu(\cc(\pi_2))). \]
+    By construction, $\tau'_1 = \mu(\cc(\pi'))_1 = h$, and since $\tau'_1 = \tau_2 - (a+b+1)$, we have $\tau_1 = \tau_2$ and so
+    \[ \mu(\tau) = (a+b+h+1, \mu(\tau')_2, \dots). \]
+
+    \textbf{Case 2: $\pi_2$ starts with a $U$ step.}
+    If $\pi_2$ starts with a $U$ step instead, then $\pi_1$ and $\pi_2$ are separated by at most one $D$ step in $\pi'$, so their contractions join and we have
+    \[ \mu(\cc(\pi')) = (h+\mu(\cc(\pi_2))_1, \mu(\cc(\pi_2))_2, \dots). \]
+    In $\pi$, the two are separated by at least two $D$ steps, so we have
+    \[ \mu(\cc(\pi)) = (a+b+h+1, \mu(\cc(\pi_2))_1, \mu(\cc(\pi_2))_2, \dots). \]    
+    By construction, $\tau'_1 = \mu(\cc(\pi'))_1 = h + \mu(\cc(\pi_2))_1$, which implies that $\tau_1 < \tau_2$, and so
+    \[ \mu(\tau) = (a+b+h+1, \mu(\tau')_1 - h, \mu(\tau')_2, \dots). \]
+
+    In either case, by induction we have $\mu(\cc(\pi')) = \mu(\tau')$, and so $\mu(\cc(\pi)) = \mu(\tau)$, as desired.
 \end{proof}
 
 \begin{figure}[ht]
@@ -1828,10 +1800,7 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
         \draw[ud, ultra thick, -sharp >, sharp angle = 45] (6,8) -- (7,8);
         \draw[rhoprime, ultra thick, sharp <-, sharp angle = 45] (7,8) -- (7,9) -- (8,9) -- (8,10) -- (10,10);
     \end{tikzpicture}
-	\caption{%On the left, the
-    The decomposition of $\pi = \textcolor{valleys}{{(UD)}^2} U \textcolor{rho}{{UDU}} \textcolor{rises}{U^3 D^3} D \textcolor{rhoprime}{U D U D D}$ into the subpaths prescribed by \Cref{def:psi}.%, where $\pi_1 = U D U$ and $\pi_2 = U D U D D$ are the subpaths in orange and violet respectively.
-    %On the right, the path $\pi_1 \pi_2$ obtained after one iteration of the algorithm in \Cref{def:psi}.}
-    }
+	\caption{The decomposition of $\pi = \textcolor{valleys}{{(UD)}^2} U \textcolor{rho}{{UDU}} \textcolor{rises}{U^3 D^3} D \textcolor{rhoprime}{U D U D D}$ into the subpaths prescribed by \Cref{def:psi}.}
     \label{fig:pp0}
 \end{figure}
 
@@ -1860,13 +1829,13 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
         \draw[draw=none, use as bounding box] (-2,-3) rectangle (6,7);
 		\draw[gray!60, thin] (0,0) grid (4,4) (0,0) -- (4,4);
         \draw[rho, ultra thick] (0,0) -- (0,1) -- (1,1) -- (1,2);
-        \draw[rhoprime, ultra thick, sharp <-, sharp angle = 45] (1,2) -- (1,3) -- (2,3) -- (2,4) -- (4,4);
+        \draw[rhoprime, ultra thick] (1,2) -- (1,3) -- (2,3) -- (2,4) -- (4,4);
     \end{tikzpicture}
     \begin{tikzpicture}[scale=0.8]
         \draw[step=1.0, gray!60, thin] (0,0) grid (3,10);
         \draw[blue!60, line width = 1.6 pt] (0,0) -- (0,6) -- (1,6) -- (1,9) -- (2,9) -- (2,10) -- (3,10);
         \begin{scope}[shift={(-0.05,0.05)}]
-            \draw[red!60, line width = 1.6 pt] (0,0) -- (0,8) -- (1,8) -- (1,10) -- (3,10);
+            \draw[red!60, line width = 1.6 pt] (0,-0.05) -- (0,8) -- (1,8) -- (1,10) -- (3.05,10);
         \end{scope}
     \end{tikzpicture}
     \caption{On the left, the path $\pi'$ obtained from $\pi$ after one iteration of the algorithm in \Cref{def:psi}. On the right, the path $\tau$ in red, over the path $\delta(0w)$ in blue.}
@@ -1885,179 +1854,19 @@ We can finally prove the main statement of this section.
     
     If $w$ has no descents, then $w = 0^l 1^k$ for some $k,l \in \mathbb{N}$, and $\tau = (k+l+1)$. In this case, we can recover $\pi$ as $\pi = (UD)^l U^{k+1} D^{k+1}$, which has $l$ valleys, $k$ rises, area $0$, and rise composition $(k+l+1)$, as desired.
 
-    Otherwise, let $w = 0^a 1^b 0 w'$ for some $a,b \in \mathbb{N}$ and some word $w' \in W \left(0^{l-a},1^{k-b}\right)$, and let $\tau'$ such that $\tau - \delta(\Des(0w)) = (h, \tau' - \delta(\Des(0w')))$ for some $h \in \mathbb{N}$ and some path $\tau' \in \R(\Des(0w'))$. 
+    Otherwise, let $w = 0^a 1^b 0 w'$ for some $a,b \in \mathbb{N}$ and some word $w' \in W \left(0^{l-a},1^{k-b}\right)$, and let $\tau'$ be such that $\tau - \delta(\Des(0w)) = (h, \tau' - \delta(\Des(0w')))$ for some $h \in \mathbb{N}$ and some path $\tau' \in \R(\Des(0w'))$. 
 
     Notice that these vectors encode the area of the paths (as in number of cells contributing to the area in each column), so $\area(\tau) = \area(\tau') + h$.
 
     By induction, we can find a unique path $\pi' \in \DP(k-b+l-a+1)^{\ast k-b, \bullet l-a}$ such that $\Psi(\pi') = (w',\tau')$, with $\area(\pi') = \area(\tau')$ and $\mu(\cc(\pi')) = \mu(\tau')$.
 
-    By construction, since $\mu(\cc(\pi')) = \mu(\tau')$, $\pi'$ has no two consecutive East steps in the first $\mu(\tau')_1 \geq h$ rows. Consider the North step in the $h\th$ row of $\pi'$, and call it $U_h$. If it is followed by a North step, let $\pi_1$ be the path ending at $U_h$ (included), and $\pi_2$ be the path starting after $U_h$; if it is followed by an East step, call it $D_h$, and let $\pi_1$ be the path ending at $D_h$ (included), and $\pi_2$ be the path starting after $D_h$. Split $\pi' = \pi_1 \pi_2$. By construction, $\pi_1$ has height $h$ and no two consecutive East steps.
+    By construction, since $\mu(\cc(\pi')) = \mu(\tau')$, $\pi'$ has no two consecutive horizontal steps in the first $\mu(\tau')_1 \geq h$ rows. Consider the vertical step in the $h\th$ row of $\pi'$, and call it $U_h$. If it is followed by a vertical step, let $\pi_1$ be the path ending at $U_h$ (included), and $\pi_2$ be the path starting after $U_h$; if it is followed by a horizontal step, call it $D_h$, and let $\pi_1$ be the path ending at $D_h$ (included), and $\pi_2$ be the path starting after $D_h$. Split $\pi' = \pi_1 \pi_2$. By construction, $\pi_1$ has height $h$ and no two consecutive horizontal steps.
 
     Let $\pi = (UD)^a U \pi_1 U^b D^{b+1} \pi_2$. By construction, $\Psi(\pi) = (w, \tau)$: the only non-trivial check is that $b$ is maximal, but either $\pi_1$ ends with a $D$ step or $\pi_2$ starts with a $U$ step, so $b$ is indeed maximal.
 
     The thesis now follows by \Cref{lem:well-defined,lem:area,lem:comp}.
 \end{proof}
 
-
-% To define this map $\Psi$ we need some combinatorial definitions.
-
-% \begin{definition}
-%     Given two lattice paths $\tau$ and $\rho$, we define their \emph{concatenation} $\tau * \rho$ as the lattice path obtained by joining $\rho$ to the end of $\tau$. 
-
-%     Note that if both $\tau$ and $\rho$ are Dyck paths, of sizes $a$ and $b$ respectively, then $\tau * \rho$ is also a Dyck path, of size $a+b$.
-% \end{definition}
-
-% \begin{definition}
-%     We define the \emph{double East height} of a Dyck path $\pi$ as the value $\deh(\pi)$ such that the two first consecutive East steps of $\pi$ lie on the line $y=\deh(\pi)$, or $n$ if $\pi$ does not have two consecutive East steps. We denote it by $\deh(\pi)$.
-% \end{definition}
-
-% \begin{definition}
-%     We define the \emph{first corner amplitude} of a Dyck path $\pi$ as the largest integer $r = \fca(\pi)$ such that the first two consecutive East steps of $\pi$ are contained in a subpath of the form $N^rE^{r+1}$, or $0$ if $\pi$ does not have two consecutive East steps.
-% \end{definition}
-
-% % \begin{definition} %TODO Fix?
-% %     Given a Dyck path $\pi$ of size $n$ and two integers $r \geq 1$ and $1 \leq h \leq \deh(\pi)+1$, we define the \emph{size-$r$ corner insertion of $\pi$ at height $h$} as the Dyck path $C_h^r(\pi)$ of size $n+r+1$ obtained by inserting a corner of size $r$ at height $h$ in $\pi$.
-    
-% %     In other words, if $h \leq \deh(\pi)$ and $\pi = \pi_h * N * \pi^h$, where $\pi_h$ is the part of $\pi$ (strictly) before the $h\th$ North step and $\pi^h$ is the part of $\pi$ (weakly) after this step, then $C_h^r(\pi) = N * \pi_h * N^r E^{r+1} * \pi^h$. 
-% % \end{definition}    
-
-% \begin{definition}
-%     Given a Dyck path $\pi$ of size $n$ we denote by $\deh(\pi)$ the height of the two first consecutive East steps in $\pi$, or $\deh(\pi)=n$ if $\pi$ does not have two consecutive East steps. This is exactly the first component of $\mu(\cc(\pi))$.
-
-%     We denote by $\bfa(\pi)$ the largest integer $r$ such that there is an angle $N^rE^rE$ in the path with the East steps at height $\deh(\pi)$. We note that $\bfa(\pi)$ is always greater than $0$, except when $\pi$ is the staircase path $(1,\dots,n)$.
-
-%     Given a Dyck path $\pi$ of size $n$ and an integer $1\leq r$ and an integer $1\leq h\leq\deh(\pi)+1$ we define the \emph{$r$-angle insertion of $\pi$ at height $h$} as a Dyck path $\Ang_h^r(\pi)$ of size $n+r+1$ as follows. If $h\leq\deh(\pi)$ and $\pi=\pi_h*N*\pi^h$, where $\pi_h$ is the part of the path before the $h$-th North step and $\pi^h$ is the part of the path after this step, then
-%     \[ \Ang_h^r(\pi)=N*\pi_h*N^rE^rEN*\pi^h.\]
-%     If $h=\deh(\pi)+1$ and $\pi=\pi_h*E*\pi^h$, where $\pi_h$ is the part of the path before the first East step at height $h$ and $\pi^h$ is the part of the path after this step, then
-%     \[ \Ang_h^r(\pi)=N*\pi_h*EN^rE^rE*\pi^h.\]
-% \end{definition}
-
-
-
-% \begin{proposition}\label{prop:stat_Ang}
-%     Let $\pi$ be a decorated Dyck path of size $n\in\mathbb{N}$ and let $1\leq r$ and $1\leq h\leq\deh(\pi)+1$ be two integers. Then we have
-%     \begin{align}
-%         \deh(\Ang_h^r(\pi))&=h+r \\
-%         \bfa(\Ang_h^r(\pi))&=r \\
-%         \# \text{rises of }\Ang_h^r(\pi)&=\# \text{rises of }\pi+r \label{eq:Ang_rises}\\
-%         \# \text{valleys of }\Ang_h^r(\pi)&=\# \text{valleys of }\pi+1 \label{eq:Ang_valleys}\\
-%         \area(\Ang_h^r(\pi))&=\area(\pi)+h-1 \label{eq:Ang_area}\\
-%         \mu(\cc(\Ang_h^r(\pi)))&=\begin{cases}
-%             (h+r,\mu_1+1-h,\mu_2,\dots,\mu_\ell)&\text{if }h\leq\deh(\pi)\\
-%             (\mu_1+r+1,\mu_2,\dots,\mu_\ell)&\text{if }h=\deh(\pi)+1 
-%         \end{cases}, \label{eq:Ang_mu}
-%     \end{align}
-%     where $\mu(\cc(\pi))=(\mu_1,\dots,\mu_\ell)$.
-% \end{proposition}
-
-% \begin{proof}
-% By the definition of $\deh(\pi)$, the path $\pi_h$ contains no pair of consecutive East steps and contains exactly $h-1$ North steps. This implies $\deh\left(\Ang_h^r(\pi)\right)=h+r$ and $\bfa(\Ang_h^r(\pi))=r$.
-    
-
-% The first North step of $\pi$ becomes a rise in $\Ang_h^r(\pi)$, while all the other North steps of $\pi$ maintain their decorations. The first new North step of $\Ang_h^r(\pi)$ has no decoration, while the remaining $r$ North steps are $r-1$ rises and one valley. This proves equations \eqref{eq:Ang_rises} and \eqref{eq:Ang_valleys}.
-
-% Each North step of $\pi_h$ that is a valley contributes with exactly one more $\area$ for $\Ang_h^r(\pi)$, owing to the new initial North step. The same is true of the first North step following $\pi_h$ when $h\leq\deh(\pi)$ and $\pi_h$ ends with an East step. The number of these valleys is equal to the number of East steps of $\pi_h$. When $h\leq\deh(\pi)$, the contribution of the new valley of $\Ang_h^r(\pi)$ is $h+r$ minus one for each East step that preceding it. These consist of the $r+1$ newly inserted East steps together with the ones of $\pi_h$. When $h=\deh(\pi)+1$, the contribution of the new valley of $\Ang_h^r(\pi)$ is $h-1$, minus the number of East steps in $\pi_h$. In both cases, Equation~\eqref{eq:Ang_area} holds.
-    
-% To prove Equation~\eqref{eq:Ang_mu}, it suffices to observe that $\mu(\cc(\pi))$ is determined by the heights of the rows with two or more consecutive East steps. In the case $h\leq\deh(\pi)$ the first row with two consecutive East steps in $\Ang_h^r(\pi)$ is the row $\deh(\Ang_h^r(\pi))=h+r$. The next such row is $\deh(\pi)+h+r+1$ while the remaining such rows correspond to those of $\pi$, shifted by $h+r+1$. In the case $h=\deh(\pi)+1$ the first row with two consecutive East steps in $\Ang_h^r(\pi)$ is the row $\deh(\Ang_h^r(\pi))=h+r=\deh(\pi)+r+1=\mu_1+r+1$ and the others are the same as in $\pi$, but shifted by $h+r$. This yields precisely the two cases in Equation~\eqref{eq:Ang_mu}.
-% \end{proof}
-
-% \begin{remark}
-%     \label{rem:inv_Ang}
-%     The map $\Ang_h^r(\pi)$ is invertible. Indeed, if $\rho$ is a Dyck path that begins with two consecutive North steps and that has at least one valley, then there exists a unique Dyck path $\pi$, an integer $1\leq r$ and an integer $1\leq h\leq\deh(\pi)+1$ such that $\rho=\Ang_h^r(\pi)$. Thanks to the previous Proposition~\ref{prop:stat_Ang}, we can recognize $r$ as $\bfa(\rho)$ and $h$ as $\deh(\rho)-r$. Moreover, $\pi$ is exactly the path obtained removing from $\rho$ the first North step and the angle $N^rE^rE$ with East steps at height $\deh(\rho)$.
-% \end{remark}
-
-% \begin{example}
-% \todo[inline]{Write this example} %TODO Write this example
-% \end{example}
-
-% We will define this map $\Psi$ simultaneously for each pair $k$, $l$, inductively over the sum $n=k+l+1$.
-
-% To stress what was highlighted in Remark~\ref{rem:R_ambig}, we shall write $\Psi$ as a function of two variables, $\tau$ and $w$, where $\tau$ is a path in $\Des(0w)$.
-
-% %If $n=1$ then $l=k=0$ and the only word $w\in W\left(0^0,1^0\right)$ is the empty word $\varepsilon$. Since $\Des(0)=(1)$, we have that $\R(\Des(0))$ has only one element, the path $(1)$ of area $0$ and rise composition $(1)$. We define $\Psi((1),\varepsilon)$ as the decorated Dyck path $(1)$, with no decoration.
-
-% %Let us now consider $n>1$.
-
-% %If $w=0^{n-1}$ then $\Des(0w)=\Des\left(0^{n}\right)=(n)$ and $\delta((n))$ is the path $(n)$. In this case  the only path in $\R((n))$ is exactly $(n)$ and we define $\Psi((n),0^{n-1})$ to be the staircase Dyck path $(1,2,\dots,n)$ where every vertical step, except the first one, is a decorated valley.
-
-% If $w=0^{l}1^k$ then $\Des(0w)=\Des\left(0^{l+1}1^k\right)=(n)$ and $\delta((n))$ is the path $(n)$. In this case  the only path in $\R((n))$ is exactly $(n)$, and we define \[\Psi((n),0^{l}1^k)=(NE)^{l}N^{k+1}E^{k+1},\] 
-% that is the concatenation of the staircase Dyck path $(1,2,\dots,l)$ and the mountain Dyck path $(k+1,\dots,k+1)$.
-
-% If, on the other hand, $w$ is of the form $w=0^a1^b0w'$, with $a\geq0$, $b>0$ and $\ell(w')=n-a-b<n$, %and $\ell(\Des(0w'))=\ell(\Des(0w))-1$ 
-% and $\tau=(\tau_1,\dots,\tau_\ell)$ is a path in $\R(\Des(0w))$ we define inductively
-% \[\Psi(\tau,w)=(1,2,\dots,a)*\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right),\]
-% where $\tau'=(\tau_2-a-b-1,\dots,\tau_\ell-a-b-1)$ is a path of $\R(\Des(0w'))$.
-
-% \begin{example}
-% \todo[inline]{Write this example} %TODO Write this example
-% \end{example}
-
-% \begin{theorem}
-% For $k,l \in \mathbb{N}$ the restriction $\Psi_{k,l}$ of the map $\Psi$ to the set $\displaystyle\bigsqcup_{w\in W\left(0^l,1^k\right)}\R(\Des(0w))$ is a well-defined bijection
-% \[\Psi_{k,l}:\bigsqcup_{w\in W\left(0^l,1^k\right)}\R(\Des(0w))\rightarrow\DP(k+l+1)^{\ast k, \bullet l}\]
-% such that for every $w\in W\left(0^l,1^k\right)$ and $\tau\in\R(\Des(0w))$ we have
-% \begin{align}
-% \area(\Psi_{k,l}(\tau,w))&=\area(\tau)\\
-% \mu(\cc(\Psi_{k,l}(\tau,w)))&=\mu(\tau).
-% \end{align}
-% \end{theorem}
-
-% \begin{proof}
-%         We will prove that the map $\Psi_{k,l}$ is well-defined and that preserves $\area$ and rise composition by induction on $n=k+l+1$. 
-        
-%         If $w=0^{l}1^k$ then the only $\tau\in\R(\Des(0w))$ is $\tau=(n)$ and  $\Psi((n),0^{l}1^k)=(NE)^{l}N^{k+1}E^{k+1}$ by definition. This Dyck path has size $n$, $k$ rises and $l$ valleys. In this case both paths have $\area$ $0$ and rise composition \[\mu\left(\cc\left((NE)^{l}N^{k+1}E^{k+1}\right)\right)=\mu\left(N^{k+l+1}E^{k+1}\right)=(n)=\mu((n)).\]
-        
-%         If $w$ is of the form $w=0^a1^b0w'$, with $a\geq0$, $b>0$ and $\ell(w')=n-a-b<n$, %and $\ell(\Des(0w'))=\ell(\Des(0w))-1$ 
-%         and $\tau=(\tau_1,\dots,\tau_\ell)$ is a path in $\R(\Des(0w))$, then $\Psi(\tau,w)=(1,2,\dots,a)*\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right)$, and by inductive hypothesis $\Psi\left(\tau',w'\right)$ is an element of $\DP(k-b+l-a)^{\ast k-b, \bullet l-a-1}$ such that 
-%         \begin{align}
-%         \area(\Psi(\tau',w'))&=\area(\tau') \\
-%         \mu(\cc(\Psi(\tau',w')))&=\mu(\tau').
-%         \end{align}
-
-% If $\Des(0w)=(d_1,\dots,d_\ell)$ we have that $d_1=a+b+1$ and $\Des(0w')=(d_2,\dots,d_\ell)$. In particular, since $\tau\in\R(\Des(0w))$, we have that $\tau_i\geq\tau_1\geq d_1=a+b+1$ and so $\tau'$ is a well-defined element of $\R(\Des(0w'))$, with rise composition \[\mu(\tau')=(\tau_2-a-b-1,\tau_3-\tau_2,\dots,\tau_\ell-\tau_{\ell-1}).\]
-
-% By construction, we have that \[\area(\tau)=\area(\tau')+\tau_1-a-b-1,\]
-% since the $\area$ of $\tau$ is the same of the one of $\tau'$ plus the contribution of the first column, where $\delta(0w)_1=d_1=a+b+1$.
-
-% Moreover, thanks to the Proposition~\ref{prop:stat_Ang}, we have that 
-% \begin{align}
-%     \# \text{rises of }\Psi(\tau,w)&=\# \text{rises of }(1,2,\dots,a)*\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right)\notag\\
-%     &=\# \text{rises of }\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right) \notag\\
-%     &=\# \text{rises of }\Psi\left(\tau',w'\right)+b=k-b+b=k,
-% \end{align}
-% \begin{align}
-%     \# \text{valleys of }\Psi(\tau,w)&=\# \text{valleys of }(1,2,\dots,a)*\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right)\notag\\
-%     &=a-1+1+\# \text{valleys of }\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right)\notag \\
-%     &=a+\# \text{valleys of }\Psi\left(\tau',w'\right)+1=a+l-a-1+1=l,
-% \end{align}
-% \begin{align}
-% \area(\Psi(\tau,w))&=\area((1,2,\dots,a)*\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right))\notag\\
-% &=\area(\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right))\notag\\
-% &=\area(\Psi\left(\tau',w'\right))+\tau_1-a-b-1\notag\\
-% &=\area(\tau')+\tau_1-a-b-1=\area(\tau),
-% \end{align}
-% \begin{align}       \mu(\cc(\Psi(\tau,w)))&=\mu(\cc((1,2,\dots,a)*\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right)))\notag\\
-% &=\mu(N^a*\cc(\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right)))\notag\\
-% &=(\tau_1,\tau_2-\tau_1,\dots,\tau_\ell-\tau_{\ell-1})=\mu(\tau),
-% \end{align}
-% indeed if $\tau_1-a-b\leq\tau_2-a-b-1=\deh(\Psi(\tau',w'))$, that is $\tau_1<\tau_2$, then
-% \begin{align*}
-% &\mu(\cc(\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right)))= \\
-% &=(\tau_1-a-b+b,\tau_2-a-b-1+1-(\tau_1-a-b),\tau_3-a-b-1-(\tau_2-a-b-1),\dots)\\
-% &=(\tau_1-a,\tau_2-\tau_1,\tau_3-\tau_2,\dots).
-%         \end{align*}
-% If $\tau_1-a-b=\tau_2-a-b=\deh(\Psi(\tau',w'))+1$, that is $\tau_1=\tau_2$, then 
-% \begin{align*}
-% &\mu(\cc(\Ang_{\tau_1-a-b}^b\left(\Psi\left(\tau',w'\right)\right))) \\
-% &=(\tau_2-a-b-1+b+1,\tau_2-a-b-1+1-(\tau_1-a-b),\tau_3-a-b-1-(\tau_2-a-b-1),\dots)\\
-% &=(\tau_1-a,\tau_2-\tau_1,\tau_3-\tau_2,\dots).
-% \end{align*}
-
-% To see that the map $\Psi_{k,l}$ is a bijection is enough to prove that for all $\pi\in\DP(k+l+1)^{\ast k, \bullet l}$ there exists a unique word $w\in W(0^l,1^k)$ and a unique path $\tau\in\R(\Des(0w))$ such that $\Psi(\tau,w)=\pi$. We will prove this by induction on $n=k+l+1$.
- 
-% If $\pi$ is of the form $(1,\dots,\alpha)*\pi'$ with $\pi'$ a non-empty Dyck path that starts with $2$ North steps, then by definition $w$ has to start with a sequence of $\alpha$ zeroes. If $\pi'$ is the mountain Dyck path $(\beta,\dots,\beta)$, then, since $\Ang_h^r(\rho)$ has always a valley, the only possibility for $w$ is to be equal to $0^\alpha1^\beta$. In this case there is only one path $\tau=(n)$ in $\R(\Des(0w))$, and we have that $\pi=\Psi(\tau,w)$. If $\pi'$ has at least a valley, thanks to the Remark~\ref{rem:inv_Ang} is it possible to find, in a unique way, a Dyck path $\rho$, an integer $1\leq\beta$, and an integer $1\leq z\leq\deh(\rho)+1$ such that $\pi'=\Ang_z^\beta(\rho)$. In particular the path $\rho$ has size $n-\beta-1<n$, and by inductive hypothesis there exists a unique binary word $w'$ of length $n-\beta-1$ and a unique path $\tau'=(\tau'_1,\dots,\tau'_{\ell})\in\R(0w')$ such that $\rho=\Psi(\tau',w')$. This implies that \[\pi=(1,\dots,\alpha)*\Ang_z^\beta(\Psi(\tau',w')), \]
-% and it is the only way to write $\pi$ in this way. Furthermore, it follows that $w=0^\alpha1^\beta0w'$ and $\tau=(z+\alpha+\beta,\tau'_1+\alpha+\beta+1,\dots,\tau'_{\ell}+\alpha+\beta+1)$ and indeed they are such that they satisfy the equation $\pi=\Psi(\tau,w)$.
-% \end{proof}
 
 \subsection{Case with touch number \texorpdfstring{$n-k-l$}{n-k-l}}
 
@@ -2068,7 +1877,7 @@ First we prove that, when $q=1$, the operators involved are multiplicative.
 \begin{theorem}
     \label{thm:theta_q1_multiplicative}
     For $n,k,l \in \mathbb{N}$ with $k+l < n$, we have \[ \left. \Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l} \right|_{q=1} = \left. \prod_{\Sigma k_i = k} \prod_{\Sigma l_i = l} \prod_{i=1}^{n-k-l} \Theta_{e_{k_i}} \Theta_{e_{l_i}} e_1 \right|_{q=1}, \]
-    where the $k_i$ and $l_i$ are non-negative numbers for $1 \leq i \leq n-k-l$.  
+    where the $k_i$ and $l_i$ are nonnegative integers for $1 \leq i \leq n-k-l$.  
 \end{theorem}
 
 \begin{proof}
@@ -2131,7 +1940,7 @@ We recommend checking \cite[Theorem~4.8]{IraciNadeauVandenWyngaerd2024Smirnov} f
     
     It follows that $\Theta_{e_{k-b}} \Theta_{e_{l-b}} \nabla E_{n+b, n}$, which is generic for suitable choices of $n, k, l \in \mathbb{N}$, can be written in terms of expression of type $\Theta_{e_{k'}} \Theta_{e_{l'}} \nabla E_{n', n'-b'}$ for appropriate values of $n', k', l' \in \mathbb{N}$ and $b' < b$, which we can interpret combinatorially by induction.
 
-    All that is left to do is to check that \Cref{thm:full_recursion} admits a combinatorial interpretation that is compatible with the statement of the theorem. We can interpret the operator $h_j^\perp$ as removing all the exactly $j$ occurrences of the maximal label, say $M$, in a path with touch number $n-k-l$.
+    All that is left to do is to check that \Cref{thm:full_recursion} admits a combinatorial interpretation that is compatible with the statement of the theorem. We can interpret the operator $h_j^\perp$ as removing exactly the $j$ occurrences of the maximal label, say $M$, in a path with touch number $n-k-l$.
     
     We interpret the indices $b, i, r, a$, and the value $j-r-a+i-b$, as follows (see \Cref{fig:recursion_indices}):
     \begin{itemize}
