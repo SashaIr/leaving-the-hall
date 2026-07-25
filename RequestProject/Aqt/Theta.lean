@@ -63,7 +63,7 @@ lemma z_mul_one_sub_s (u : 𝕜) (w y z : A)
 lemma one_add_sStar_eq (u : 𝕜) (w y z : A)
     (hwL : (1 + u • y) * w = 1) :
     1 + sStar u y z = (1 + u • y) * (1 - u • (w * z * y)) := by
-  simp +decide [ sStar, mul_sub, sub_mul, hwL ];
+  simp +decide [sStar, mul_sub, sub_mul];
   simp +decide [ ← mul_assoc, hwL ];
   rw [ smul_sub, add_sub_assoc ]
 
@@ -284,7 +284,7 @@ lemma thetaYY_one :
     thetaYY q ρ.level ρ.Tinv ρ.T ρ.Θdp ρ.dm 1 = ρ.Θy1 := by
   simp only [thetaYY, Θy1, ThetaData.yy]
   rw [ρ.theta_comm_dp_dm]
-  simp only [smul_mul_assoc, mul_assoc, mul_smul_comm]
+  simp only [mul_assoc, mul_smul_comm]
 
 /-
 `s` commutes with `T j` for `j ≥ 2`.
@@ -356,7 +356,7 @@ lemma thetaZZ_one :
     thetaZZ q ρ.t ρ.level ρ.T ρ.Tinv ρ.Θdps ρ.dm 1 = ρ.Θz1 := by
   simp only [thetaZZ, Θz1, ThetaData.zz]
   rw [ρ.theta_comm_dps_dm]
-  simp only [smul_mul_assoc, mul_assoc, mul_smul_comm]
+  simp only [mul_assoc, mul_smul_comm]
 
 /-
 `y i` commutes with `T j inv` when `i ≠ j`, `i ≠ j+1`.
@@ -392,7 +392,7 @@ lemma zz_comm_Tinv (i j : ℕ) (h : i ≠ j ∧ i ≠ j + 1) :
 lemma sStarElt_comm_Tinv (j : ℕ) (hj : 2 ≤ j) :
     ρ.sStarElt * ρ.Tinv j = ρ.Tinv j * ρ.sStarElt := by
   unfold DyckRepU.sStarElt;
-  simp +decide [ mul_sub, sub_mul, mul_assoc, mul_comm ];
+  simp +decide [mul_sub, sub_mul, mul_assoc];
   simp +decide only [ρ.yy_comm_Tinv 1 j (by omega), ← mul_assoc, ρ.zz_comm_Tinv 1 j (by omega)]
 
 /-
@@ -407,9 +407,9 @@ lemma minv_comm_Tinv (j : ℕ) (hj : 2 ≤ j) :
   · have h_comm : (1 + (ρ.u • ρ.yy 1 - ρ.u • (ρ.zz 1 * ρ.yy 1))) * ρ.Tinv j = ρ.Tinv j * (1 + (ρ.u • ρ.yy 1 - ρ.u • (ρ.zz 1 * ρ.yy 1))) := by
       have := ρ.sStarElt_comm_Tinv j hj;
       simp_all +decide [ add_mul, mul_add, DyckRepU.sStarElt ];
-    convert congr_arg ( fun x => ρ.minv * x * ρ.minv ) h_comm using 1 <;> simp +decide [ mul_assoc, this ];
+    convert congr_arg ( fun x => ρ.minv * x * ρ.minv ) h_comm using 1 <;> simp +decide [mul_assoc];
     · simp +decide [ ← mul_assoc, this ];
-    · simp +decide [ ← mul_assoc, ‹ ( 1 + ( ρ.u • ρ.yy 1 - ρ.u • ( ρ.zz 1 * ρ.yy 1 ) ) ) * ρ.minv = 1 › ]
+    · simp +decide [‹(1 + (ρ.u • ρ.yy 1 - ρ.u • (ρ.zz 1 * ρ.yy 1))) * ρ.minv = 1›]
 
 /-
 `Θ` respects `(R2*)`: `Θ(d_+^* T i inv) = Θ(T (i+1) inv d_+^*)` for `i ≥ 1`.
@@ -428,7 +428,7 @@ def s2Elt : ρ.carrier := ρ.u • (ρ.w 1 * ρ.zz 1 * ρ.yy 1)
 lemma sStar_factor : 1 + ρ.sStarElt = (1 + ρ.u • ρ.yy 1) * (1 - ρ.s2Elt) := by
   have := @DyckAlgebra.Theta.one_add_sStar_eq;
   convert this ρ.u ( ρ.w 1 ) ( ρ.yy 1 ) ( ρ.zz 1 ) ( ρ.wL 1 ) using 1;
-  unfold DyckRepU.sStarElt Theta.sStar; simp +decide [ mul_assoc ] ;
+  unfold DyckRepU.sStarElt Theta.sStar
   simp +decide [ sub_mul, smul_sub ]
 
 /-
@@ -463,7 +463,7 @@ lemma theta_z1_lhs : ρ.minv * ρ.zz 1 * (1 - ρ.sElt) = ρ.w 1 * ρ.zz 1 := by
   have h_comm : ρ.zz 1 * (1 - ρ.sElt) = (1 + ρ.sStarElt) * ρ.w 1 * ρ.zz 1 := by
     convert DyckAlgebra.Theta.z_mul_one_sub_s _ _ _ _ _ _ using 1;
     · simp +decide [ Theta.sStar, DyckRepU.sStarElt ];
-      simp +decide [ sub_mul, mul_sub, smul_sub, sub_smul ];
+      simp +decide [sub_mul, smul_sub]
     · exact ρ.wL 1;
     · exact ρ.wR 1;
   grind +revert
@@ -474,7 +474,7 @@ Core of `lem:theta_q2`: `(1 - s) y₁ minv = w₁ y₁`.
 `w₁ y₁ (1 + u y₁) = y₁`.
 -/
 lemma w1_yy1_one_add : ρ.w 1 * ρ.yy 1 * (1 + ρ.u • ρ.yy 1) = ρ.yy 1 := by
-  convert congr_arg ( fun x => ρ.yy 1 * x ) ( ρ.wR 1 ) using 1 ; simp +decide [ mul_assoc, mul_add, add_mul ];
+  convert congr_arg ( fun x => ρ.yy 1 * x ) ( ρ.wR 1 ) using 1 ; simp +decide [mul_assoc, mul_add];
   · grind +suggestions;
   · rw [ mul_one ]
 
@@ -483,9 +483,9 @@ The algebraic core of `theta_y1_rhs`: `(1 - s) y₁ = w₁ y₁ (1 + s*)`.
 -/
 lemma theta_y1_rhs_key :
     (1 - ρ.sElt) * ρ.yy 1 = ρ.w 1 * ρ.yy 1 * (1 + ρ.sStarElt) := by
-  simp_all +decide [ Theta.s, Theta.sStar, DyckRepU.sElt, DyckRepU.sStarElt ];
-  have := ρ.wR 1; simp_all +decide [ mul_assoc, mul_add, add_mul, sub_mul, mul_sub ] ;
-  replace this := congr_arg ( · * ρ.yy 1 ) this ; simp_all +decide [ mul_assoc, add_mul, mul_add ];
+  simp_all +decide [DyckRepU.sElt, DyckRepU.sStarElt];
+  have := ρ.wR 1; simp_all +decide [mul_assoc, mul_add, sub_mul, mul_sub] ;
+  replace this := congr_arg ( · * ρ.yy 1 ) this ; simp_all +decide [mul_assoc, add_mul];
   grind
 
 lemma theta_y1_rhs : (1 - ρ.sElt) * ρ.yy 1 * ρ.minv = ρ.w 1 * ρ.yy 1 := by

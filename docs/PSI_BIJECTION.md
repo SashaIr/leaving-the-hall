@@ -233,7 +233,7 @@ The theorem `phi_riseComp` proves
 northRuns (cc (phiPath w av)) = muVec (tauOf w av)
 ```
 
-for valid data.  This fills in the argument marked `TODO` in `main.tex`.
+for valid data.
 
 On the word side, `muVec_tauOf_descent` describes the effect of a recursive
 word block on `μ(τ)`.  On the path side, `cc_noDD_append_gen`,

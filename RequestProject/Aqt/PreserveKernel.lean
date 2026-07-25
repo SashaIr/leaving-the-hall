@@ -34,7 +34,7 @@ variable {𝕜 : Type*} [Field 𝕜] {q cQ2 : 𝕜} (ρ : DyckRepU 𝕜 q cQ2)
 -/
 lemma w1_sub_one : ρ.w 1 - 1 = -(ρ.u • (ρ.w 1 * ρ.yy 1)) := by
   have := ρ.wL 1;
-  simp_all +decide [ add_mul, mul_assoc, DyckRepU.w_comm_yy ];
+  simp_all +decide [add_mul, DyckRepU.w_comm_yy];
   exact eq_neg_of_add_eq_zero_left ( by rw [ ← this ] ; abel1 )
 
 /-
