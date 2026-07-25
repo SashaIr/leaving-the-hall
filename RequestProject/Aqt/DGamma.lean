@@ -1,4 +1,4 @@
-import RequestProject.Aqt.ThetaHom
+import RequestProject.Aqt.Theta
 
 /-!
 # Conjugation and commutation with the `D_γ` operators

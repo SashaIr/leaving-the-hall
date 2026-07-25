@@ -1,74 +1,79 @@
 import Mathlib
 
 /-!
-# The Dyck path algebra `A_{q,t}`
+# The level-graded Dyck path algebra `A_{q,t}`
 
-This file implements (a faithful presentation of) the *Dyck path algebra*
-`𝒜_{q,t}` of Carlsson–Mellit and Mellit, as a quotient of a free associative
-algebra by the defining relations.
+This is a generators-and-relations presentation of the path algebra in
+Definition 3.1 and Definition 3.9 of the accompanying source.  Levels are part
+of the generator data.  Thus `dp k : k ⟶ k+1`, `dm k : k+1 ⟶ k`, and `T k i`
+is the loop `T_i` at level `k`.  The idempotents `eps k` record the vertices.
 
-## Design / scope
-
-The full algebra `𝒜_{q,t}` is the path algebra of an infinite quiver with
-vertex set `ℕ` (arrows `d_+ : k → k+1`, `d_- : k+1 → k` and loops
-`T_1, …, T_{k-1}`), with the elements `y_i` and `z_i = y_i^*` *derived* from
-`d_±`, `d_±^*` and the `T_i`.
-
-For the purpose of the `Θ`-operator theorem (`Θ` extends to an endomorphism of
-`𝒜_{q,t}[[u]]`), the proof only uses the *commutation relations* satisfied by
-`T_i`, `d_±`, `d_+^*`, `y_i`, `z_i`.  We therefore present the algebra on these
-generators subject to exactly those relations.  This is faithful to the paper's
-own proof of Theorem 4.1, which is carried out entirely at the level of these
-relations.
-
-Simplifications relative to the fully graded path algebra, all harmless for the
-`Θ` theorem, are documented explicitly:
-
-* we work at a single "generic level", so the idempotents `ε_k`, the
-  level bookkeeping, and the level–range relations `(R1)`, `(R4)`, `(R5)` are
-  omitted;
-* the level–dependent scalar `-q^k` appearing in relation `(Q2)` is
-  replaced by an abstract scalar parameter `cQ2`;
-* `y_i`, `z_i` are taken as generators subject to the commutation relations that
-  the paper establishes for them.
+Only `ε_k`, `T_i`, `T_i⁻¹`, `d₊`, `d₋`, and `d₊*` are generators.  In
+particular, `y_i` and `z_i` are the recursively defined words `yy` and `zz`
+below; they are not generators.  Both copies of (R1)--(R6), including the
+previously omitted (R1), (R4), and (R5), occur in `Rel`.
 -/
 
 namespace DyckAlgebra
 
 open scoped BigOperators
 
-/-- Abstract generators of the Dyck path algebra fragment. -/
+/-- Generating arrows in the level-graded presentation. -/
 inductive Gen where
-  | T (i : ℕ)
-  | Tinv (i : ℕ)
-  | dp
-  | dm
-  | dps
-  | y (i : ℕ)
-  | z (i : ℕ)
+  | eps (k : ℕ)
+  | T (k i : ℕ)
+  | Tinv (k i : ℕ)
+  | dp (k : ℕ)
+  | dm (k : ℕ)
+  | dps (k : ℕ)
   deriving DecidableEq
 
 variable (𝕜 : Type*) [Field 𝕜]
 
-/-- The free algebra on the generators. -/
 abbrev Pre : Type _ := FreeAlgebra 𝕜 Gen
 
 namespace Pre
 
-/-- Generator `T i`. -/
-def T (i : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (Gen.T i)
-/-- Generator `T i⁻¹`. -/
-def Tinv (i : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (Gen.Tinv i)
-/-- Generator `d₊`. -/
-def dp : Pre 𝕜 := FreeAlgebra.ι 𝕜 Gen.dp
-/-- Generator `d₋`. -/
-def dm : Pre 𝕜 := FreeAlgebra.ι 𝕜 Gen.dm
-/-- Generator `d₊^*`. -/
-def dps : Pre 𝕜 := FreeAlgebra.ι 𝕜 Gen.dps
-/-- Generator `y i`. -/
-def yy (i : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (Gen.y i)
-/-- Generator `z i`. -/
-def zz (i : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (Gen.z i)
+def eps (k : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (.eps k)
+def T (k i : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (.T k i)
+def Tinv (k i : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (.Tinv k i)
+def dp (k : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (.dp k)
+def dm (k : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (.dm k)
+def dps (k : ℕ) : Pre 𝕜 := FreeAlgebra.ι 𝕜 (.dps k)
+
+/-- `T_n T_{n-1} ⋯ T_1` at level `k`. -/
+def Tdown (k : ℕ) : ℕ → Pre 𝕜
+  | 0 => 1
+  | n + 1 => T 𝕜 k (n + 1) * Tdown k n
+
+/-- `T_n⁻¹ T_{n-1}⁻¹ ⋯ T_1⁻¹` at level `k`. -/
+def TdownStar (k : ℕ) : ℕ → Pre 𝕜
+  | 0 => 1
+  | n + 1 => Tinv 𝕜 k (n + 1) * TdownStar k n
+
+/-- The loop `[d₊,d₋]` at level `k`. -/
+def comm (k : ℕ) : Pre 𝕜 :=
+  if k = 0 then -(dm 𝕜 0 * dp 𝕜 0)
+  else dp 𝕜 (k - 1) * dm 𝕜 (k - 1) - dm 𝕜 k * dp 𝕜 k
+
+/-- The loop `[d₊*,d₋]` at level `k`. -/
+def commStar (k : ℕ) : Pre 𝕜 :=
+  if k = 0 then -(dm 𝕜 0 * dps 𝕜 0)
+  else dps 𝕜 (k - 1) * dm 𝕜 (k - 1) - dm 𝕜 k * dps 𝕜 k
+
+/-- The derived elements `y_i`; index zero is a harmless totalization outside
+of the mathematical range `1 ≤ i ≤ k`. -/
+def yy (q : 𝕜) (k : ℕ) : ℕ → Pre 𝕜
+  | 0 => 0
+  | 1 => (q ^ (k - 1) * (q - 1))⁻¹ • (comm 𝕜 k * Tdown 𝕜 k (k - 1))
+  | i + 2 => q • (Tinv 𝕜 k (i + 1) * yy q k (i + 1) * Tinv 𝕜 k (i + 1))
+
+/-- The derived normalized elements `z_i/(qt)` from the starred copy. -/
+def zz (q t : 𝕜) (k : ℕ) : ℕ → Pre 𝕜
+  | 0 => 0
+  | 1 => ((q * t)⁻¹ * (q ^ k * (1 - q)⁻¹)) •
+      (commStar 𝕜 k * TdownStar 𝕜 k (k - 1))
+  | i + 2 => q⁻¹ • (T 𝕜 k (i + 1) * zz q t k (i + 1) * T 𝕜 k (i + 1))
 
 end Pre
 
@@ -76,67 +81,61 @@ open Pre
 
 variable {𝕜}
 
-/-- The defining relations of the Dyck path algebra fragment, with structure
-constant `q` (the Hecke parameter) and `cQ2` (an abstract stand–in for the
-level–dependent scalar `-q^k` of relation `(Q2)`). -/
-inductive Rel (q cQ2 : 𝕜) : Pre 𝕜 → Pre 𝕜 → Prop
-  /-- Skein relation `(T i - 1)(T i + q) = 0`. -/
-  | skein (i : ℕ) : Rel q cQ2 ((T 𝕜 i - 1) * (T 𝕜 i + q • 1)) 0
-  /-- Braid relation. -/
-  | braid (i : ℕ) : Rel q cQ2 (T 𝕜 i * T 𝕜 (i+1) * T 𝕜 i) (T 𝕜 (i+1) * T 𝕜 i * T 𝕜 (i+1))
-  /-- Far commutation `T i T j = T j T i` for `i + 1 < j`. -/
-  | Tcomm (i j : ℕ) (h : i + 1 < j) : Rel q cQ2 (T 𝕜 i * T 𝕜 j) (T 𝕜 j * T 𝕜 i)
-  /-- `T i` is invertible with inverse `Tinv i` (right). -/
-  | TinvL (i : ℕ) : Rel q cQ2 (T 𝕜 i * Tinv 𝕜 i) 1
-  /-- `T i` is invertible with inverse `Tinv i` (left). -/
-  | TinvR (i : ℕ) : Rel q cQ2 (Tinv 𝕜 i * T 𝕜 i) 1
-  /-- `(R2)`: `d₊ T i = T (i+1) d₊` for `i ≥ 1`. -/
-  | R2 (i : ℕ) (h : 1 ≤ i) : Rel q cQ2 (dp 𝕜 * T 𝕜 i) (T 𝕜 (i+1) * dp 𝕜)
-  /-- `(R2*)`: `d₊^* T i⁻¹ = T (i+1)⁻¹ d₊^*` for `i ≥ 1`. -/
-  | R2s (i : ℕ) (h : 1 ≤ i) : Rel q cQ2 (dps 𝕜 * Tinv 𝕜 i) (Tinv 𝕜 (i+1) * dps 𝕜)
-  /-- `(R3)`: `T 1 d₊² = d₊²`. -/
-  | R3 : Rel q cQ2 (T 𝕜 1 * dp 𝕜 * dp 𝕜) (dp 𝕜 * dp 𝕜)
-  /-- `(R3*)`: `T 1⁻¹ (d₊^*)² = (d₊^*)²`. -/
-  | R3s : Rel q cQ2 (Tinv 𝕜 1 * dps 𝕜 * dps 𝕜) (dps 𝕜 * dps 𝕜)
-  /-- `(R6)`: `T 1 [d₊,d₋] d₊ = q d₊ [d₊,d₋]`. -/
-  | R6 : Rel q cQ2 (T 𝕜 1 * (dp 𝕜 * dm 𝕜 - dm 𝕜 * dp 𝕜) * dp 𝕜)
-      (q • (dp 𝕜 * (dp 𝕜 * dm 𝕜 - dm 𝕜 * dp 𝕜)))
-  /-- `(R6*)`: dual of `(R6)` for `A_{q⁻¹}`. -/
-  | R6s : Rel q cQ2 (Tinv 𝕜 1 * (dps 𝕜 * dm 𝕜 - dm 𝕜 * dps 𝕜) * dps 𝕜)
-      (q⁻¹ • (dps 𝕜 * (dps 𝕜 * dm 𝕜 - dm 𝕜 * dps 𝕜)))
-  /-- `(Q1)`: `z (i+1) d₊ = d₊ z i`. -/
-  | Q1 (i : ℕ) : Rel q cQ2 (zz 𝕜 (i+1) * dp 𝕜) (dp 𝕜 * zz 𝕜 i)
-  /-- `(Q1*)`: `y (i+1) d₊^* = d₊^* y i`. -/
-  | Q1s (i : ℕ) : Rel q cQ2 (yy 𝕜 (i+1) * dps 𝕜) (dps 𝕜 * yy 𝕜 i)
-  /-- `(Q2)`: `z 1 d₊ = -q^k y 1 d₊^*` (scalar abstracted as `cQ2`). -/
-  | Q2 : Rel q cQ2 (zz 𝕜 1 * dp 𝕜) (cQ2 • (yy 𝕜 1 * dps 𝕜))
-  /-- `y i` commutes with `T j` when `i ≠ j`, `i ≠ j+1`. -/
-  | yTcomm (i j : ℕ) (h : i ≠ j ∧ i ≠ j + 1) : Rel q cQ2 (yy 𝕜 i * T 𝕜 j) (T 𝕜 j * yy 𝕜 i)
-  /-- `z i` commutes with `T j` when `i ≠ j`, `i ≠ j+1`. -/
-  | zTcomm (i j : ℕ) (h : i ≠ j ∧ i ≠ j + 1) : Rel q cQ2 (zz 𝕜 i * T 𝕜 j) (T 𝕜 j * zz 𝕜 i)
-  /-- `y i` commutes with `d₋`. -/
-  | ydm (i : ℕ) : Rel q cQ2 (yy 𝕜 i * dm 𝕜) (dm 𝕜 * yy 𝕜 i)
-  /-- `z i` commutes with `d₋`. -/
-  | zdm (i : ℕ) : Rel q cQ2 (zz 𝕜 i * dm 𝕜) (dm 𝕜 * zz 𝕜 i)
-  /-- `y i` and `y j` commute. -/
-  | yy_comm (i j : ℕ) : Rel q cQ2 (yy 𝕜 i * yy 𝕜 j) (yy 𝕜 j * yy 𝕜 i)
-  /-- `z i` and `z j` commute. -/
-  | zz_comm (i j : ℕ) : Rel q cQ2 (zz 𝕜 i * zz 𝕜 j) (zz 𝕜 j * zz 𝕜 i)
-  /-- `z 1 T 1 y 1 = y 2 z 1 T 1`. -/
-  | z1y1 : Rel q cQ2 (zz 𝕜 1 * T 𝕜 1 * yy 𝕜 1) (yy 𝕜 2 * zz 𝕜 1 * T 𝕜 1)
-  /-- `y 1 T 1⁻¹ z 1 = z 2 y 1 T 1⁻¹`. -/
-  | y1z1 : Rel q cQ2 (yy 𝕜 1 * Tinv 𝕜 1 * zz 𝕜 1) (zz 𝕜 2 * yy 𝕜 1 * Tinv 𝕜 1)
-  /-- `T 1` commutes with `y 1 + y 2`. -/
-  | T1symYa : Rel q cQ2 (T 𝕜 1 * (yy 𝕜 1 + yy 𝕜 2)) ((yy 𝕜 1 + yy 𝕜 2) * T 𝕜 1)
-  /-- `T 1` commutes with `y 1 y 2`. -/
-  | T1symYm : Rel q cQ2 (T 𝕜 1 * (yy 𝕜 1 * yy 𝕜 2)) ((yy 𝕜 1 * yy 𝕜 2) * T 𝕜 1)
-  /-- `T 1` commutes with `z 1 + z 2`. -/
-  | T1symZa : Rel q cQ2 (T 𝕜 1 * (zz 𝕜 1 + zz 𝕜 2)) ((zz 𝕜 1 + zz 𝕜 2) * T 𝕜 1)
-  /-- `T 1` commutes with `z 1 z 2`. -/
-  | T1symZm : Rel q cQ2 (T 𝕜 1 * (zz 𝕜 1 * zz 𝕜 2)) ((zz 𝕜 1 * zz 𝕜 2) * T 𝕜 1)
+/-- Defining relations of the full level-graded `A_{q,t}` presentation. -/
+inductive Rel (q t : 𝕜) : Pre 𝕜 → Pre 𝕜 → Prop
+  -- vertex/path support
+  | eps_idem (k) : Rel q t (eps 𝕜 k * eps 𝕜 k) (eps 𝕜 k)
+  | eps_orth (k l) (h : k ≠ l) : Rel q t (eps 𝕜 k * eps 𝕜 l) 0
+  | T_support (k i) : Rel q t (eps 𝕜 k * T 𝕜 k i * eps 𝕜 k) (T 𝕜 k i)
+  | Tinv_support (k i) : Rel q t (eps 𝕜 k * Tinv 𝕜 k i * eps 𝕜 k) (Tinv 𝕜 k i)
+  | dp_support (k) : Rel q t (eps 𝕜 (k+1) * dp 𝕜 k * eps 𝕜 k) (dp 𝕜 k)
+  | dm_support (k) : Rel q t (eps 𝕜 k * dm 𝕜 k * eps 𝕜 (k+1)) (dm 𝕜 k)
+  | dps_support (k) : Rel q t (eps 𝕜 (k+1) * dps 𝕜 k * eps 𝕜 k) (dps 𝕜 k)
+  -- Hecke relations
+  | skein (k i) (hi : 1 ≤ i ∧ i < k) :
+      Rel q t ((T 𝕜 k i - eps 𝕜 k) * (T 𝕜 k i + q • eps 𝕜 k)) 0
+  | braid (k i) (hi : 1 ≤ i ∧ i + 1 < k) :
+      Rel q t (T 𝕜 k i * T 𝕜 k (i+1) * T 𝕜 k i)
+        (T 𝕜 k (i+1) * T 𝕜 k i * T 𝕜 k (i+1))
+  | Tcomm (k i j) (h : 1 ≤ i ∧ i + 1 < j ∧ j < k) :
+      Rel q t (T 𝕜 k i * T 𝕜 k j) (T 𝕜 k j * T 𝕜 k i)
+  | TinvL (k i) (hi : 1 ≤ i ∧ i < k) : Rel q t (T 𝕜 k i * Tinv 𝕜 k i) (eps 𝕜 k)
+  | TinvR (k i) (hi : 1 ≤ i ∧ i < k) : Rel q t (Tinv 𝕜 k i * T 𝕜 k i) (eps 𝕜 k)
+  -- A_q: R1--R6
+  | R1 (k i) (h : 2 ≤ i ∧ i ≤ k - 2) :
+      Rel q t (dm 𝕜 (k-1) * T 𝕜 k i) (T 𝕜 (k-1) i * dm 𝕜 (k-1))
+  | R2 (k i) (h : 1 ≤ i ∧ i < k) :
+      Rel q t (dp 𝕜 k * T 𝕜 k i) (T 𝕜 (k+1) (i+1) * dp 𝕜 k)
+  | R3 (k) : Rel q t (T 𝕜 (k+2) 1 * dp 𝕜 (k+1) * dp 𝕜 k) (dp 𝕜 (k+1) * dp 𝕜 k)
+  | R4 (k) (hk : 2 ≤ k) :
+      Rel q t (dm 𝕜 (k-2) * dm 𝕜 (k-1) * T 𝕜 k (k-1)) (dm 𝕜 (k-2) * dm 𝕜 (k-1))
+  | R5 (k) (hk : 2 ≤ k) :
+      Rel q t (dm 𝕜 (k-1) * comm 𝕜 k * T 𝕜 k (k-1))
+        (q • (comm 𝕜 (k-1) * dm 𝕜 (k-1)))
+  | R6 (k) : Rel q t (T 𝕜 (k+1) 1 * comm 𝕜 (k+1) * dp 𝕜 k)
+      (q • (dp 𝕜 k * comm 𝕜 k))
+  -- A_{q⁻¹}: starred R1--R6
+  | R1s (k i) (h : 2 ≤ i ∧ i ≤ k - 2) :
+      Rel q t (dm 𝕜 (k-1) * Tinv 𝕜 k i) (Tinv 𝕜 (k-1) i * dm 𝕜 (k-1))
+  | R2s (k i) (h : 1 ≤ i ∧ i < k) :
+      Rel q t (dps 𝕜 k * Tinv 𝕜 k i) (Tinv 𝕜 (k+1) (i+1) * dps 𝕜 k)
+  | R3s (k) : Rel q t (Tinv 𝕜 (k+2) 1 * dps 𝕜 (k+1) * dps 𝕜 k) (dps 𝕜 (k+1) * dps 𝕜 k)
+  | R4s (k) (hk : 2 ≤ k) :
+      Rel q t (dm 𝕜 (k-2) * dm 𝕜 (k-1) * Tinv 𝕜 k (k-1)) (dm 𝕜 (k-2) * dm 𝕜 (k-1))
+  | R5s (k) (hk : 2 ≤ k) :
+      Rel q t (dm 𝕜 (k-1) * commStar 𝕜 k * Tinv 𝕜 k (k-1))
+        (q⁻¹ • (commStar 𝕜 (k-1) * dm 𝕜 (k-1)))
+  | R6s (k) : Rel q t (Tinv 𝕜 (k+1) 1 * commStar 𝕜 (k+1) * dps 𝕜 k)
+      (q⁻¹ • (dps 𝕜 k * commStar 𝕜 k))
+  -- gluing relations of A_{q,t}; yy and zz are the derived words above
+  | Q1 (k i) (hi : 1 ≤ i ∧ i ≤ k) :
+      Rel q t (zz 𝕜 q t (k+1) (i+1) * dp 𝕜 k) (dp 𝕜 k * zz 𝕜 q t k i)
+  | Q1s (k i) (hi : 1 ≤ i ∧ i ≤ k) :
+      Rel q t (yy 𝕜 q (k+1) (i+1) * dps 𝕜 k) (dps 𝕜 k * yy 𝕜 q k i)
+  | Q2 (k) : Rel q t (zz 𝕜 q t (k+1) 1 * dp 𝕜 k)
+      ((-(q ^ k)) • (yy 𝕜 q (k+1) 1 * dps 𝕜 k))
 
-/-- The Dyck path algebra fragment `𝒜_{q,t}` as the quotient of the free algebra
-by the defining relations. -/
-abbrev Aqt (q cQ2 : 𝕜) : Type _ := RingQuot (Rel q cQ2)
+/-- The full level-graded Dyck path algebra. -/
+abbrev Aqt (q t : 𝕜) : Type _ := RingQuot (Rel q t)
 
 end DyckAlgebra

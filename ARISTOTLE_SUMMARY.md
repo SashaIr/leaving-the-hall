@@ -1,3 +1,29 @@
+# Summary of changes for run 90f3921b-88cb-4111-bb66-e778053fab24
+You were right: `Rep.lean` still primarily exposed the old single-level operator structure rather than a genuine `Aqt` action. I corrected that.
+
+- `Rep.lean` now contains only `AqtAction`, whose action is explicitly
+  `Aqt q t →ₐ[𝕜] Module.End 𝕜 carrier`.
+- Added `AqtAction.apply` plus the expected addition, multiplication, and identity laws.
+- Moved the finite single-level calculation interface into `Theta.lean` and renamed it `ThetaData`, documenting clearly that it is not itself an `Aqt` representation.
+- Removed the obsolete `ThetaHom.lean` compatibility module as requested.
+- Updated `README.md`, `docs/AQT_FILES.md`, `docs/SOURCE_AND_SCOPE.md`, and the example in `Main.lean` accordingly.
+- Verified that the complete `RequestProject` target builds successfully and that the edited algebraic files contain no `sorry` or `admit`.
+
+The changes were committed and pushed in commit `3f4b967`.
+
+# Summary of changes for run d52714b9-7cea-4e94-acfa-d694c9b3af15
+Implemented the requested algebra corrections and reorganization.
+
+- Replaced the generic-level fragment in `RequestProject/Aqt/Algebra.lean` with a level-graded path-algebra presentation using vertex idempotents and level-indexed arrows/loops.
+- Added all missing relations `(R1)`, `(R4)`, `(R5)` and the complete starred family `(R1*)`–`(R6*)`.
+- Removed `y` and `z` from the generator type. `Pre.yy` and `Pre.zz` are now recursively defined words in `d₊`, `d₋`, `d₊*`, `T_i`, and `T_i⁻¹`.
+- Removed the auxiliary `GenCore`, `RelCore`, and `Aq0` presentation. `thetaDescent` now descends directly from the `Aqt q t := RingQuot (Rel q t)` defined in `Algebra.lean`, requiring preservation of that complete relation family.
+- Consolidated the substantive contents of `ThetaHom.lean` into `Theta.lean`. `ThetaHom.lean` remains only as a compatibility import for existing users.
+- Updated `Rep.lean` with `AqtAction`, packaging an action as an algebra homomorphism from the full level-graded quotient, while retaining the local operator interface used by the existing finite `Θ` calculations.
+- Updated `Main.lean`, README, and algebra documentation to describe the corrected design.
+
+Verification: the complete `RequestProject` target builds successfully; the edited Lean sources contain no unresolved `sorry`, `admit`, added axioms, or `implemented_by`. The quotient-descent theorem uses only `propext`, `Classical.choice`, and `Quot.sound`.
+
 # Summary of changes for run cf9e19db-0a37-4c1e-8202-cdfb12118000
 Completed the requested reorganization, documentation, and additional `Θ` results.
 

@@ -28,7 +28,6 @@ RequestProject/
 │   ├── Algebra.lean
 │   ├── Rep.lean
 │   ├── Theta.lean
-│   ├── ThetaHom.lean
 │   ├── ThetaDescent.lean
 │   ├── PreserveKernel.lean
 │   └── DGamma.lean
@@ -46,17 +45,17 @@ RequestProject/
 
 ## Scope and modeling choices
 
-The algebraic part uses a single-generic-level presentation.  It omits explicit
-vertex idempotents and level bookkeeping, and replaces the level-dependent
-coefficient in `(Q2)` by a scalar parameter.  The action on symmetric functions
-is represented through its operator algebra and universal map rather than by a
-concrete implementation of plethystic symmetric functions.  Inverses belonging
-to the `u`-adic completion are supplied as two-sided inverse data.
+The algebraic part uses a level-graded path-algebra presentation with vertex
+idempotents, level-indexed arrows and loops, all relations `(R1)`–`(R6)` and
+their starred counterparts.  The elements `y_i` and `z_i` are derived words,
+not generators.  The concrete action on symmetric functions remains represented
+abstractly by an algebra homomorphism rather than by a plethystic datatype;
+inverses belonging to the `u`-adic completion are supplied as two-sided inverse
+data.
 
-Within that scope, the formalization constructs the quotient algebra, packages
-its actions, proves the required transformed-generator identities, constructs
-the descended homomorphism, proves `(Q2)` compatibility, and proves the stated
-kernel-preservation results.  It also proves the abstract conjugation identity
+Within that scope, the formalization constructs the full quotient algebra,
+packages its actions, proves the transformed-operator identities, and gives the
+universal descended homomorphism directly from that quotient.  It also proves the abstract conjugation identity
 `Θ(L) = U L U⁻¹` from intertwining and the corresponding commutation and
 conjugation theorems for the natural-composition operators `D_γ`.
 

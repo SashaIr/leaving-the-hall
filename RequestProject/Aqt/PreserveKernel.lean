@@ -1,4 +1,4 @@
-import RequestProject.Aqt.ThetaHom
+import RequestProject.Aqt.Theta
 
 /-!
 # `Θ` preserves the kernel of the action (`lem:preserve_kernel`)

@@ -17,8 +17,8 @@ The modules provide:
 
 * `Algebra`: the generators-and-relations quotient `Aqt`;
 * `Rep`: representations and the induced action homomorphism;
-* `Theta` and `ThetaHom`: the source identities and preservation of relations;
-* `ThetaDescent`: the homomorphism obtained by descending `Θ`;
+* `Theta`: the source identities and homomorphism lemmas in one module;
+* `ThetaDescent`: descent through the same full quotient defined by `Algebra`;
 * `PreserveKernel`: preservation of the action's `(I1)` and `(I2)` relations.
 -/
 
@@ -27,13 +27,15 @@ namespace DyckAlgebra
 /-- The presented Dyck path algebra. -/
 example (𝕜 : Type*) [Field 𝕜] (q cQ2 : 𝕜) : Type _ := Aqt q cQ2
 
-/-- A representation induces the action homomorphism. -/
-example {𝕜 : Type*} [Field 𝕜] {q cQ2 : 𝕜} (ρ : DyckRep 𝕜 q cQ2) :
-    Aqt q cQ2 →ₐ[𝕜] ρ.carrier := ρ.lift
+/-- An action is an algebra homomorphism from the full level-graded quotient. -/
+example {𝕜 : Type*} [Field 𝕜] {q t : 𝕜} (ρ : AqtAction 𝕜 q t) :
+    Aqt q t →ₐ[𝕜] Module.End 𝕜 ρ.carrier := ρ.act
 
-/-- `Θ` descends across the relations of the core presentation. -/
-example {𝕜 : Type*} [Field 𝕜] {q cQ2 : 𝕜} (ρ : DyckRepU 𝕜 q cQ2) :
-    Aq0 q →ₐ[𝕜] ρ.carrier := ρ.thetaDescent
+/-- A relation-preserving `Θ` assignment descends through that same quotient. -/
+example {𝕜 C : Type*} [Field 𝕜] [Ring C] [Algebra 𝕜 C] {q t : 𝕜}
+    (f : Gen → C)
+    (hf : ∀ ⦃a b : Pre 𝕜⦄, Rel q t a b → thetaPre f a = thetaPre f b) :
+    Aqt q t →ₐ[𝕜] C := thetaDescent f hf
 
 /-- `Θ` preserves `(Q2)`. -/
 example {𝕜 : Type*} [Field 𝕜] {q cQ2 : 𝕜} (ρ : DyckRepU 𝕜 q cQ2) :
