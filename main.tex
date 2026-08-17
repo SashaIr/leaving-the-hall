@@ -7,6 +7,14 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows, backgrounds, calc, chains, decorations, patterns, positioning, shapes}
 
+% Other packages
+\usepackage{geometry}
+\usepackage{thmtools}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{subcaption}
+\usepackage{parskip}
+
 % AMS style packages
 \usepackage{amsfonts}
 \usepackage{amsmath}
@@ -19,13 +27,8 @@
 \usepackage{silence}
 \WarningFilter{amsrefs}{The form \cite}
 
-% Other packages
-\usepackage{geometry}
-\usepackage{thmtools}
-\usepackage{hyperref}
-\usepackage{cleveref}
-\usepackage{subcaption}
-\usepackage{parskip}
+% Turn bare arXiv numbers into working web links
+\renewcommand{\eprint}[1]{\href{https://arxiv.org/abs/#1}{arXiv:#1}}
 
 %% Style
 
@@ -74,10 +77,6 @@
 \DeclareMathOperator{\des}{des}
 \DeclareMathOperator{\Des}{Des}
 \DeclareMathOperator{\cc}{c}
-\DeclareMathOperator{\deh}{deh}
-\DeclareMathOperator{\bfa}{bfa}
-\DeclareMathOperator{\fca}{fca}
-\DeclareMathOperator{\Ang}{Ang}
 
 
 % Letters
@@ -240,12 +239,8 @@
 \def\qrr@tikz@sharp@parse#1and#2\@qrr@tikz@sharp@parse{\def\pgf@tempa{#1}\def\pgf@tempb{#2}}
 \makeatother
 
-%\usepackage[disable]{todonotes}
-\usepackage{todonotes}
 
-%! Here we start with the actual paper.
-
-\title{Leaving the Hall: explicit formulas for Negut operators}
+\title{Leaving the Hall: explicit formulas for Negu\c{t} operators}
 
 \author{Michele D'Adderio}
 \address{
@@ -283,13 +278,13 @@
 \begin{document}
 
 \begin{abstract}
-    Recent major breakthroughs in $q,t$-combinatorics include the introduction of the Dyck path algebra $\A_{q,t}$ by Carlsson and Mellit and of the Catalanimals by Blasiak et al., both leading (among other things) to independent proofs of (different extensions of) the rational shuffle conjecture of Bergeron et al.
+    Recent major breakthroughs in $q,t$-combinatorics include the introduction of the Dyck path algebra $\A_{q,t}$ by Carlsson and Mellit and of the Catalanimals by Blasiak et al., both of which led, among other things, to independent proofs of different extensions of the rational shuffle conjecture of Bergeron et al.
 
-    The first main contribution of this paper is an explicit simple formula inside the algebra $\A_{q,t}$ for the Negut operators, leading to a direct elementary connection between the original operators of the rational shuffle conjecture and the corresponding Catalanimals. Our formula bypasses the elliptic Hall algebra, turning these operators into transparent, workable tools that we can compute exactly and efficiently on any symmetric function (not just on the constants).
+    The first main contribution of this paper is a simple, explicit formula inside the algebra $\A_{q,t}$ for the Negu\c{t} operators, yielding a direct, elementary connection between the original operators of the rational shuffle conjecture and the corresponding Catalanimals. Our formula bypasses the elliptic Hall algebra, turning these operators into transparent, workable tools whose action we can compute exactly and efficiently on any symmetric function, not just constants.
 
-    Our second main contribution is a Lean-formalized extension of the Theta operators of D'Adderio et al.\ to the whole algebra $\A_{q,t}$, which allows us to obtain a series of new combinatorial results in the form of explicit formulas.
+    Our second main contribution consists of a series of explicit formulas relating the Negu\c{t} operators to the Theta operators introduced by D'Adderio et al. To prove these formulas, we provide an extension of the aforementioned Theta operators to the entire algebra $\A_{q,t}$, allowing us to obtain a series of new combinatorial results. The algebraic computations underlying this extension have been formalized in Lean.
 
-    Finally, our third and last contribution is a series of formulas relating the aforementioned Theta operators to the Negut operators, which we exploit to give a (partially) Lean-formalized proof of the Theta conjecture of D'Adderio et al., related to the Frobenius characteristic of certain diagonal coinvariants.
+    To showcase the power of our results, we give a proof, also partially formalized in Lean, of the Theta conjecture of D'Adderio et al., first stated in 2019.
 \end{abstract}
 
 \maketitle
@@ -297,32 +292,31 @@
 
 \section{Introduction}
 
-In the 1990s, Garsia and Haiman set out to prove the Schur positivity of the (modified) Macdonald polynomials by showing them to be the bi-graded Frobenius characteristic of certain Garsia--Haiman modules \cite{GarsiaHaiman1993GradedRepresentationModel}. Their prediction was confirmed in 2001, when Haiman used the algebraic geometry of the Hilbert scheme to prove that the dimension of their modules is equal to $n!$ \cite{Haiman2001nFactorial}, thus proving the $n!$ theorem. In the course of these developments, it became clear that remarkable connections were to be found between Macdonald polynomial theory and the representation theory of the symmetric group. For example, during their quest for Macdonald positivity, Garsia and Haiman introduced the $\mathfrak{S}_n$-module of \emph{diagonal harmonics}, i.e.\ the coinvariants of the diagonal action of $\mathfrak{S}_n$ on polynomials in two sets of $n$ variables, and they conjectured that its Frobenius characteristic is given by $\nabla e_n$, where $\nabla$ is the \emph{nabla} operator on symmetric functions introduced in \cite{BergeronGarsiaHaimanTesler1999IdentitiesPositivityConjectures}, which acts diagonally on Macdonald polynomials. Haiman proved this conjecture in 2002 \cite{Haiman2002HilbertScheme}.
+In the 1990s, Garsia and Haiman set out to prove the Schur positivity of the (modified) Macdonald polynomials by showing them to be the bigraded Frobenius characteristic of certain Garsia--Haiman modules \cite{GarsiaHaiman1993GradedRepresentationModel}. Their prediction was confirmed in 2001, when Haiman used the algebraic geometry of the Hilbert scheme to prove that the dimension of their modules is $n!$ \cite{Haiman2001nFactorial}, thus proving the $n!$ theorem. In the course of these developments, it became clear that remarkable connections were to be found between Macdonald polynomial theory and the representation theory of the symmetric group. For example, during their quest for Macdonald positivity, Garsia and Haiman introduced the $\mathfrak{S}_n$-module of \emph{diagonal harmonics}, i.e.\ the coinvariants of the diagonal action of $\mathfrak{S}_n$ on polynomials in two sets of $n$ variables, and they conjectured that its Frobenius characteristic is given by $\nabla e_n$, where $\nabla$ is the \emph{nabla} operator on symmetric functions introduced in \cite{BergeronGarsiaHaimanTesler1999IdentitiesPositivityConjectures}, which acts diagonally on Macdonald polynomials. Haiman proved this conjecture in 2002 \cite{Haiman2002HilbertScheme}.
 
-Over the years, this subject has revealed itself to be extremely fruitful and to have striking connections to other fields of mathematics, including elliptic Hall algebras \cites{SchiffmannVasserot2011EllipticHallAlgebra,BHMPS2023ShuffleAnyLine}, affine Hecke algebras \cite{CarlssonMellit2018ShuffleConjecture}, Springer fibers \cite{Mellit2020SpringerFibers}, the homology of torus knots \cites{GorskyNegut2015RefinedKnotInvariants, Mellit2022HomologyTorusKnots}, and the shuffle algebra of symmetric functions \cite{Negut2014ShuffleAlgebra}. This rich framework is a strength of the field and often leads to theorems whose proof is based on different theories.
+Over the years, this subject has revealed itself to be extremely fruitful and to have striking connections to other fields of mathematics, including elliptic Hall algebras \cites{SchiffmannVasserot2011EllipticHallAlgebra,BHMPS2023ShuffleAnyLine}, affine Hecke algebras \cite{CarlssonMellit2018ShuffleConjecture}, Springer fibers \cite{Mellit2020SpringerFibers}, the homology of torus knots \cites{GorskyNegut2015RefinedKnotInvariants, Mellit2022HomologyTorusKnots}, and the shuffle algebra of symmetric functions \cite{Negut2014ShuffleAlgebra}. This rich framework is a strength of the field and often leads to theorems whose proofs draw on different theories.
 
-The combinatorial side of this story solidified when Haglund et al.\ formulated their \emph{shuffle conjecture}  \cite{HaglundHaimanLoehrRemmelUlyanov2005ShuffleConjecture}, i.e.\ predicted a combinatorial formula for $\nabla e_n$ in terms of labeled Dyck paths, which are lattice paths using North and East steps going from $(0,0)$ to $(n,n)$ and staying weakly above the line connecting these two points (called the \emph{main diagonal}). This remarkable conjecture, which resisted any attempts to prove it for many years, opened the way to several refinements and extensions. Notably, Haglund, Morse, and Zabrocki conjectured a \emph{compositional} refinement of the shuffle conjecture, which also specified all the points where the Dyck paths return to the main diagonal \cite{HaglundMorseZabrocki2012CompositionalShuffleConjecture}. Not long after, Gorsky and Negut (c.f.\ \cites{GorskyNegut2015RefinedKnotInvariants,Negut2014ShuffleAlgebra}) formulated a \emph{rational shuffle conjecture}, whose combinatorial side involved rectangular labeled Dyck paths, i.e.\ labeled lattice paths going from $(0,0)$ to $(m,n)$ and staying weakly above the line connecting these two points. The symmetric function side is obtained by acting on the constant symmetric function $1$ with suitable elements of the elliptic Hall algebra $\mathcal{E}$ of Burban and Schiffman. Soon after, in \cite{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures} Bergeron et al.\ formulated a \emph{compositional} refinement of the rational shuffle conjecture, at the same time making the symmetric function side more explicit, i.e.\ relying only on basic facts that do not require any understanding of the elliptic Hall algebra $\mathcal{E}$. 
+The combinatorial side of this story solidified when Haglund et al.\ formulated their \emph{shuffle conjecture} \cite{HaglundHaimanLoehrRemmelUlyanov2005ShuffleConjecture}: they predicted a combinatorial formula for $\nabla e_n$ in terms of labeled Dyck paths, which are lattice paths using north and east steps going from $(0,0)$ to $(n,n)$ and staying weakly above the line connecting these two points (called the \emph{main diagonal}). This remarkable conjecture, which resisted all attempts at proof for many years, opened the way to several refinements and extensions. Notably, Haglund, Morse, and Zabrocki conjectured a \emph{compositional} refinement of the shuffle conjecture, which also specified all the points where the Dyck paths return to the main diagonal \cite{HaglundMorseZabrocki2012CompositionalShuffleConjecture}. Not long after, Gorsky and Negu\c{t} (cf.\ \cites{GorskyNegut2015RefinedKnotInvariants,Negut2014ShuffleAlgebra}) formulated a \emph{rational shuffle conjecture}, whose combinatorial side involved rectangular labeled Dyck paths, i.e.\ labeled lattice paths going from $(0,0)$ to $(m,n)$ and staying weakly above the line connecting these two points. The symmetric function side is obtained by acting on the constant symmetric function $1$ with suitable elements of the elliptic Hall algebra $\mathcal{E}$ of Burban and Schiffman. Soon after, in \cite{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures} Bergeron et al.\ formulated a \emph{compositional} refinement of the rational shuffle conjecture, at the same time making the symmetric function side more explicit, i.e.\ relying only on basic facts that do not require any understanding of the elliptic Hall algebra $\mathcal{E}$.
 
 The first breakthrough occurred in \cite{CarlssonMellit2018ShuffleConjecture}, where Carlsson and Mellit proved the compositional shuffle conjecture. For their proof, they introduced their algebra $\A_{q,t}$, which turned out to be a powerful tool for proving several other conjectures. For example, in \cite{Mellit2021Rational} Mellit used the algebra $\A_{q,t}$ to prove the compositional rational shuffle conjecture as well.
 
-Around the time of the announcement of the proof of Carlsson and Mellit \cite{CarlssonMellit2018ShuffleConjecture}, Haglund, Remmel, and Wilson formulated their \emph{Delta conjecture} \cite{HaglundRemmelWilson2018DeltaConjecture}: this is actually a pair of conjectures for the symmetric function $\Delta'_{e_{n-k-1}}e_n$ in terms of decorated Dyck paths, where $k$ decorations are placed on either \emph{rises} or \emph{valleys} of the path. The symmetric function operator $\Delta'_f$ (also introduced in \cite{BergeronGarsiaHaimanTesler1999IdentitiesPositivityConjectures}) acts diagonally on the Macdonald polynomials and in a sense generalizes $\nabla$. In \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators} a compositional refinement of the Delta conjecture has been proposed, through a new tool: \emph{Theta operators} $\Theta_f$. Finally, the rise version of the compositional Delta conjecture was proved in \cite{DAdderioMellit2022CompositionalDelta}, using once again the $\A_{q,t}$ algebra. Remarkably, the valley version of the Delta conjecture is still wide open (cf.\ \cite{DAdderioIraci2023} for some very partial result).
+Around the time of the announcement of the proof of Carlsson and Mellit \cite{CarlssonMellit2018ShuffleConjecture}, Haglund, Remmel, and Wilson formulated their \emph{Delta conjecture} \cite{HaglundRemmelWilson2018DeltaConjecture}: this is actually a pair of conjectures for the symmetric function $\Delta'_{e_{n-k-1}}e_n$ in terms of decorated Dyck paths, where $k$ decorations are placed on either \emph{rises} or \emph{valleys} of the path. The symmetric function operator $\Delta'_f$ (also introduced in \cite{BergeronGarsiaHaimanTesler1999IdentitiesPositivityConjectures}) acts diagonally on the Macdonald polynomials and, in a sense, generalizes $\nabla$. In \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators}, a compositional refinement of the Delta conjecture was proposed using a new tool: the \emph{Theta operators} $\Theta_f$. Finally, the rise version of the compositional Delta conjecture was proved in \cite{DAdderioMellit2022CompositionalDelta}, using once again the $\A_{q,t}$ algebra. Remarkably, the valley version of the Delta conjecture is still wide open (cf.\ \cite{DAdderioIraci2023} for some partial results).
 
-It should be noted that in \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators}, the authors tried to merge the two versions of the Delta conjecture into what they called the \emph{Theta conjecture}, suggesting a combinatorial interpretation for $\Theta_{e_k} \Theta_{e_l} \nabla e_{n-k-l}|_{q=1}$ in terms of labeled Dyck paths supporting decorations on both rises and valleys, giving a formula that specializes to the two versions of the Delta conjecture when $k$ or $l$ are set to $0$. The suggested formula still lacks a dinv statistic, which justifies the specialization $q=1$. Due to its conjectural connection to the coinvariants of the diagonal action of $\mathfrak{S}_n$ on polynomials in two sets of $n$ commuting variables and two sets of $n$ anticommuting variables (cf. \cite[Section 8]{DAdderioIraciVandenWyngaerd2021ThetaOperators}), we consider finding such statistic an outstanding open problem in $q,t$-combinatorics (cf.\ \cite{IraciNadeauVandenWyngaerd2024Smirnov} for some partial progress).
+It should be noted that in \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators}, the authors tried to merge the two versions of the Delta conjecture into what they called the \emph{Theta conjecture}, suggesting a combinatorial interpretation for $\left. \Theta_{e_k} \Theta_{e_l} \nabla e_{n-k-l} \right\rvert_{q=1}$ in terms of labeled Dyck paths supporting decorations on both rises and valleys, via a formula that specializes to the two versions of the Delta conjecture when $k$ or $l$ is set to $0$. The suggested formula still lacks a dinv statistic, which justifies the specialization $q=1$. Due to its conjectural connection to the coinvariants of the diagonal action of $\mathfrak{S}_n$ on polynomials in two sets of $n$ commuting variables and two sets of $n$ anticommuting variables (cf. \cite[Section 8]{DAdderioIraciVandenWyngaerd2021ThetaOperators}), we consider finding such a statistic an outstanding open problem in $q,t$-combinatorics (cf.\ \cite{IraciNadeauVandenWyngaerd2024Smirnov} for some partial progress).
 
-Soon after the proof of the rise version of the compositional Delta conjecture in \cite{DAdderioMellit2022CompositionalDelta}, in \cite{BHMPS2023ShuffleAnyLine} Blasiak et al.\ provided their independent proof of the rational shuffle conjecture (which encompasses the shuffle conjecture), in fact extending these formulas to labeled Dyck paths staying weakly above ``any line''. This was the first of an outstanding series of articles by the same authors \cites{BHMPS2023ProofExtendedDelta,BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}, which settles and extends several outstanding conjectures in the field. The proofs in \cite{BHMPS2023ShuffleAnyLine} are divided into two steps. The first step shows that the combinatorial side of the formulas coincides with a certain Hall-Littlewood series. The other step consists of proving that this Hall-Littlewood series matches the symmetric functions side of the old conjectures: to achieve this, the authors have to use an action of the elliptic Hall algebra $\mathcal{E}$, via a not very explicit isomorphism with the shuffle algebra studied by Negut in \cite{Negut2014ShuffleAlgebra}. In particular, it is shown that certain elements $\D_\gamma$ in $\mathcal{E}$ (called Negut elements in \cites{BHMPS2023ShuffleAnyLine,BHMPS2023ProofExtendedDelta} and \cite{BenDaliBonzomDoulega2026PathOperators}) act as the relevant operators on the constant symmetric function $1$. Generalizations of these Hall-Littlewood series are called \emph{Catalanimals} in \cites{BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}.
+Soon after the proof of the rise version of the compositional Delta conjecture in \cite{DAdderioMellit2022CompositionalDelta}, Blasiak et al.\ provided an independent proof of the rational shuffle conjecture (which encompasses the shuffle conjecture) in \cite{BHMPS2023ShuffleAnyLine}, extending these formulas to labeled Dyck paths staying weakly above ``any line''. This initiated a remarkable series of articles by the same authors \cites{BHMPS2023ProofExtendedDelta,BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}, which settle and extend several outstanding conjectures in the field. The proofs in \cite{BHMPS2023ShuffleAnyLine} are divided into two steps. The first step shows that the combinatorial side of the formulas coincides with a certain Hall-Littlewood series. The second step consists of proving that this Hall-Littlewood series matches the symmetric-function side of the earlier conjectures: to achieve this, the authors have to use an action of the elliptic Hall algebra $\mathcal{E}$, via an implicit isomorphism with the shuffle algebra studied by Negu\c{t} in \cite{Negut2014ShuffleAlgebra}. In particular, it is shown that certain elements $\D_\gamma$ in $\mathcal{E}$ (called Negu\c{t} elements in \cites{BHMPS2023ShuffleAnyLine,BHMPS2023ProofExtendedDelta} and \cite{BenDaliBonzomDoulega2026PathOperators}) act as the relevant operators on the constant symmetric function $1$. Generalizations of these Hall-Littlewood series are called \emph{Catalanimals} in \cites{BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}.
 
-The first main contribution of the present article is to connect the two approaches to the rational shuffle conjecture that we recalled above: we provide a simple explicit formula for the operators $\D_\gamma$ on symmetric functions corresponding to the Negut elements $D_\gamma$, by identifying them inside the $\A_{q,t}$ algebra of Carlsson and Mellit. The advantage of our formula is threefold: (1) since we reprove in an elementary way that $\D_\gamma$ acting on $1$ gives the Hall-Littlewood series (Catalanimal) obtained in \cite{BHMPS2023ShuffleAnyLine}, our results connect this series to the original operators of the rational shuffle conjecture bypassing completely the elliptic Hall algebra $\mathcal{E}$; (2) our formula gives a way to compute the action of $D_\gamma$ on any symmetric function (not just on the constants) much more efficiently with any computer algebra system (such as SageMath); (3) our formula allows to commute the action of $D_\gamma$ with other operators, providing new interesting formulas.
+The first main contribution of the present article is to connect the two approaches to the rational shuffle conjecture that we recalled above: we provide a simple, explicit formula on symmetric functions for the operators corresponding to the Negu\c{t} elements $\D_\gamma$, thereby identifying them inside the $\A_{q,t}$ algebra of Carlsson and Mellit. The advantage of our formula is threefold: (1) since we reprove in an elementary way that $\D_\gamma$ acting on $1$ gives the Hall-Littlewood series (Catalanimal) obtained in \cite{BHMPS2023ShuffleAnyLine}, our results connect this series to the original operators of the rational shuffle conjecture, completely bypassing the elliptic Hall algebra $\mathcal{E}$; (2) our formula enables the exact evaluation of $\D_\gamma$ on arbitrary symmetric functions (rather than constants alone), yielding an algorithm (computable, e.g., in SageMath) requiring a number of operator steps that is linear, rather than exponential, in the length of $\gamma$; (3) our formula allows us to commute the action of $\D_\gamma$ with other operators, yielding new formulas.
 
-Our second main contribution is an extension of the Theta operators $\Theta_{e_k}$ to the whole algebra $\A_{q,t}$, broadening the scope of these operators to a whole new framework. 
-In this context, these operators are easier to compute and manipulate, allowing us to obtain a series of new combinatorial results in the form of explicit formulas. This extension has been formalized in Lean 4 using Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}, a powerful AI agent for formal verification.
+The second main contribution of this paper is related to point (3) above: we derive explicit commutation relations between the Negu\c{t} operators $\D_\gamma$ and the Theta operators $\Theta_{e_k}$ introduced in \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators}, and exploit these relations to prove new formulas about both. To achieve this, we first extend the definition of the Theta operators to the entire algebra $\A_{q,t}$, broadening their scope; in this context, the Theta operators are easier to compute and manipulate, allowing us to obtain a series of new combinatorial results in the form of explicit formulas. The computations used to define this extension have been formalized in Lean 4 using Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}, an AI system for formal verification.
 
-The third and last main contribution of this paper is related to point (3) above: after extending the Theta operator $\Theta_{e_k}$ to the full algebra $\A_{q,t}$, we derive the commutation relations with our $\D_\gamma$, and use these relations to prove new interesting formulas involving the Theta operators. As a notable application, we prove the Theta conjecture \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} using (among other tools) a bijective argument that we also formalized in Lean 4 using \emph{Aristotle}.
+As a notable application of our new formulas, we prove the Theta conjecture \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} using (among other tools) a bijective argument that we also formalized in Lean 4 using \emph{Aristotle}.
 
-We would like to mention that our formulas have potentially many more applications to various open problems in the literature. Just to name a few, we remark that the decorated framework of the Delta conjectures and the rational framework of the rational shuffle conjecture have recently been unified in \cite{IraciPagariaPaolini2026FallingStars}, where a decorated version of the rational shuffle theorem has been first conjectured and then proved, thanks to techniques introduced in \cite{GillespieGorskyGriffin2025Skewing}.
+Our formulas potentially have many more applications to open problems in the literature. For example, the decorated framework of the Delta conjectures and the rational framework of the rational shuffle conjecture have recently been unified in \cite{IraciPagariaPaolini2026FallingStars}, where a decorated version of the rational shuffle theorem was first conjectured and then proved, thanks to techniques introduced in \cite{GillespieGorskyGriffin2025Skewing}.
 
-Our formulas adapt to this context as well, and in principle they can be used to prove several of the conjectures appearing in these papers. For the moment, we deem them outside the scope of this paper, and leave them for future work.
+Our formulas can be adapted to this context as well, and in principle they can be used to prove several of the conjectures appearing in these papers. For the moment, we consider these applications outside the scope of this paper and leave them for future work.
 
-This paper is structured as follows. In \Cref{sec:symmetric_functions} we introduce the symmetric function tools we need and in \Cref{sec:Aqt} we do the same with the Dyck path algebra $\A_{q,t}$; in \Cref{sec:Dgamma}, we give an alternative definition for the $\D_\gamma$ operators as elements of $\A_{q,t}$, and prove that they satisfy all the properties we expect; in \Cref{sec:Theta}, we define an endomorphism $\Theta$ of $\A_{q,t}$, show that it extends the usual $\Theta_f$ operators on symmetric functions, and derive its commutation relations with the $\D_\gamma$ operators; finally, in \Cref{sec:theta_conjecture}, we demonstrate the power of these new operators by proving the Theta conjecture.
+This paper is structured as follows. In \Cref{sec:symmetric_functions} we introduce the symmetric function tools we need and in \Cref{sec:Aqt} we do the same with the Dyck path algebra $\A_{q,t}$; in \Cref{sec:Dgamma}, we give an alternative definition for the $\D_\gamma$ operators as elements of (an extension of) $\A_{q,t}$, and prove that they satisfy all the properties we expect; in \Cref{sec:Theta}, we define an endomorphism $\Theta$ of $\A_{q,t}$, show that it extends the usual $\Theta_f$ operators on symmetric functions, and derive its commutation relations with the $\D_\gamma$ operators; finally, in \Cref{sec:theta_conjecture}, we demonstrate the power of these new operators by proving the Theta conjecture.
 
 
 \section{Symmetric function tools}
@@ -330,15 +324,15 @@ This paper is structured as follows. In \Cref{sec:symmetric_functions} we introd
 
 We denote by $\Lambda$ the graded algebra of symmetric functions with coefficients in $\mathbb{Q}(q,t)$, and by $\<\, , \>$ the \emph{Hall scalar product} on $\Lambda$, defined by declaring that the Schur functions form an orthonormal basis.
 
-The standard bases of the symmetric functions that will appear in our calculations are the monomial $\{m_\lambda\}_{\lambda}$, complete $\{h_{\lambda}\}_{\lambda}$, elementary $\{e_{\lambda}\}_{\lambda}$, power $\{p_{\lambda}\}_{\lambda}$, and Schur $\{s_{\lambda}\}_{\lambda}$ bases.
+The standard bases of symmetric functions that will appear in our calculations are the monomial $\{m_\lambda\}_{\lambda}$, complete $\{h_{\lambda}\}_{\lambda}$, elementary $\{e_{\lambda}\}_{\lambda}$, power $\{p_{\lambda}\}_{\lambda}$, and Schur $\{s_{\lambda}\}_{\lambda}$ bases.
 
-For $f \in \Lambda$, we denote by $f^\perp$ the operator that is the adjoint of the product by $f$ with respect to the Hall scalar product, that is, for every $g, h \in \Lambda$, we have $\< f^\perp g, h \> = \< g, fh \>$.
+For $f \in \Lambda$, we denote by $f^\perp$ the operator adjoint to multiplication by $f$ with respect to the Hall scalar product, that is, for every $g, h \in \Lambda$, we have $\< f^\perp g, h \> = \< g, fh \>$.
 
 For a partition $\mu \vdash n$, we denote by \[ \Ht_\mu \coloneqq \Ht_\mu[X] = \Ht_\mu[X; q,t] = \sum_{\lambda \vdash n} \widetilde{K}_{\lambda \mu}(q,t) s_{\lambda} \] the \emph{(modified) Macdonald polynomials}, where \[ \widetilde{K}_{\lambda \mu} \coloneqq \widetilde{K}_{\lambda \mu}(q,t) = K_{\lambda \mu}(q,1/t) t^{n(\mu)} \] are the \emph{(modified) Kostka coefficients} (see \cite[Chapter~2]{Haglund2008Book} for more details).
 
-Macdonald polynomials form a basis of the algebra of symmetric functions $\Lambda$. This is a modification of the basis introduced by Macdonald \cite{Macdonald1995Book}.
+Macdonald polynomials form a basis of the algebra of symmetric functions $\Lambda$. This basis is a modification of the one introduced by Macdonald \cite{Macdonald1995Book}.
 
-If we identify the partition $\mu$ with its Young diagram, i.e.\ with the collection of cells $\{(i,j)\mid 1\leq i\leq \mu_j, 1\leq j\leq \ell(\mu)\}$, then for each cell $c\in \mu$ we refer to the \emph{arm}, \emph{leg}, \emph{co-arm} and \emph{co-leg} (denoted respectively by $a_\mu(c), l_\mu(c), a_\mu'(c), l_\mu'(c)$) as the number of cells in $\mu$ that are strictly to the right, below, to the left and above $c$ in $\mu$, respectively (see Figure~\ref{fig:notation}).
+If we identify the partition $\mu$ with its Young diagram, i.e.\ with the collection of cells $\{(i,j)\mid 1\leq i\leq \mu_j, 1\leq j\leq \ell(\mu)\}$, then for each cell $c\in \mu$ we define the \emph{arm}, \emph{leg}, \emph{co-arm}, and \emph{co-leg} (denoted, respectively, by $a_\mu(c), l_\mu(c), a_\mu'(c), l_\mu'(c)$) to be the numbers of cells in $\mu$ that are strictly to the right, below, to the left, and above $c$ in $\mu$, respectively (see \Cref{fig:notation}).
 
 \begin{figure}
     \centering
@@ -358,9 +352,9 @@ For every partition $\mu$, we define the following constants:
 \[ B_{\mu} \coloneqq B_{\mu}(q,t) = \sum_{c \in \mu} q^{a_{\mu}'(c)} t^{l_{\mu}'(c)}, \qquad
     \Pi_{\mu} \coloneqq \Pi_{\mu}(q,t) = \prod_{c \in \mu / (1)} (1-q^{a_{\mu}'(c)} t^{l_{\mu}'(c)}). \]
 
-Notice that in the definition of $\Pi_\mu$, the exponents $a_{\mu}'$ and $l_{\mu}'$ are evaluated with respect to the shape $\mu$, not $\mu / (1)$, the latter only denoting that we should skip the cell $(1,1)$ in the product (otherwise the product would be $0$).
+Notice that in the definition of $\Pi_\mu$, the exponents $a_{\mu}'$ and $l_{\mu}'$ are evaluated with respect to the shape $\mu$, not $\mu / (1)$; the latter notation only indicates that the cell $(1,1)$ should be omitted from the product (otherwise the product would be $0$).
 
-We will make extensive use of the \emph{plethystic notation} (cf. \cite[Chapter~1]{Haglund2008Book}).
+We will make extensive use of the \emph{plethystic notation} (cf.\ \cite[Chapter~1]{Haglund2008Book}).
 
 \begin{definition}
     For every expression $X$ for which plethystic substitution is defined, we define the \emph{plethystic exponential} $\Exp[X]$  as
@@ -377,13 +371,13 @@ We will make extensive use of the \emph{plethystic notation} (cf. \cite[Chapter~
     \[ \mathcal{P}_Z F[X] \coloneqq \Exp[XZ] F[X]. \]
 \end{definition}
 
-These operators are related via the following relation, which is straightforward to check:
+These operators are related by the following identity, which is straightforward to check:
 \begin{equation}
     \label{eq:TPExp}
     \mathcal{T}_Y \mathcal{P}_Z= \Exp[YZ] \mathcal{P}_Z \mathcal{T}_Y.
 \end{equation}
 
-Recall the definitions of these linear operators on $\Lambda$.
+We recall the definitions of the following linear operators on $\Lambda$.
 
 \begin{definition}[{\cite[Equation~(3.11)]{BergeronGarsia1999ScienceFiction}}]
     \label{def:nabla}
@@ -400,13 +394,22 @@ Recall the definitions of these linear operators on $\Lambda$.
     For $f \in \Lambda$, we define the linear operators $\Delta_f, \Delta'_f \colon \Lambda \rightarrow \Lambda$ on the eigenbasis of Macdonald polynomials as \[ \Delta_f \Ht_\mu = f[B_\mu] \Ht_\mu, \qquad \qquad \Delta'_f \Ht_\mu = f[B_\mu-1] \Ht_\mu. \]
 \end{definition}
 
-Observe that, on the vector space of homogeneous symmetric functions of degree $n$, denoted by $\Lambda^{(n)}$, the operator $\nabla$ equals $\Delta_{e_n}$. Also note that \[ \mathbf{\Pi} = \sum_{n=1}^\infty (-1)^n \Delta_{e_n}. \] 
+Observe that, on the vector space of homogeneous symmetric functions of degree $n$, denoted by $\Lambda^{(n)}$, the operator $\nabla$ equals $\Delta_{e_n}$. Also note that \[ \mathbf{\Pi} = \sum_{n=0}^\infty (-1)^n \Delta'_{e_n}. \] 
+
+We will use the symmetric functions $E_{n,k}$ (cf.\ \cite[Section~1.3]{DAdderioRomero2023ThetaIdentities}), which can be defined as
+\[E_{n,k}[X]=q^k\sum_{r=0}^k q^{\binom{r}{2}} \qbinom{k}{r}(-1)^re_n\left[X\frac{1-q^{-r}}{1-q}\right],\]
+where $\qbinom{k}{r}$ denotes the usual $q$-binomial coefficient.
+
+\begin{remark}
+    \label{rem:Enk}
+    It is well known (cf.\ \cite[Theorem 7.4]{DAdderioRomero2023ThetaIdentities}) that $\nabla E_{n,n}=\widetilde{H}_{(n)}$, and that $\widetilde{H}_{(n)}$ depends only on $q$ (and not on $t$), so that $\nabla E_{n,n} \rvert_{q=1} = \widetilde{H}_{(n)} \rvert_{q=1}$ equals $e_1^n$, like any modified Macdonald polynomial of degree $n$ at $q=t=1$.
+\end{remark}
 
 From now on, let $M \coloneqq (1-q)(1-t)$.
 
 \begin{definition}[{\cite[Equation~(28)]{DAdderioIraciVandenWyngaerd2021ThetaOperators}}]
     \label{def:theta}
-    For any symmetric function $f \in \Lambda^{(n)}$ we define the \emph{Theta operators} on $\Lambda$ in the following way: for every $F \in \Lambda^{(m)}$ we set
+    For any symmetric function $f \in \Lambda^{(n)}$, we define the \emph{Theta operators} on $\Lambda$ as follows: for every $F \in \Lambda^{(m)}$ we set
     \begin{equation*}
         \Theta_f F  \coloneqq
         \left\{\begin{array}{ll}
@@ -416,30 +419,48 @@ From now on, let $M \coloneqq (1-q)(1-t)$.
         \end{array}
         \right. ,
     \end{equation*}
-    and we extend by linearity the definition to any $f, F \in \Lambda$.
+    and we extend the definition by linearity to all $f, F \in \Lambda$.
 \end{definition}
 
-It is clear that $\Theta_f$ is linear. In addition, if $f$ is homogeneous of degree $k$, then so is $\Theta_f$:
+It is clear that $\Theta_f$ is linear. In addition, if $f$ is homogeneous of degree $k$, then $\Theta_f$ raises degree by $k$:
 \[\Theta_f \Lambda^{(n)} \subseteq \Lambda^{(n+k)} \qquad \text{ for } f \in \Lambda^{(k)}. \]
 
 Finally, we need to refer to \cite[Algorithm~4.1]{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures} (see also \cite[Definition~1.1, Theorem~2.5]{BergeronGarsiaSergelXin2016PlethysticOperators}).
 
 \begin{definition}
-    Let $m, n > 0$. Let $a,b,c,d \in \mathbb{N}$ be such that $a+c=m$, $b+d=n$, $ad-bc = \gcd(m,n)$. We recursively define $Q_{m,n}$ as an operator on $\Lambda$ by \[ Q_{m,n} = \frac{1}{M} \left( Q_{c,d} Q_{a,b} - Q_{a,b} Q_{c,d} \right), \] with the base cases \[ Q_{1,0} = D_0 = \mathsf{id} - M \Delta_{e_1} \quad \text{ and } \quad Q_{0,1} = - \underline{e_1} \] (where $\underline{f}$ is the multiplication by $f$).
+    Let $m, n > 0$. Let $a,b,c,d \in \mathbb{N}$ be such that $a+c=m$, $b+d=n$, and $ad-bc = \gcd(m,n)$. We recursively define $Q_{m,n}$ as an operator on $\Lambda$ by \[ Q_{m,n} = \frac{1}{M} \left( Q_{c,d} Q_{a,b} - Q_{a,b} Q_{c,d} \right), \] with the base cases \[ Q_{1,0} = \D_0 = \mathsf{id} - M \Delta_{e_1} \quad \text{ and } \quad Q_{0,1} = - \underline{e_1} \] (where $\underline{f}$ denotes multiplication by $f$).
 \end{definition}
 
 \begin{definition}
     \label{def:hall-algebra-op}
-    For a coprime pair $(a,b)$ and $f \in \Lambda^{(d)}$, we define $f_{ad,bd}$ as follows. Let \[ f = \sum_{\lambda \vdash d} c_\lambda(q,t) \left( \frac{qt}{qt-1} \right)^{\ell(\lambda)} h_\lambda \left[ \frac{1-qt}{qt} X \right]. \] Then, we define \[ f_{ad,bd} \coloneqq \sum_{\lambda \vdash d} c_\lambda(q,t) \prod_{i=1}^{\ell(\lambda)} Q_{\lambda_i a, \lambda_i b}(1). \]
+    For a coprime pair $(a,b)$ and $F \in \Lambda^{(d)}$, we define $F_{ad,bd}$ as follows. Let \[ f = \sum_{\lambda \vdash d} c_\lambda(q,t) \left( \frac{qt}{qt-1} \right)^{\ell(\lambda)} h_\lambda \left[ \frac{1-qt}{qt} X \right]. \] Then, we define \[ F_{ad,bd} \coloneqq \sum_{\lambda \vdash d} c_\lambda(q,t) \prod_{i=1}^{\ell(\lambda)} Q_{\lambda_i a, \lambda_i b}, \]
+    which is an operator acting on symmetric functions.
 \end{definition}
 
-As conjectured in \cite{BergeronGarsiaSergelXin2016PlethysticOperators} and proved in \cite{Mellit2021Rational}, $f_{ad,bd}$ coincides with the symmetric function $f[-MX^{a,b}]$ arising from the shuffle algebra as in \cite{Negut2014ShuffleAlgebra}. Throughout the rest of this paper, we will use the latter as notation for the former.
+As conjectured in \cite{BergeronGarsiaSergelXin2016PlethysticOperators} and proved in \cite{Mellit2021Rational}, $(-1)^{d(b+1)} f_{ad,bd}$ coincides with the operator 
 
+\begin{remark}
+    \label{rmk:eha-notation}
+    Comparing the normalization of the $Q_{m,n}$-operators in Algorithm~3.1 of~\cite{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures} with the Schiffmann--Vasserot realization of the elliptic Hall algebra used in~\cite{BHMPS2023ShuffleAnyLine}, one obtains, for $F \in \Lambda^{(d)}$,
+    \[
+        F_{da,db}= (-1)^{d(b+1)} F[-MX^{a,b}],
+    \]
+    where $F[-MX^{a,b}]$ is the operator arising from the shuffle algebra \cite{Negut2014ShuffleAlgebra}.
 
-\section{The Dyck Path algebra}
+    Indeed, each homogeneous generator of degree $r$ contributes a factor $(-1)^{r(b+1)}$. Since every monomial occurring in the expansion of $F$ has total degree $d$, the resulting factor is
+    \[
+        \prod_i (-1)^{\lambda_i(b+1)}
+        =(-1)^{(b+1)\sum_i\lambda_i}
+        =(-1)^{d(b+1)}.
+    \]
+\end{remark}
+
+Throughout the rest of this paper, we will use $F[-MX^{a,b}]$ as notation for these expressions, unless otherwise specified.
+
+\section{The Dyck path algebra}
 \label{sec:Aqt}
 
-The Carlsson--Mellit algebra, or Dyck path algebra $\A_{q,t}$ was first introduced in \cite{CarlssonMellit2018ShuffleConjecture} as a groundbreaking tool to prove the shuffle theorem. Its action on the symmetric functions space $\Lambda$ has been later modified in \cite{Mellit2021Rational} to also prove the rational shuffle theorem. In this section, we first recall the definition and some basic facts about it, and then we extend it to accommodate elements of negative degree and define an action on Laurent polynomials with coefficients in $\Lambda$.
+The Carlsson--Mellit algebra, or Dyck path algebra $\A_{q,t}$, was first introduced in \cite{CarlssonMellit2018ShuffleConjecture} as a groundbreaking tool for proving the shuffle theorem. Its action on the space of symmetric functions $\Lambda$ was later modified in \cite{Mellit2021Rational} to prove the rational shuffle theorem as well. In this section, we first recall the definition and some basic facts about it, and then extend it to accommodate elements of negative degree and define an action on Laurent polynomials with coefficients in $\Lambda$.
 
 \subsection{The algebra \texorpdfstring{$\A_q$}{Aq}}
 
@@ -457,13 +478,13 @@ The Carlsson--Mellit algebra, or Dyck path algebra $\A_{q,t}$ was first introduc
         d_- [d_+,d_-] T_{k-1} = q [d_+,d_-] d_- & \qquad \text{ for } k \geq 2 \label{eq:r5} \tag{R5} \\
         T_1 [d_+,d_-] d_+ = q d_+ [d_+,d_-] & \qquad \text{ for } k \geq 1 \label{eq:r6} \tag{R6}
     \end{align}
-    where in each identity $k$ denotes the index of the vertex where the respective paths begin.
+    where in each identity $k$ denotes the index of the vertex where the corresponding paths begin.
     
     The idempotent corresponding to the empty path from vertex $k$ will be denoted by $\epsilon_k$.
 \end{definition}
 
 \begin{definition}
-    We define the following shorthands from \cite{CarlssonMellit2018ShuffleConjecture}. If $i \leq j$, set
+    We use the following shorthands from \cite{CarlssonMellit2018ShuffleConjecture}. If $i \leq j$, set
     \begin{align*}
         & T_{i \nearrow j} = T_i T_{i+1} \cdots T_{j-1}, && \quad T_{j \searrow i} = T_{j-1} T_{j-2} \cdots T_{i}, && \quad T_{i  \nearrow i} = T_{i \searrow i} = \mathsf{id}, \\
         & T_{i \nearrow j}^* = T_i^{-1} T_{i+1}^{-1} \cdots T_{j-1}^{-1}, && \quad T_{j \searrow i}^* = T_{j-1}^{-1} T_{j-2}^{-1} \cdots T_{i}^{-1}, && \quad T_{i \nearrow i}^* = T_{i \searrow i}^* = \mathsf{id}.
@@ -491,9 +512,9 @@ The Carlsson--Mellit algebra, or Dyck path algebra $\A_{q,t}$ was first introduc
     \[ \epsilon_k^* = \epsilon_k, \quad T_i^* = T_i^{-1}, \quad d_-^* = d_-, \]
     and
     \begin{align}
-        \z_{i+1} d_+ & = d_+ \z_i \label{eq:r10} \tag{Q1} \\
-        y_{i+1} d_+^* & = d_+^* y_i \label{eq:r10*} \tag{Q1*} \\
-        \z_1 d_+ & = - q^k y_1 d_+^*. \label{eq:r11} \tag{Q2}
+        \z_{i+1} d_+ & = d_+ \z_i \label{eq:Q1} \tag{Q1} \\
+        y_{i+1} d_+^* & = d_+^* y_i \label{eq:Q1*} \tag{Q1*} \\
+        \z_1 d_+ & = - q^k y_1 d_+^*. \label{eq:Q2} \tag{Q2}
     \end{align}
 \end{definition}
 
@@ -502,34 +523,36 @@ Explicitly, the $z_i$ are defined as
 
 \begin{remark}
     The algebra $\A_{q,t}$ is $\mathbb{Z}^2$-graded, with
-    \[ \deg(d_+) = (1,0), \quad \deg(d_+^*) = (0,1), \quad \deg(d_-) = (0,0), \quad \deg(T_i) = (0,0) \; \forall i. \]
-    We will refer to the $\mathbb{Z}^2$-grading as \emph{bidegree}, and to the restriction to the first component of the bigrading simply as \emph{degree}.
+    \[ \deg(d_+) = (0,1), \quad \deg(d_+^*) = (1,0), \quad \deg(d_-) = (0,0), \quad \deg(T_i) = (0,0) \; \forall i. \]
+    We will refer to the $\mathbb{Z}^2$-grading as \emph{bidegree}, and to the restriction to the second component of the bigrading simply as \emph{degree}.
 \end{remark}
 
 
 \subsection{The action on Laurent polynomials}
 
-For $k \in \N$ we set 
+For $k \in \N$, we set 
 \[ V_k \coloneqq \Lambda \otimes \Q(q,t)[y_1^{\pm 1}, \dots, y_k^{\pm 1}], \quad V \coloneqq \bigoplus_{k=0}^\infty V_k. \]
 
-Notice that this differs from the definition in \cites{CarlssonMellit2018ShuffleConjecture, Mellit2021Rational} as we consider Laurent polynomials in $y_1, \dots, y_k$ rather than just polynomials. The algebra $\A_{q,t}$ acts on $V$ in the following way.
+Notice that this differs from the definition in \cites{CarlssonMellit2018ShuffleConjecture, Mellit2021Rational} because we consider Laurent polynomials in $y_1, \dots, y_k$ rather than just polynomials. 
+
+Given a Laurent monomial $m$ in a given set of variables, we denote by $\langle m \rangle B$ the coefficient of $m$ in the Laurent series $B$. For example, $\langle x^0\rangle f(x)$ denotes the constant term of the Laurent series $f(x)$ in the variables $x_1,x_2,\dots$. The algebra $\A_{q,t}$ acts on $V$ as follows.
 
 \begin{proposition}[{\cite[Propositions~3.3 and 3.4]{Mellit2021Rational}}]
-    There is an action of $\A_{q,t}$ on $V$ defined as follows: for any $F\in V_k$
+    There is an action of $\A_{q,t}$ on $V$ defined as follows: for any $F\in V_k$,
     \begin{align}
         T_i F & = \frac{(q-1) y_i F + (y_{i+1} - q y_i) s_i F}{y_{i+1} - y_i}, \\
-        d_- F & = F[X - (q-1) y_k;y_1,\ldots,y_k] \Exp[-y_k^{-1} X]\Big|_{y_k^0}, \\
+        d_- F & = \langle y_k^0 \rangle F[X - (q-1) y_k;y_1,\ldots,y_k] \Exp[-y_k^{-1} X], \\
         d_+ F & = -T_{1 \nearrow k+1}\; (y_{k+1} F[X+(q-1) y_{k+1}; y_1, \ldots, y_k]), \\
         d_+^* F & = \eta\left(F[X + (q-1) y_{k+1}; y_1, \ldots, y_k]\right),
     \end{align}
-    where $s_i$ is the operator of interchanging the variables $y_i$ and $y_{i+1}$, and $\eta$ is the operator that sends $y_i$ to $y_{i+1}$ for $i<k+1$ and $y_{k+1}$ to $t y_1$. Moreover, the operators $y_i \in \A_q$ act precisely by multiplication by $y_i$.
+    where $s_i$ is the operator that interchanges the variables $y_i$ and $y_{i+1}$, and $\eta$ is the operator that sends $y_i$ to $y_{i+1}$ for $i<k+1$ and $y_{k+1}$ to $t y_1$. Moreover, the operators $y_i \in \A_q$ act precisely by multiplication by $y_i$.
 
-    In particular, $T_i, d_-, d_+$ define an action of $\A_q$, while $T_i^{-1}, d_-, d_+^*$ define an action of the $\A_{q^{-1}}$.
+    In particular, $T_i, d_-, d_+$ define an action of $\A_q$, while $T_i^{-1}, d_-, d_+^*$ define an action of $\A_{q^{-1}}$.
 \end{proposition}
 
 \begin{theorem}[{\cite[Theorem~3.3]{Mellit2021Rational}}]
     \label{thm:annihilator}
-    The annihilator of $V$ as $\A_{q,t}$-module is generated by the relations\footnote{Equation \eqref{eq:I2} in \cite{Mellit2021Rational} has the factor $q^k$ missing. The correct equation reported here can be found in Theorem~3.6 of the ArXiv version.}:
+    The annihilator of $V$ as an $\A_{q,t}$-module is generated by the relations\footnote{Equation \eqref{eq:I2} in \cite{Mellit2021Rational} has the factor $q^k$ missing. The corrected equation reported here can be found in Theorem~3.6 of the arXiv version.}:
     \begin{align}
         (d_- d_+^* -1) d_+^{*k} \epsilon_0 & = 0 \label{eq:I1} \tag{I1} \\
         (d_+ + q^k y_1 d_+^* ) d_+^{*k} \epsilon_0 & = 0. \label{eq:I2} \tag{I2}
@@ -542,13 +565,14 @@ The following statement is a generalization of \cite[Proposition~3.24]{Mellit202
     \label{prop:tau}
     The operator
     \[ \tau(u) F = F[X+u] \Exp\left[- u \sum_{i=1}^k y_i^{-1}\right] \]
-    extends the translation operator $\mathcal{T}_{u}$ to $V$. Moreover, it commutes with $y_i, d_-$, and satisfies
+    extends the translation operator $\mathcal{T}_{u}$ to $V$. Moreover, it commutes with $y_i$ and $d_-$, and satisfies
     \[ \tau(u)\ d_+^* = \Exp[-u/y_1] d_+^* \tau(u). \]
 \end{proposition}
 
 \begin{proof}
+    The commutation with $y_i$ is clear, as $\tau(u)$ does not act on the constants.
     Notice that, for every $F \in V_k$ with $k \geq 1$,
-    \[ d_- F =\langle y_k^0 \rangle\mathcal{P}_{-\frac{1}{y_k}} \mathcal{T}_{-(q-1)y_k}F, \]
+    \[ d_- F = \langle y_k^0 \rangle \mathcal{P}_{-\frac{1}{y_k}} \mathcal{T}_{-(q-1)y_k}F, \]
     hence
     \begin{align*}
         \tau(u)\ d_- F & = \Exp\left[- u \sum_{i=1}^{k-1} y_i^{-1}\right] \mathcal{T}_{u} d_- F \\
@@ -559,7 +583,7 @@ The following statement is a generalization of \cite[Proposition~3.24]{Mellit202
     \end{align*}
     as desired. Moreover, since
     \[ d_+^* F = \eta(\mathcal{T}_{(q-1)y_{k+1}} F), \]
-    then $\mathcal{T}_{u}$ commutes with $d_+^*$, and the commutation of $\tau(u)$ with $d_+^*$ follows.
+    $\mathcal{T}_{u}$ commutes with $d_+^*$, and the commutation of $\tau(u)$ with $d_+^*$ follows.
 \end{proof}
 
 We will need the following technical lemma.
@@ -575,7 +599,7 @@ We will need the following technical lemma.
         \z_1 y_1 & = \z_1 \frac{d_+ d_- - d_- d_+}{q^{k-1}(q-1)} T_{k \searrow 1} \\
         & = \frac{1}{q^{k-1} (q-1)} \left( \z_1 d_+ d_- - \z_1 d_- d_+ \right) T_{k \searrow 1} \\
         & = \frac{1}{q^{k-1} (q-1)} \left( \z_1 d_+ d_- - d_- \z_1 d_+ \right) T_{k \searrow 1}\\
-        & = \frac{1}{q^{k-1} (q-1)} \left( -q^{k-1} y_1 d_+^* d_- - d_- -q^{k} y_1 d_+^* \right) T_{k \searrow 1}\\
+        & = \frac{1}{q^{k-1} (q-1)} \left( -q^{k-1} y_1 d_+^* d_- + q^k d_- y_1 d_+^* \right) T_{k \searrow 1}\\
         & = \frac{1}{1-q} y_1 \left( d_+^* d_- - q d_- d_+^* \right) T_{k \searrow 1}\\
         & = \frac{1}{1-q} y_1 \left( d_+^* d_- - q d_+^* d_- + q d_+^* d_- - q d_- d_+^* \right) T_{k \searrow 1}\\
         & = \frac{1}{1-q} y_1 \left( (1-q) d_+^* d_- + q (d_+^* d_- - d_- d_+^*) \right) T_{k \searrow 1}\\
@@ -584,7 +608,7 @@ We will need the following technical lemma.
     as expected.
 \end{proof}
 
-While technically not needed for our purposes, it is convenient to make the negative powers of the $y_i$ apparent in the algebra $\A_{q,t}$. This can be achieved in the following way.
+Although this is not needed for our purposes, it is convenient to make the negative powers of the $y_i$ explicit in the algebra $\A_{q,t}$. This can be achieved in the following way.
 
 \begin{definition}
     \label{def:Aqt_Y}
@@ -597,73 +621,74 @@ The action of $\A_{q,t}$ on $V$ can be extended to $\A_{q,t}^{\pm}$ by setting $
 \section{The \texorpdfstring{$\D_\gamma$}{Dgamma} operators}
 \label{sec:Dgamma}
 
-The $\D_\gamma$ operators arise from some distinguished elements in the shuffle algebra \cite[Proposition~6.1]{Negut2014ShuffleAlgebra}, treated as operators on symmetric functions as in \cite[Equation~(52)]{BHMPS2023ShuffleAnyLine}.
+The $\D_\gamma$ operators arise from certain distinguished elements of the shuffle algebra \cite[Proposition~6.1]{Negut2014ShuffleAlgebra}, which are viewed as operators on symmetric functions as in \cite[Equation~(52)]{BHMPS2023ShuffleAnyLine}.
 
-In their impressive series of works, Blasiak et al.\ show that the action of these elements on the constant term $1$ produces combinatorially interesting symmetric functions, which eventually led to the proof of the shuffle theorem under any line \cite{BHMPS2023ShuffleAnyLine}, the extended Delta conjecture \cite{BHMPS2023ProofExtendedDelta}, and other impressive results.
+In their seminal series of papers, Blasiak et al.\ showed that the action of these elements on the constant symmetric function $1$ produces combinatorially interesting symmetric functions. These results eventually led to proofs of the shuffle theorem under any line \cite{BHMPS2023ShuffleAnyLine}, the extended Delta conjecture \cite{BHMPS2023ProofExtendedDelta}, and other impressive results.
 
-However, their results rely on some implicit homomorphism between the shuffle algebra and Laurent polynomials, which can only be computed for special elements with extra properties.
+However, their results rely on an implicit isomorphism between the shuffle algebra and the positive part of the elliptic Hall algebra $\mathcal{E}$, whose image can be computed only on special elements satisfying additional properties.
 
-In this section, we give a different, alternative definition for these operators as elements of $\A_{q,t}^\pm$, and show that the two are actually equivalent. The advantage of our alternative definition is that it is completely explicit, computationally efficient, and can be applied to any symmetric function.
+In this section, we give an alternative definition of these operators as elements of $\A_{q,t}^\pm$ and show that the two definitions are equivalent. The advantage of our alternative definition is that it is completely explicit, computationally efficient, and can be applied to any symmetric function.
 
-We also re-prove some properties of these operators from scratch, bypassing the shuffle algebra entirely.
+We also reprove some properties of these operators from scratch, bypassing the shuffle algebra entirely.
 
 
 \subsection{An explicit formula for the \texorpdfstring{$\D_\gamma$}{Dgamma} operators}
 
-Throughout this section, let $\gamma = (\gamma_1, \dots, \gamma_\ell) \in \bigcup_{n > 0} \mathbb{Z}^n$ and $\ell(\gamma) = \ell$. For any such $\gamma$, define $\gamma_+ = (\gamma_1, \dots, \gamma_\ell + 1)$, and $\gamma_- = (\gamma_1 - 1, \dots, \gamma_\ell)$.
+Throughout this section, let $\gamma = (\gamma_1, \dots, \gamma_\ell) \in \bigcup_{n > 0} \mathbb{Z}^n$ with $\ell(\gamma) = \ell$. For any such $\gamma$, define $\gamma_+ = (\gamma_1, \dots, \gamma_\ell + 1)$ and $\gamma_- = (\gamma_1 - 1, \dots, \gamma_\ell)$.
 
 \begin{definition}
     \label{def:D_gamma}
     We define the operator $\D_\gamma \colon \Lambda \rightarrow \Lambda$ as \[ \D_\gamma F = d_- (-y_1)^{\gamma_1-1} \z_1 (-y_1)^{\gamma_2} \cdots \z_1 (-y_1)^{\gamma_\ell} \z_1 d_+ F. \] 
 \end{definition}
 
-% Notice that, for each $f \in \Lambda = V_0$, the element $\D_\gamma f$ is an element of $V_0$, so the operator is well-defined.
-
 \begin{remark}
-    Even if $\gamma \not \geq 0$, for the expression in \Cref{def:D_gamma} to be well-defined, it is sufficient to consider the action of $\A_{q,t}$ on $V$, so this construction does not rely on \Cref{def:Aqt_Y}.
+    Even when $\gamma \not \geq 0$, the expression in \Cref{def:D_gamma} is well-defined using only the action of $\A_{q,t}$ on $V$; thus, this construction does not rely on \Cref{def:Aqt_Y}.
     
-    However, if we have negative powers of $y_1$, the element $\D_\gamma$ itself can be viewed only as an 
-    element of $\A_{q,t}^\pm$, not an element of $\A_{q,t}$.
+    However, if negative powers of $y_1$ occur, the element $\D_\gamma$ itself can be viewed only as an 
+    element of $\A_{q,t}^\pm$, not as an element of $\A_{q,t}$.
 
     Notice that, using \Cref{lemma:yz_commutation}, we can rewrite the operator $\D_\gamma$ as \[ \D_\gamma F = d_- (-y_1)^{\gamma_1} (d_+^* d_- + z_1) (-y_1)^{\gamma_2} \cdots (d_+^* d_- + z_1) (-y_1)^{\gamma_\ell} d_+^* F, \]
-    so it is an element of $\A_{q,t}$ whenever $\gamma \geq 0$, despite $\gamma_1 - 1$ appearing in the definition.
+    so it is an element of $\A_{q,t}$ whenever $\gamma \geq 0$, despite $\gamma_1 - 1$ appearing as an exponent in the definition.
 \end{remark}
 
-Our goal is to show that these operators coincide with the $\D_\gamma$ operators from \cite{BHMPS2023ShuffleAnyLine}, and we will do so by proving that they satisfy the same recurrence relations, and that these relations completely determine the operators. In particular, when $\gamma = (m)$ has a single part, the operators $\D_m$ agree with the ones defined in \cite{BHMPS2023ShuffleAnyLine} and differ by a sign $(-1)^m$ from the ones defined in \cite{GarsiaHaimanTesler1999ExplicitPlethysticFormulas}.
+Our goal is to show that these operators coincide with the $\D_\gamma$ operators from \cite{BHMPS2023ShuffleAnyLine}. We do so by proving that they satisfy the same recurrence relations and that these relations completely determine the operators. In particular, when $\gamma = (m)$ has a single part, the operator $\D_m$ agrees with the one defined in \cite{BHMPS2023ShuffleAnyLine} and differs by a sign $(-1)^m$ from the corresponding operator defined in \cite{GarsiaHaimanTesler1999ExplicitPlethysticFormulas}.
+ 
+Given $\alpha=(\alpha_1,\alpha_2,\dots,\alpha_r) \in \Z^r$ and $\beta=(\beta_1,\beta_2,\dots,\beta_s) \in \Z^s$, we denote by $\alpha\beta$ the concatenation
+\[ \alpha\beta \coloneqq (\alpha_1,\alpha_2,\dots,\alpha_r,\beta_1,\beta_2,\dots,\beta_s)\in \Z^{r+s}. \]
 
 \begin{theorem}
     \label{thm:dgamma-recursion}
-    The operators $\D_\gamma$ satisfies the relations
+    The operators $\D_\gamma$ satisfy the relations
     \begin{enumerate}
-        \item \label{dop:onepart} $\D_{(m)} F = \D_m F = (-1)^m F[X + M/z] \Exp[-zX] \rvert_{z^m}$ for $m \in \mathbb{Z}$;
-        \item \label{dop:neg} $\D_{\alpha (m)} F = 0$ if $m < -\deg(f)$;
+        \item \label{dop:onepart} $\D_{(m)} F = \D_m F = (-1)^m \langle z^m \rangle \Exp[-zX] F[X + M/z]$ for $m \in \mathbb{Z}$;
+        \item \label{dop:neg} $\D_{\alpha (m)} F = 0$ if $m < -\deg(F)$;
         \item \label{dop:recursion} $\D_{\alpha \beta} F = \D_\alpha \D_\beta F + qt \D_{\alpha_+ \beta_-} F$.
     \end{enumerate}
 \end{theorem}
 
 \begin{proof}
-    First we check \eqref{dop:onepart}. We have
+    First, we check \eqref{dop:onepart}. We have
     \begin{align*}
         d_- (-y_1)^{m-1} \z_1 d_+ F & = d_- (-y_1)^m d_+^* F \\
         & = d_- (-y_1)^m F[X + (q-1)ty_1] \\
-        & = \Exp[-y_1^{-1} X] (-y_1)^m F[X + (q-1)ty_1 - (q-1)y_1] \rvert_{y_1^0} \\
-        & = \Exp[-y_1^{-1} X] (-y_1)^m F[X + M y_1] \rvert_{y_1^0} \\
-        (z = y_1^{-1}) & = \Exp[-zX] (-z)^{-m} F[X + M/z] \rvert_{z^0} \\
-        & = (-1)^m \Exp[-zX] F[X + M/z] \rvert_{z^m} \\
+        & = \langle y_1^0 \rangle \Exp[-y_1^{-1} X] (-y_1)^m F[X + (q-1)ty_1 - (q-1)y_1] \\
+        & = \langle y_1^0 \rangle \Exp[-y_1^{-1} X] (-y_1)^m F[X + M y_1] \\
+        (z = y_1^{-1}) & = \langle z^0 \rangle \Exp[-zX] (-z)^{-m} F[X + M/z] \\
+        & = (-1)^m \langle z^m \rangle \Exp[-zX] F[X + M/z] \\
         & = \D_{m} F
     \end{align*}
     as desired.
 
-    Now we check \eqref{dop:neg}. If $\gamma$ has one part the thesis follows from \eqref{dop:onepart}. Otherwise, using the alternative definition, it is enough to prove that $(d_+^* d_- + z_1) (-y_1)^m d_+^* F = 0$ if $m < - \deg(f)$.
-    Using \eqref{eq:r11} and \Cref{lemma:z1y1a} applied to $d_+^* F$, the $d_+^* d_-$ part gives
+    Now we check \eqref{dop:neg}. If $\gamma$ has one part, the claim follows from \eqref{dop:onepart}. Otherwise, using the alternative definition, it is enough to prove that $(d_+^* d_- + z_1) (-y_1)^m d_+^* F = 0$ if $m < - \deg(F)$.
+    Using \eqref{eq:Q2} and \Cref{lemma:z1y1a} applied to $d_+^* F$, the contribution of the $d_+^* d_-$ term is
     \[ 
         \left. \left(\langle w_2^{-m} \rangle \mathcal{T}_{(q-1)t w_1} \mathcal{P}_{-\frac{1}{w_2}} \mathcal{T}_{-(q-1)w_2} d_+^* F \right) \right\rvert_{w_1=y_1}
     \]
-    while, up to a coefficient, the $z_1$ part gives 
+    while, up to a coefficient, the contribution of the $z_1$ term is
     \[ 
-        \left. \left(\langle w_2^{-m} \rangle \left(1-\Exp\left[(q-1)t\frac{w_1}{w_2}\right] \right) \mathcal{T}_{(q-1)tw_1}\mathcal{P}_{-\frac{1}{w_2}} \mathcal{T}_{-(q-1)w_2} d_+^* F \right)\right\rvert_{w_1=y_1}.
+        \left. \left(\langle w_2^{-m} \rangle \left(1-\Exp\left[(q-1)t\frac{w_1}{w_2}\right] \right) \mathcal{T}_{(q-1)tw_1}\mathcal{P}_{-\frac{1}{w_2}} \mathcal{T}_{-(q-1)w_2} d_+^* F \right) \right\rvert_{w_1=y_1}.
     \]
-    In either expression, $w_2$ only appears with positive exponents for terms in $\mathcal{T}_{-(q-1)w_2} d_+^* F$, so these exponents are at most $\deg(F)$. Since $-m > \deg(F)$, extracting the relative coefficient gives $0$, as expected.
+    In either expression, the terms of $\mathcal{T}_{-(q-1)w_2} d_+^* F$ involve only powers of $w_2$ with nonnegative exponents, all at most $\deg(F)$. Since $-m > \deg(F)$, extracting the corresponding coefficient gives $0$, as expected.
 
     Finally, we check \eqref{dop:recursion}. Let $\alpha \in \mathbb{Z}^r$ and $\beta \in \mathbb{Z}^s$. We have
     \begin{align*}
@@ -696,32 +721,89 @@ Our goal is to show that these operators coincide with the $\D_\gamma$ operators
 \end{corollary}
 
 \begin{proof}
-    The two families of operators satisfy the same recurrence relations, and that these relations completely determine them, so they must coincide.
+    The two families of operators satisfy the same recurrence relations, and these relations completely determine them, so they must coincide.
 \end{proof}
 
-In the rest of this work, we will never use \Cref{cor:same_operators}. Instead, we re-prove every statement using our definitions. The following result is an example of a statement that is known for the operators from \cite{BHMPS2023ShuffleAnyLine}, but which we reprove using our definition.
+In the rest of this work, we do not use \Cref{cor:same_operators}. Instead, we reprove every statement using our definition. The following result is an example of a statement that is known for the operators from \cite{BHMPS2023ShuffleAnyLine}, but which we reprove for our operators.
 
 \begin{lemma}
     \label{lem:Dgamma_q1}
-    For any $\gamma \in \mathbb{N}^n$, when specialized at $q=1$, $\D_\gamma$ acts by multiplication by $\left( \D_\gamma \cdot 1 \right)_{q=1} $.
+    For any $\gamma \in \mathbb{N}^n$, upon specialization at $q=1$, $\D_\gamma$ acts by multiplication by $\left( \D_\gamma \cdot 1 \right)_{q=1} $.
 \end{lemma}
 
 \begin{proof}
-    We proceed by double induction on $\ell(\gamma)$ and $\gamma_{\ell(\gamma)}$. Let $F \in \Lambda$ independent of $q$.
+    We proceed by double induction on $\ell(\gamma)$ and $\gamma_{\ell(\gamma)}$, letting the last component vary in $\mathbb{Z}$ rather than $\mathbb{N}$. Let $F \in \Lambda$ be regular at $q=1$ (i.e.\ its coefficients when expanded in the Schur basis have no poles at $q=1$, so that the specialization is well-defined).
     
     If $\gamma = (m)$, we have
-    \[ \D_{(m)} F \rvert_{q=1} = (-1)^m F[X + M/z] \Exp[-zX] \rvert_{z^m} = (-1)^m F[X] \Exp[-zX] \rvert_{z^m} = e_m F \]
-    if $m \geq 0$ and $0$ otherwise, so the base case for the length holds. If $\gamma_{\ell(\gamma)} < - \deg(f)$, then $\D_\gamma F = 0$ by \Cref{thm:dgamma-recursion}. Finally, if $\gamma = (\gamma', m)$, we have
-    \[ \left. \D_\gamma F \right\rvert_{q=1} = \left. \left( \D_\gamma' \D_{(m)} + qt \D_{(\gamma'_+, m-1)} \right) F \right\rvert_{q=1} \]
-    and the thesis follows by induction.
+    \begin{align*}
+        \left( \D_{(m)} F \right)_{q=1} & = (-1)^m \langle z^m \rangle \Exp[-zX] F[X + M/z] \rvert_{q=1} \\
+        & = (-1)^m \langle z^m \rangle \Exp[-zX] F[X] \rvert_{q=1} \\
+        & = e_m F \rvert_{q=1}
+    \end{align*}
+    if $m \geq 0$ and $0$ otherwise, so the base case for the length holds. If $\gamma_{\ell(\gamma)} < - \deg(F)$, then $\D_\gamma F = 0$ by \Cref{thm:dgamma-recursion}. Finally, if $\gamma = (\gamma', m)$, we have
+    \[ \left. \D_\gamma F \right\rvert_{q=1} = \left. \left( \D_{\gamma'} \D_{(m)} + qt \D_{(\gamma'_+, m-1)} \right) F \right\rvert_{q=1} \]
+    and the claim follows by induction.
 \end{proof}
+
+
+\subsection{Computational implementation and benchmarks}
+\label{sec:benchmarks}
+
+A major practical advantage of our new \Cref{def:D_gamma} is that it provides a direct linear algorithm for computing $\D_\gamma F$ for any symmetric function $F \in \Lambda$ and any vector of integers $\gamma \in \mathbb{Z}^\ell$.
+
+In contrast to recursive implementations based on \Cref{thm:dgamma-recursion} (which generate an evaluation tree of depth $\ell-1$ with $O(2^{\ell-1})$ leaf operations), our formula evaluates $\D_\gamma F$ via $O(\ell)$ sequential operator steps in the extended module $V_1 = \Lambda \otimes \mathbb{Q}(q,t)[y_1^{\pm 1}]$.
+
+We evaluated both implementations (\texttt{D\_new} for \Cref{def:D_gamma} and \texttt{D\_old} for \Cref{thm:dgamma-recursion}) in SageMath on CoCalc. Table~\ref{tab:benchmarks_a} reports execution times for evaluating $\D_\gamma \cdot 1$ for compositions $\gamma \in \mathbb{Z}^\ell$ as the length $\ell(\gamma)$ increases. Table~\ref{tab:benchmarks_b} reports timings for evaluating small compositions on various Schur basis elements $F \in \Lambda$.
+
+\begin{table}[ht]
+    \centering
+    \small
+    \begin{tabular}{|l|c|c|r|r|r|}
+        \hline
+        Composition $\gamma$ & Length $\ell$ & Input $F$ & \texttt{D\_new} & \texttt{D\_old} & Speedup \\
+        \hline
+        $(3)$ & 1 & $1$ & $0.0029$\,s & $0.0285$\,s & $9.8\times$ \\
+        $(2, 1)$ & 2 & $1$ & $0.0116$\,s & $0.0583$\,s & $5.0\times$ \\
+        $(0, 3)$ & 2 & $1$ & $0.0261$\,s & $0.1334$\,s & $5.1\times$ \\
+        $(1, 1, 2)$ & 3 & $1$ & $0.0610$\,s & $0.9231$\,s & $15.1\times$ \\
+        $(2, -1, 2)$ & 3 & $1$ & $0.0383$\,s & $0.2084$\,s & $5.4\times$ \\
+        $(1, 2, 1, 1)$ & 4 & $1$ & $0.1078$\,s & $5.7311$\,s & $53.1\times$ \\
+        $(3, 0, -1, 2)$ & 4 & $1$ & $0.0541$\,s & $0.9364$\,s & $17.3\times$ \\
+        $(1, 1, 3, 0, 2)$ & 5 & $1$ & $0.7124$\,s & $> 300$\,s & $>420\times$ \\
+        $(1, -2, 3, 0, 1)$ & 5 & $1$ & $0.1809$\,s & $3.4109$\,s & $18.9\times$ \\
+        \hline
+    \end{tabular}
+    \caption{Benchmark Part A: fixed input $F = 1$, varying composition length $\ell(\gamma)$.}
+    \label{tab:benchmarks_a}
+\end{table}
+
+\begin{table}[ht]
+    \centering
+    \small
+    \begin{tabular}{|l|c|c|r|r|r|}
+        \hline
+        Composition $\gamma$ & Length $\ell$ & Input $F$ & \texttt{D\_new} & \texttt{D\_old} & Speedup \\
+        \hline
+        $(0, 2)$ & 2 & $s_1$ & $0.0394$\,s & $0.1272$\,s & $3.2\times$ \\
+        $(0, 2)$ & 2 & $s_2$ & $0.0819$\,s & $0.4007$\,s & $4.9\times$ \\
+        $(2, -1, 1)$ & 3 & $s_1$ & $0.0514$\,s & $0.2102$\,s & $4.1\times$ \\
+        $(2, -1, 1)$ & 3 & $s_{2,1}$ & $0.2758$\,s & $4.2279$\,s & $15.3\times$ \\
+        $(3, -1, 2)$ & 3 & $s_2$ & $0.2338$\,s & $11.2977$\,s & $48.3\times$ \\
+        $(3, -1, 2)$ & 3 & $s_{2,2}$ & $0.8745$\,s & $216.8674$\,s & $248.0\times$ \\
+        $(1, 0, -1, 2)$ & 4 & $s_{2,1} $ & $0.9265$\,s & $35.8861$\,s & $38.7\times$ \\
+        \hline
+    \end{tabular}
+    \caption{Benchmark Part B: small compositions evaluated on nontrivial input symmetric functions $F \in \Lambda$.}
+    \label{tab:benchmarks_b}
+\end{table}
+
 
 \subsection{Commutation with skewing operators}
 
 By \Cref{prop:tau}, for $F \in \Lambda$, we have
-\[ \tau(u) F = F[X+u] = \sum_{u=0}^\infty u^k h_k^\perp F \quad \text{ and } \quad \tau(-u) F = F[X-u] = \sum_{u=0}^\infty (-u)^k e_k^\perp F. \]
+\[ \tau(u) F = F[X+u] = \sum_{k=0}^\infty u^k h_k^\perp F \quad \text{ and } \quad \tau(-u) F = F[X-u] = \sum_{k=0}^\infty (-u)^k e_k^\perp F. \]
 
-We can derive the following commutation relations for skewing operators and $\D_\gamma$ operators.
+We can derive the following commutation relations between skewing operators and $\D_\gamma$ operators.
 
 \begin{theorem}
     For every $n \geq 0$ and $\gamma\in \mathbb{Z}^\ell$, we have
@@ -748,16 +830,16 @@ We can derive the following commutation relations for skewing operators and $\D_
         \tau(-u) \D_\gamma & = \tau(-u)\ d_- (-y_1)^{\gamma_{1}-1} \z_1 (-y_1)^{\gamma_{2}} \z_1 \cdots (-y_1)^{\gamma_{\ell}} \z_1 d_+ \\
         & = d_- (-y_1)^{\gamma_{1}-1} (1 - uy_1^{-1})^{-1} \z_1 \cdots (-y_1)^{\gamma_{\ell}} (1 - uy_1^{-1})^{-1} \z_1 d_+ \tau(-u) \\
     \end{align*}
-    and the thesis follows by taking the coefficients of $u^n$.
+    and the result follows by taking the coefficient of $u^n$.
 \end{proof}
 
 
 \subsection{Action of \texorpdfstring{$\D_\gamma$}{Dgamma} on \texorpdfstring{$1$}{1}}
 \label{section:Dgammaon1}
 
-The goal of this subsection is to prove that $\D_\gamma \cdot 1$ is equal to the Hall-Littlewood series stated in \cite[Corollary~3.7.2]{BHMPS2023ShuffleAnyLine}, directly from our explicit definition of $\D_\gamma$. We need to recall some definitions and basic facts from \cite[Section~2]{BHMPS2023ShuffleAnyLine}.
+The goal of this subsection is to prove directly from our explicit definition of $\D_\gamma$ that $\D_\gamma \cdot 1$ equals the Hall-Littlewood series stated in \cite[Corollary~3.7.2]{BHMPS2023ShuffleAnyLine}. We need to recall some definitions and basic facts from \cite[Section~2]{BHMPS2023ShuffleAnyLine}.
 
-Consider the action of the symmetric group $\mathfrak{S}_\ell$ on the Laurent power series in variables $x_1,x_2,\dots,x_\ell$ with coefficients in $\mathbb{Q}(q,t)$ by permutation of the variables. Given a Laurent polynomial $f(x) = f(x_1,x_2,\dots,x_\ell) \in \mathbb{Q}(q,t)[x_1^{\pm 1}, x_2^{\pm 1}, \dots, x_\ell^{\pm 1}]$, set
+Consider the action of the symmetric group $\mathfrak{S}_\ell$ on the Laurent power series in variables $x_1,x_2,\dots,x_\ell$ with coefficients in $\mathbb{Q}(q,t)$ by permuting the variables. Given a Laurent polynomial $f(x) = f(x_1,x_2,\dots,x_\ell) \in \mathbb{Q}(q,t)[x_1^{\pm 1}, x_2^{\pm 1}, \dots, x_\ell^{\pm 1}]$, set
 \[
     \textbf{$\sigma$}\, f(x_1,x_2,\dots,x_\ell) \coloneqq \sum_{w\in \mathfrak{S}_\ell}w\left(\frac{f(x)}{\prod_{i<j}(1-x_j/x_i)}\right),
 \]
@@ -776,24 +858,22 @@ for some coefficients $c_\lambda\in \mathbb{Q}(q,t)$. We denote by $f(x)_{\text{
 \[ f(x)_{\text{pol}} \coloneqq \sum_{\lambda\text{ dominant s.t.\ }\lambda_\ell\geq 0} c_\lambda \chi_\lambda, \]
 which is a symmetric power series in $x_1,x_2,\dots,x_\ell$.
 
-Given a Laurent monomial $m$ in a given set of variables, we denote by $\langle m\rangle \Psi$ the coefficient of the monomial $m$ in the Laurent series $\Psi$ in these variables. For example, $\langle x^0\rangle f(x)$ denotes the constant term of the Laurent series $f(x)$ in the variables $x_1,x_2,\dots$.
-
 The following lemma is a straightforward consequence of \cite[Lemma~2.3.1, Equation~(21)]{BHMPS2023ShuffleAnyLine}.
 \begin{lemma}
     \label{lem:poly_part}
     For any Laurent series $f(x)$ in $x_1,x_2,\dots,x_\ell$, we have
     \[\textbf{$\sigma$} (f(x))_{\text{pol}}=\langle w^0 \rangle f(w_1,w_2,\dots,w_\ell) \Exp[\overline{W}X]\prod_{i<j}(1-w_i/w_j),\]
-    where $X=x_1+x_2+\cdots +x_\ell$ and $\overline{W}=w_1^{-1}+w_2^{-1}+\cdots w_\ell^{-1}$.
+    where $X=x_1+x_2+\cdots +x_\ell$ and $\overline{W}=w_1^{-1}+w_2^{-1}+\cdots +w_\ell^{-1}$.
 \end{lemma}
 
 We can now state the main theorem of this section: cf.\ \cite[Corollary~3.7.2]{BHMPS2023ShuffleAnyLine}.
 \begin{theorem}
     \label{thm:Don1}
-    For any $\gamma=(\gamma_1,\dots,\gamma_{\ell})\in \mathbb{Z}^{\ell}$ we have
-    \[\omega \D_\gamma \cdot 1 = \mathbf{H}_{q,t}^{(\ell)}\left(\frac{x^\gamma}{\prod_{i<j}(1-qt x_i/x_j)}\right)_{\mathrm{pol}}.\]
+    For any $\gamma=(\gamma_1,\dots,\gamma_{\ell})\in \mathbb{Z}^{\ell}$, we have
+    \[\omega \D_\gamma \cdot 1 = \mathbf{H}_{q,t}^{(\ell)}\left(\frac{x^\gamma}{\prod_{i=1}^{\ell-1}(1-qt x_i/x_{i+1})}\right)_{\mathrm{pol}}.\]
 \end{theorem}
 
-The remainder of this section is dedicated to the proof of this result. We start with a lemma.
+The remainder of this section is devoted to the proof of this result. We start with a lemma.
 
 \begin{lemma}
     \label{lemma:z1y1a}
@@ -816,7 +896,7 @@ The remainder of this section is dedicated to the proof of this result. We start
     \end{align*}
     Similarly,
     \begin{align*}
-        & d_-d_+^* y_1^a F[X;y_1] = d_- y_2^a d_+^* F[X;y_1] && \text{by \eqref{eq:r10*}} \\
+        & d_-d_+^* y_1^a F[X;y_1] = d_- y_2^a d_+^* F[X;y_1] && \text{by \eqref{eq:Q1*}} \\
         & = d_- y_2^a \eta \mathcal{T}_{(q-1) y_2} F[X;y_1] \\
         & = d_- y_2^a \eta F[X+(q-1) y_2;y_1] \\
         & = d_- y_2^a  F[X+(q-1) ty_1;y_2] \\
@@ -841,14 +921,14 @@ We have the following corollary.
 \end{corollary}
 
 \begin{proof}
-    Using iteratively \Cref{lemma:z1y1a}, we compute
+    Iterating \Cref{lemma:z1y1a}, we compute
     \begin{align*}
         d_- y_1^{\gamma_{1}-1} \z_1 y_1^{\gamma_{2}} \cdots \z_1 y_1^{\gamma_{\ell-1}} \z_1 y_1^{\gamma_{\ell}+1} F & = \langle w^{-\gamma} \rangle \frac{w_\ell}{w_1} \frac{1}{t^{\ell-1}(1-q)^{\ell-1}}\prod_{i=1}^{\ell-1} \left(1-\Exp\left[(q-1)t \frac{w_{i}}{w_{i+1}} \right] \right)
         \\
         & \quad \times
         \mathcal{P}_{-\frac{1}{w_1}} \mathcal{T}_{Mw_1} \cdots \mathcal{P}_{-\frac{1}{w_{\ell-1}}} \mathcal{T}_{Mw_{\ell-1}}\mathcal{P}_{-\frac{1}{w_\ell}} \mathcal{T}_{-(q-1)w_\ell}F[X;w_\ell].
     \end{align*}
-    Now using iteratively \eqref{eq:TPExp} and the fact that
+    Now, iterating \eqref{eq:TPExp} and the fact that
     \[1-\Exp\left[(q-1)t\frac{w_i}{w_{i+1}}\right]=t\frac{w_i}{w_{i+1}}\cdot \frac{(1-q)}{1-qtw_i/w_{i+1}}, \]
     we deduce that the previous expression is equal to
     \[
@@ -859,25 +939,25 @@ We have the following corollary.
 
 We are finally ready to prove the main result of this section.
 
-\begin{proof}[Proof of Theorem~\ref{thm:Don1}]
-    Applying Corollary~\ref{cor:Dgamma1plethystic} to $d_+^*(1)=1 \in V_1$, and then applying $\omega$, we get 
+\begin{proof}[Proof of \Cref{thm:Don1}]
+    Applying \Cref{cor:Dgamma1plethystic} to $d_+^*(1)=1 \in V_1$ and then applying $\omega$, we get 
     \begin{align*}
     \omega \D_\gamma \cdot 1 & = \omega \left( d_- (-y_1)^{\gamma_{1}-1} \z_1 (-y_1)^{\gamma_{2}} \z_1 (-y_1)^{\gamma_{3}} \cdots \z_1 (-y_1)^{\gamma_{\ell-1}} \z_1 (-y_1)^{\gamma_{\ell}+1} d_+^* (1) \right) \\
         & = (-1)^{\lvert \gamma \rvert} \cdot \omega \left( \langle w^{-\gamma} \rangle \prod_{i=1}^{\ell-1} \left(\frac{1}{1-qtw_{i}/w_{i+1}}\right) \prod_{i<j} \Exp\left[-\frac{w_{i}}{w_j} M\right] \mathcal{P}_{-\overline{W}}  \mathcal{T}_{MW} \mathcal{T}_{-t(q-1)w_\ell} 1 \right).
     \end{align*}
-    Now observe that $\mathcal{T}_Y \cdot 1 = 1$, while $\mathcal{P}_Z \cdot 1 = \Exp[XZ]$ for any meaningful expression $Y$ and $Z$. Therefore, the last expression becomes
+    Now observe that $\mathcal{T}_Y \cdot 1 = 1$, while $\mathcal{P}_Z \cdot 1 = \Exp[XZ]$ for all expressions $Y$ and $Z$ for which the operators are defined. Therefore, the last expression becomes
     \begin{align*}
         & (-1)^{\lvert \gamma \rvert} \cdot \omega \left( \langle w^{-\gamma} \rangle \prod_{i=1}^{\ell-1} \left(\frac{1}{1-qtw_{i}/w_{i+1}}\right) \prod_{i<j} \Exp\left[-\frac{w_{i}}{w_j} M\right] \Exp\left[-\overline{W}X\right] \right) \\
         & \quad = \langle w^0 \rangle \left(\frac{w^\gamma}{\prod_{i=1}^{\ell-1}(1-qtw_{i}/w_{i+1})}\right) \prod_{i<j}\Exp\left[-\frac{w_{i}}{w_j} M\right] \Exp\left[\overline{W}X\right],
     \end{align*}
-    because the constant term is going to be symmetric in $x_1,x_2,\dots$, the sign in the plethystic exponential $\Exp[-\overline{W}X]$ cancels out with $(-1)^{\lvert \gamma \rvert}$ and $\omega$, and the $w^\gamma$ appears because of the shift in the coefficient extraction.
-    Now since
+    because the constant term is symmetric in the variables $x_1,x_2,\dots$. The sign in the plethystic exponential $\Exp[-\overline{W}X]$ cancels out with $(-1)^{\lvert \gamma \rvert}$ and $\omega$, and the $w^\gamma$ appears because of the shift in the coefficient extraction.
+    Now, since
     \[ \Exp\left[-\frac{w_i}{w_j}M\right] = \frac{(1-qtw_i/w_j)(1-w_i/w_j)}{(1-qw_i/w_j)(1-tw_i/w_j)} \]
     the last expression reduces to
     \begin{align*}
-        &   \langle w^0 \rangle  \left(\frac{w^\gamma}{\prod_{i=1}^{\ell-1}(1-qtw_{i}/w_{i+1})}\cdot \frac{\prod_{i<j}(1-qtw_i/w_j)}{\prod_{i<j}(1-qw_i/w_j)(1-tw_i/w_j)}\right) \Exp\left[\overline{W}X\right]\prod_{i<j}\left(1-\frac{w_{i}}{w_j}\right),
+        &   \langle w^0 \rangle \left(\frac{w^\gamma}{\prod_{i=1}^{\ell-1}(1-qtw_{i}/w_{i+1})} \cdot \frac{\prod_{i<j}(1-qtw_i/w_j)}{\prod_{i<j}(1-qw_i/w_j)(1-tw_i/w_j)}\right) \Exp\left[\overline{W}X\right] \prod_{i<j} \left(1-\frac{w_{i}}{w_j}\right),
     \end{align*}
-    and now by Lemma~\ref{lem:poly_part} this gives precisely
+    and now by \Cref{lem:poly_part} this gives precisely
     \[
         \textbf{$\sigma$} \left(\frac{w^\gamma}{\prod_{i=1}^{\ell-1}(1-qtw_{i}/w_{i+1})}\cdot \frac{\prod_{i<j}(1-qtw_i/w_j)}{\prod_{i<j}(1-qw_i/w_j)(1-tw_i/w_j)}\right)_{\text{pol}}
     \]
@@ -891,31 +971,30 @@ We are finally ready to prove the main result of this section.
 
 \subsection{Connection to the rational shuffle theorem}
 \label{section:D1}
-
-The goal of this subsection is to prove the rational shuffle theorem from scratch, relying on the algebraic construction by Mellit \cite{Mellit2021Rational} (but not on the combinatorial recursion in terms of braids) and the combinatorial interpretation of
-\[ \mathbf{H}_{q,t}^{(\ell)}\left(\frac{x^\gamma}{\prod_{i<j}(1-qt x_i/x_j)}\right)_{\mathrm{pol}} \]
-by Blasiak et al.\ (but not on any theory about the elliptic Hall algebra).
+We are now able to connect the approaches of Mellit and Blasiak et al.\ by outlining a proof of the rational shuffle theorem which relies on Mellit's algebraic construction \cite{Mellit2021Rational} (but not on the combinatorial recursion in terms of braids) and on the combinatorial interpretation of
+\[ \mathbf{H}_{q,t}^{(\ell)}\left(\frac{x^\gamma}{\prod_{i=1}^{\ell-1}(1-qt x_i/x_{i+1})}\right)_{\mathrm{pol}} \]
+by Blasiak et al.\ (but not on any theory of the elliptic Hall algebra).
 We start by recalling the following basic proposition.
 
 \begin{proposition}
     \label{prop:SL2}
-    The positive subalgebra $\mathsf{SL}_2(\mathbb{Z})_+$, consisting of matrices with positive integer entries and determinant $1$, is freely generated by the elements \[ N = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix} \quad \text{ and } \quad S = \begin{pmatrix} 1 & 0 \\ 1 & 1 \end{pmatrix}. \]
+    The monoid $\mathsf{SL}_2(\mathbb{Z})_+$, consisting of matrices with nonnegative integer entries and determinant $1$, is freely generated by the elements \[ N = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix} \quad \text{ and } \quad S = \begin{pmatrix} 1 & 0 \\ 1 & 1 \end{pmatrix}. \]
 \end{proposition}
 
 \begin{definition}
     \label{def:lowest_path}
-    Let $A \in \mathsf{SL}_2(\mathbb{Z})_+$, let $U = (0,1)$ denote a vertical step and $D = (1,0)$ denote a horizontal step on the lattice grid $\mathbb{Z}^2$. Since by \Cref{prop:SL2} $A$ admits a unique decomposition as a product of positive powers of $N$ and $S$, via the assignments
-    \[ N U = U D, \quad N D = D, \quad S U = U, \quad SD = U D, \]
-    we define a path $P_A$ as the lattice path from $(0,0)$ to $U A^t$ obtained by acting with $A$ on $U$.
+    Let $A \in \mathsf{SL}_2(\mathbb{Z})_+$. Let $U = (0,1)$ denote a vertical (up) step and $R = (1,0)$ a horizontal (right) step on the lattice grid $\mathbb{Z}^2$. By \Cref{prop:SL2}, $A$ admits a unique decomposition as a product of positive powers of $N$ and $S$. Using the assignments
+    \[ N U = U R, \quad N R = R, \quad S U = U, \quad S R = U R, \]
+    we define $P_A$ to be the lattice path from $(0,0)$ to $U A^t$ obtained by acting with $A$ on $U$.
 \end{definition}
 
 \begin{example}
     Let 
-    \[ A_\gamma = \begin{pmatrix} 2 & 1 \\ 5 & 3 \end{pmatrix}  \in \mathsf{SL}_2(\mathbb{Z})_+. \]
-    To obtain the factorization, consider $U A^t = (5,3)$. We use the Euclidean algorithm:
+    \[ A_\gamma = \begin{pmatrix} 2 & 5 \\ 1 & 3 \end{pmatrix}  \in \mathsf{SL}_2(\mathbb{Z})_+. \]
+    To obtain the factorization, consider $U A_\gamma^t = (5,3)$. We use the Euclidean algorithm:
     \[ (5,3) \rightarrow (2,3) \rightarrow (2,1) \rightarrow (1,1) \rightarrow (0,1), \]
-    where decreasing the first component corresponds to $N^{-1}$ and decreasing the second component corresponds to $S^{-1}$. Reversing the steps, we obtain $A = NSNN$, which is the desired factorization. To build $P_A$, we act on $U = (0,1)$ in the same way, obtaining (see \Cref{fig:lowest_path_53})
-    \[ U \rightarrow UD \rightarrow UDD \rightarrow UUDUD \rightarrow UDUDDUDD. \]
+    where decreasing the first component corresponds to $N^{-1}$ and decreasing the second component corresponds to $S^{-1}$. Reversing the steps, we obtain $A_\gamma = NSNN$, which is the desired factorization. To build $P_{A_\gamma}$, we act on $U = (0,1)$ in the same way, obtaining (see \Cref{fig:lowest_path_53})
+    \[ U \stackrel{N}{\rightarrow} UR \stackrel{N}{\rightarrow} URR \stackrel{S}{\rightarrow} UURUR \stackrel{N}{\rightarrow} URURRURR. \]
 \end{example}
 
 \begin{figure}
@@ -936,104 +1015,113 @@ We start by recalling the following basic proposition.
 \begin{proof}
     We proceed by induction on the length of $A$ when expressed as a word in $N$ and $S$. If the length is $0$, then $A = I$ and the statement is trivial.
 
-    If the thesis holds for some matrix $A$, we can check that it holds for $NA$ and $SA$. By induction, $P_A$ is the lowest lattice path above the diagonal from $(0,0)$ to $(a,b) = U A^t$ in the lattice grid.
+    If the claim holds for some matrix $A$, then it suffices to check that it holds for $NA$ and $SA$. By induction, $P_A$ is the lowest lattice path above the diagonal from $(0,0)$ to $(a,b) = U A^t$ in the lattice grid.
     
-    We have that $U (NA)^t = (a+b, b)$. For $i$ from $1$ to $b$, the intersections between the line $y=i$ and the diagonals from $(0,0)$ to $(a,b)$ and $(a+b,b)$ are exactly $i$ units apart, and so are the starting points of the vertical steps in the $i\th$ rows in $P_A$ and $P_{NA}$. In particular, the horizontal distances between those points are the same, and since the ones for $P_A$ are less than $1$ (because it is the lowest path above the diagonal), so are the ones for $P_{NA}$.
+    We have $U (NA)^t = (a+b, b)$. For $1 \leq i \leq b$, the intersections between the line $y=i$ and the diagonals from $(0,0)$ to $(a,b)$ and $(a+b,b)$ are exactly $i$ units apart, and so are the starting points of the vertical steps in row $i$ of $P_A$ and $P_{NA}$. In particular, the horizontal distances between those points are the same, and since those for $P_A$ are less than $1$ (because it is the lowest path above the diagonal), so are those for $P_{NA}$.
 
-    The same argument holds for $SA$ by considering the intersections with the lines $x=i$ for $i$ from $1$ to $a$ and looking at the vertical distances instead. The thesis follows.
+    The same argument holds for $SA$ by considering the intersections with the lines $x=i$ for $1 \leq i \leq a$ and looking at the vertical distances instead. The claim follows.
 \end{proof}
 
 \begin{proposition}[{\cite[Proposition~3.16]{Mellit2021Rational}}]
     \label{prop:north_south}
     The assignments
-    \[ N(\epsilon_k) = S(\epsilon_k) = \epsilon_k, \quad N(T_i) = S(T_i) = T_i, \quad, N(d_-) = S(d_-) = d_-, \]
+    \[ N(\epsilon_k) = S(\epsilon_k) = \epsilon_k, \quad N(T_i) = S(T_i) = T_i, \quad N(d_-) = S(d_-) = d_-, \]
     \[ N(d_+) = - \z_1 d_+, \quad N(d_+^*) = d_+^*, \quad S(d_+) = d_+, \quad S(d_+^*) = -y_1 d_+^*, \]
     extend to endomorphisms $N, S$ of $\A_{q,t}$ which preserve the kernel of the action on $V$.
 \end{proposition}
 
 Via these assignments and \Cref{prop:SL2}, we obtain an action of $\mathsf{SL}_2(\mathbb{Z})_+$ on $\A_{q,t}$ which preserves the kernel of the action on $V$.
 
-We can now re-prove \cite[Proposition~3.6.1]{BHMPS2023ShuffleAnyLine}, which is a special case of \cite[Proposition~6.7]{Negut2014ShuffleAlgebra}.
+\begin{remark}
+    \label{rmk:intertwine}
+    For $A \in \mathsf{SL}_2(\mathbb{Z})_+$ and $L \in \A_{q,t}$ let $A(L)$ denote the image of $L$ under the action of $A$ via the action from \Cref{prop:north_south}, and let $A^{\text{old}}(L)$ denote the image of $L$ under the action of $A$ via the action from \cite{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures}. If $J$ is the operator on $\A_{q,t}$ which multiplies an element of bidegree $(a,b)$ by $(-1)^{a+b}$, then $J(A(L)) = A^{\text{old}}(J(L))$ \cite[Section~3, p.\ 4143]{Mellit2021Rational}.
+    
+    In particular, let $L \in \epsilon_0 \A_{q} \epsilon_0$ of degree $d$, corresponding to the multiplication by a symmetric function $F = L \cdot 1$ of degree $d$; its bidegree as an element of $\A_{q,t}$ is then $(0,d)$. It follows that (cf.\ \cite[Conjecture~4.2]{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures})
+    \[ J(A(L)) = A^{\text{old}}(J(L)) = (-1)^d A^{\text{old}}(L) = (-1)^d F_{ad,bd}, \]
+    where $(a,b) = (0,1) A^t$ (so, $A$ maps the $(0,1)$ component of the elliptic Hall algebra to the $(a,b)$ component).
+\end{remark}
+
+We can now reprove \cite[Proposition~3.6.1]{BHMPS2023ShuffleAnyLine}, which is a special case of \cite[Proposition~6.7]{Negut2014ShuffleAlgebra}.
 
 \begin{theorem}
     \label{thm:rational_shuffle}
     Let $m, n$ be positive integers, let $d = \gcd(m,n)$, and let $m = ad$, $n = bd$. For $1 \leq i \leq m$, let $\gamma_i = \lceil ib/a \rceil - \lceil (i-1)b/a \rceil$. Then
-    \[ \D_\gamma = e_d \left[ -MX^{(a,b)} \right]. \] 
+    \[ \D_\gamma = e_d \left[ -MX^{a,b} \right]. \] 
 \end{theorem}
 
 \begin{proof}
-    Since $\gcd(a,b) = 1$, by Bezout there exists unique integers $0 < x \leq a$ and $0 \leq y < b$ such that $xb - ya = 1$. Let
+    Since $\gcd(a,b) = 1$, by Bézout's identity there exist unique integers $0 < x \leq a$ and $0 \leq y < b$ such that $xb - ya = 1$. Let
     \[ A_\gamma = \begin{pmatrix} x & a \\ y & b \end{pmatrix}  \in \mathsf{SL}_2(\mathbb{Z})_+. \]
-    
-    By (essentially) \cite[Theorem~3.9, Remark~3.25]{Mellit2021Rational}, for any $A \in \mathsf{SL}_2(\mathbb{Z})_+$ and $L \in \epsilon_0 \A_{q,t} \epsilon_0$, we have \[ A(L) = F \left[ -MX^{(a',b')} \right], \] where $(a', b') = (0,1) A^t$, $F = L \cdot 1$. For $A = A_\gamma$ and $L = d_- (-y_1)^{d-1} d_+$, we have \[ L \cdot 1 = d_- (-y_1)^{d-1} d_+ \cdot 1 = d_- (-y_1)^{d-1} \z_1 d_+^* = d_- (-y_1)^{d-1} \z_1 d_+ \cdot 1 = \D_d \cdot 1 = e_d, \]
-    so all is left to do is to show that $\D_\gamma = A_\gamma(L)$.
-    
-    The Euclidean algorithm guarantees that, by construction, $\gamma$ is such that the lowest lattice path above the diagonal from $(0,0)$ to $(m,n)$ in the lattice grid is exactly \[ P_\gamma = U^{\gamma_1} D U^{\gamma_2} D \cdots U^{\gamma_m} D, \]
-    which consists of $d$ copies of the lowest lattice path above the diagonal from $(0,0)$ to $(a,b)$. By \Cref{lem:lowest_path}, we have that $P_\gamma = (P_{A_\gamma})^d$.
 
-    By definition, if in $P_\gamma$ we replace each occurrence of $U$ with $-y_1$ (except the $1^\mathsf{st}$, which is replaced by $d_+$), each occurrence of $D$ with $-\z_1$, and add a $d_-$ to the left, we obtain exactly $\D_\gamma$.
+    For $A = A_\gamma$ and $L = d_- (-y_1)^{d-1} d_+$, we have \[ L \cdot 1 = d_- (-y_1)^{d-1} d_+ \cdot 1 = d_- (-y_1)^{d-1} \z_1 d_+ \cdot 1 = \D_d \cdot 1 = e_d, \]
+    so by \Cref{rmk:intertwine} we obtain
+    \[ (-1)^{m+n} A_\gamma(L) = (-1)^d e_{m,n} = (-1)^d (-1)^{d(b+1)} e_d \left[ -MX^{a,b} \right] = (-1)^{n} e_d \left[ -MX^{a,b} \right], \]
+    where the factor $(-1)^{d(b+1)}$ arises from \Cref{rmk:eha-notation}. Since $n = bd$, we have $(-1)^d (-1)^{d(b+1)} = (-1)^{db} = (-1)^n$, and we only need to show that $A_\gamma(L) = (-1)^m \D_\gamma$.
+    
+    The Euclidean algorithm guarantees that, by construction, $\gamma$ is such that the lowest lattice path above the diagonal from $(0,0)$ to $(m,n)$ in the lattice grid is exactly \[ P_\gamma = U^{\gamma_1} R U^{\gamma_2} R \cdots U^{\gamma_m} R, \]
+    which consists of $d$ copies of the lowest lattice path above the diagonal from $(0,0)$ to $(a,b)$. By \Cref{lem:lowest_path}, $P_\gamma = (P_{A_\gamma})^d$.
 
-    If we perform the same replacements in \Cref{prop:north_south} we obtain the assignments in \Cref{def:lowest_path}, so by construction from $(P_{A_\gamma})^d$ we obtain $A_\gamma(L)$. Since $P_\gamma = (P_{A_\gamma})^d$, the two sequences of replacements yield $\D_\gamma = A_\gamma(L)$, as desired.
+    By definition, if, in $P_\gamma$, we replace each occurrence of $U$ with $-y_1$ (except the first one, which is replaced by $d_+$), each occurrence of $R$ with $-\z_1$, and add a $d_-$ to the left, we obtain $(-1)^m \D_\gamma$.
+
+    Performing the same replacements in \Cref{prop:north_south} yields the assignments in \Cref{def:lowest_path}; applying them to $(P_{A_\gamma})^d$ yields $A_\gamma(L)$. Since $P_\gamma = (P_{A_\gamma})^d$, the two sequences of replacements yield $A_\gamma(L) = (-1)^m \D_\gamma$, as desired.
 \end{proof}
 
 The rational shuffle theorem now follows.
 
 \begin{theorem}
     Let $m, n$ be positive integers, let $d = \gcd(m,n)$, and let $m = ad$, $n = bd$. Then
-    \[ e_d \left[ -MX^{(a,b)} \right] = \sum_{\pi \in \LD(m,n)} q^{\dinv{\pi}} t^{\area{\pi}} x^\pi, \]
+    \[ e_d \left[ -MX^{a,b} \right] \cdot 1 = \sum_{\pi \in \LD(m,n)} q^{\dinv(\pi)} t^{\area(\pi)} x^\pi, \]
     where the original definitions can be found in \cite[Conjecture~4.2]{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures}.
 \end{theorem}
 
 \begin{proof}
-    By \cite[Remark~3.25]{Mellit2021Rational}, the LHS here coincides with the one from \cite[Conjecture~4.2]{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures}; by \Cref{thm:rational_shuffle}, that is the same as $\D_\gamma \cdot 1$ for an appropriate $\gamma$; by \Cref{thm:Don1}, this is equal to
-    \[ \omega \left( \mathbf{H}_{q,t}^{(\ell)}\left(\frac{x^\gamma}{\prod_{i<j}(1-qt x_i/x_j)}\right)_{\mathrm{pol}} \right); \]
-    finally, by the combinatorial argument in \cite[Theorem~5.5.1]{BHMPS2023ShuffleAnyLine}, this is equal to the RHS.
+    By \cite[Remark~3.25]{Mellit2021Rational}, the left-hand side coincides with the one from \cite[Conjecture~4.2]{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures}; by \Cref{thm:rational_shuffle}, that is the same as $\D_\gamma \cdot 1$ for an appropriate $\gamma$; by \Cref{thm:Don1}, this is equal to
+    \[ \omega \left( \mathbf{H}_{q,t}^{(\ell)}\left(\frac{x^\gamma}{\prod_{i=1}^{\ell-1}(1-qt x_i/x_{i+1})}\right)_{\mathrm{pol}} \right); \]
+    finally, by the combinatorial argument in \cite[Theorem~5.5.1]{BHMPS2023ShuffleAnyLine}, this is equal to the right-hand side.
 \end{proof}
 
 
 \subsection{Combinatorics of \texorpdfstring{$\D_\gamma$}{Dgamma} when \texorpdfstring{$q=1$}{q=1}}
 
-Recall that, for $w = w_1\cdots w_r$ a word, its \emph{descent set} is the set
+Recall that, for a word $w = w_1\cdots w_r$, its \emph{descent set} is the set
 \[ \Des(w) \coloneqq \left\{ i \in [r-1] \mid w_i>w_{i+1} \right\} = \left\{d_1<\dots<d_\ell\right\} \]
-%[\Des(w)=\left\{i\in[r-1]\,|\,w_i>w_{i+1}\right\}=\left\{d_1,\dots,d_\ell\right\}\]
-and its \emph{descent composition} as the composition that records the distances between a descent and the following one, namely
+and its \emph{descent composition} is the composition that records the lengths of the successive segments determined by the descents, namely
 \[ \left(d_1,d_2-d_1,\dots,d_\ell-d_{\ell-1},r-d_\ell\right). \]
-With an abuse of notation, we will denote the descent composition of $w$ with $\Des(w)$ as well, where the context will make it clear whether we are referring to the descent set or the descent composition.
+With an abuse of notation, we will denote the descent composition of $w$ by $\Des(w)$ as well, where the context will make it clear whether we are referring to the descent set or the descent composition.
 
 \begin{example}
-    If we consider the word $w=34229845$, then its descent set is $\{2,5,6\}$ and its descent composition is $(2,3,1,2)$.
+    For the word $w=34229845$, its descent set is $\{2,5,6\}$ and its descent composition is $(2,3,1,2)$.
 \end{example}
 
-Let $\gamma \in \mathbb{N}^\ell$ with $\lvert \gamma \rvert = n$, that is, $\gamma = (\gamma_1,\dots,\gamma_\ell) \vDash n$ is a weak composition of $n$ of length at most $\ell$. The expression $\left.\D_\gamma\cdot1\right|_{q=1}$ has a known combinatorial interpretation \cite[Equation~(48)]{BHMPS2023ShuffleAnyLine}, which we recover from our definition.
+Let $\gamma \in \mathbb{N}^\ell$ with $\lvert \gamma \rvert = n$, that is, $\gamma = (\gamma_1,\dots,\gamma_\ell) \vDash n$ is a weak composition of $n$ of length at most $\ell$ (disregarding possible trailing zeros). The expression $\left.\D_\gamma\cdot1\right\rvert_{q=1}$ has a known combinatorial interpretation \cite[Equation~(148)]{BHMPS2023ShuffleAnyLine}, which we recover from our definition.
 
 \begin{definition}
-    We define the \emph{path associated to $\gamma$}, denoted with $\delta(\gamma)$, as the lattice path in the grid $n\times\ell$, starting at $(0,0)$ and ending at $(\ell,n)$, that alternates $\gamma_i$ vertical unitary steps and one unitary horizontal step, for $i=1,\dots,\ell$.
+    We define the \emph{path associated to $\gamma$}, denoted by $\delta(\gamma)$, as the lattice path in the grid $n\times\ell$, starting at $(0,0)$ and ending at $(\ell,n)$, that alternates $\gamma_i$ unit vertical steps and one unit horizontal step, for $i=1,\dots,\ell$.
 \end{definition}
 
 \begin{definition}
-    We define the \emph{set of paths above $\delta\left(\gamma\right)$}, denoted with $\R(\gamma)$, as the set of lattice paths in the grid $n\times\ell$, starting at $(0,0)$ and ending at $(\ell,n)$, staying weakly above the path $\delta(\gamma)$.
+    We define the \emph{set of paths above $\delta\left(\gamma\right)$}, denoted by $\R(\gamma)$, as the set of lattice paths in the grid $n\times\ell$, starting at $(0,0)$ and ending at $(\ell,n)$, staying weakly above the path $\delta(\gamma)$.
 \end{definition}
 
 \begin{definition}
-    Given an element $\tau\in \R(\gamma)$ we define its \emph{area}, denoted with $\area(\tau)$, as the number of whole squares between $\tau$ and $\delta(\gamma)$.
+    Given an element $\tau\in \R(\gamma)$, we define its \emph{area}, denoted by $\area(\tau)$, as the number of whole squares between $\tau$ and $\delta(\gamma)$.
 \end{definition}
 
 \begin{remark}
     \label{rmk:heights}
     A lattice path $\rho$ can be encoded by the vector of the heights of its horizontal steps $(\rho_1,\dots,\rho_\ell)$. Unless otherwise specified, we will assume that the path lies in the $\rho_\ell\times\ell$ grid.
 
-    With this notation we have that $\delta(\gamma)$ is the path $(\gamma_1,\gamma_1+\gamma_2,\dots,\gamma_1+\dots+\gamma_\ell)$ and that a path $\tau=(\tau_1,\dots,\tau_\ell)$ is in $\R(\gamma)$ if and only if $\tau \geq \delta(\gamma)$ componentwise.
+    With this notation, $\delta(\gamma)$ is the path $(\gamma_1,\gamma_1+\gamma_2,\dots,\gamma_1+\dots+\gamma_\ell)$, and a path $\tau=(\tau_1,\dots,\tau_\ell)$ belongs to $\R(\gamma)$ if and only if $\tau \geq \delta(\gamma)$ componentwise.
 \end{remark}
 
 \begin{definition}
-    Given a lattice path $\rho$, %starting in $(0,0)$ and ending in $(\ell,n)$, 
-    we define its \emph{rise composition $\mu(\rho)$} as the composition that records how many consecutive vertical steps $\rho$ has. Namely, if $(\rho_1,\dots,\rho_\ell)$ is the vector of the heights of the horizontal steps of $\rho$, then $\mu(\rho)$ is the composition obtained from $(\rho_1,\rho_2-\rho_1,\dots,\rho_\ell-\rho_{\ell-1})$ after removing the zeros.
+    Given a lattice path $\rho$, we define its \emph{rise composition $\mu(\rho)$} as the composition that records how many consecutive vertical steps $\rho$ has. Namely, if $(\rho_1,\dots,\rho_\ell)$ is the vector of the heights of the horizontal steps of $\rho$, then $\mu(\rho)$ is the composition obtained from $(\rho_1,\rho_2-\rho_1,\dots,\rho_\ell-\rho_{\ell-1})$ after removing the zeros.
 \end{definition}
 
-In particular, $\gamma$ (stripped of the zeros) is the rise composition of $\delta(\gamma)$, and for any $\tau \in \R(\gamma)$ we have that $\mu(\tau) \vDash n$ is a composition of $n$ of length at most $\ell$.
+In particular, $\gamma$ (stripped of the zeros) is the rise composition of $\delta(\gamma)$, and for any $\tau \in \R(\gamma)$, $\mu(\tau) \vDash n$ is a composition of $n$ of length at most $\ell$.
 
 \begin{example}
-    If $w=34229845$ is the word of the previous example, then $\delta(\gamma)$ is the path $(2,5,6,8)$ in blue in Figure~\ref{fig:small-path-example}. The red path in the same figure is an element $\tau=(4,6,6,8)$ of $\R(\gamma)$, with $\area(\tau)=3$ and rise composition $\mu(\tau)=(4,2,2)$.
+    For the descent composition $\gamma=(2,3,1,2)$ of the word $w=34229845$ from the previous example, $\delta(\gamma)$ is the path $(2,5,6,8)$ in blue in \Cref{fig:small-path-example}. The red path in the same figure is an element $\tau=(4,6,6,8)$ of $\R(\gamma)$, with $\area(\tau)=3$ and rise composition $\mu(\tau)=(4,2,2)$.
 \end{example}
 
 \begin{figure}[ht]
@@ -1052,41 +1140,46 @@ In particular, $\gamma$ (stripped of the zeros) is the rise composition of $\del
             \end{scope}
         \end{scope}
     \end{tikzpicture}
-    \caption{In blue the path $\delta(\gamma)$ and in red a path of $\R(\gamma)$. The three green squares are the ones that contribute to the $\area$.}
+    \caption{The path $\delta(\gamma)$ is shown in blue, and a path in $\R(\gamma)$ is shown in red. The three green squares contribute to the area statistic.}
     \label{fig:small-path-example}
 \end{figure}
 
-\begin{theorem}[{\cite[Equation~(48)]{BHMPS2023ShuffleAnyLine}}]
+\begin{theorem}[{\cite[Equation~(148)]{BHMPS2023ShuffleAnyLine}}]
     \label{thm:D.1_comb}
-    Let $\gamma=(\gamma_1,\dots,\gamma_\ell)\vDash n$ be a composition of $n$. Then we have that
+    Let $\gamma=(\gamma_1,\dots,\gamma_\ell)\vDash n$ be a composition of $n$. Then
     \[
-        \left.\D_\gamma\cdot1\right|_{q=1} = \sum_{\tau\in \R(\gamma)} t^{\area(\tau)} e_{\mu(\tau)}.
+        \left.\D_\gamma\cdot1\right\rvert_{q=1} = \sum_{\tau\in \R(\gamma)} t^{\area(\tau)} e_{\mu(\tau)}.
     \]
 \end{theorem}
 
 \begin{proof}
-    We proceed by double induction on $\ell(\gamma)$ and $\lvert \gamma \rvert - \gamma_1$. Let \[ \R_{t,x}(\gamma) = \sum_{\tau \in \R(\gamma)} t^{\area(\tau)} e_{\mu(\tau)} \]
+    We proceed by double induction on $\ell(\gamma)$ and $\lvert \gamma \rvert - \gamma_1$. Let \[ \R_{t,x}(\gamma) = \sum_{\tau \in \R(\gamma)} t^{\area(\tau)} e_{\mu(\tau)}. \]
 
     If $\gamma = (m)$, we have $\D_{(m)} \cdot 1 = e_m$ and $\R_{t,x}((m)) = e_m$, so the base case holds.
 
-    Let $\gamma = (m, \gamma')$. Consider the lattice cell $c$ with coordinates $(0, m)$, that is, the first cell in the first column that is above $\delta(\gamma)$. Then \[ \R_{t,x}(\gamma) = \R_{t,x}((m))\R_{t,x}((\gamma')) + t \R_{t,x}((m+1, \gamma'_-)), \] where the first summand corresponds to the paths that do not lie above $c$ and the second one to the paths that do, where the factor $t$ counts the contribution to the area of $c$. By induction,
+    Let $\gamma = (m, \gamma')$. Consider the lattice cell $c$ with coordinates $(0, m)$, that is, the first cell in the first column that is above $\delta(\gamma)$.
+    Then \[ \R_{t,x}(\gamma) = \R_{t,x}((m))\R_{t,x}((\gamma')) + t \R_{t,x}((m+1, \gamma'_-)), \] where the first summand corresponds to paths that do not lie above $c$, the second to paths that do, and the factor $t$ counts the contribution of $c$ to the area. By induction,
     \[
-        \R_{t,x}(\gamma) = \left. \D_{(m)} \cdot 1 \right\rvert_{q=1} \left. \D_\gamma' \cdot 1 \right\rvert_{q=1} + t \left. \D_{(m+1, \gamma'_-)} \cdot 1 \right\rvert_{q=1} 
-        % = \left. \left( \D_{(m)} \D_\gamma' + qt \D_{(m+1, \gamma'_-)} \right) \cdot 1 \right\rvert_{q=1}
-        = \left. \D_\gamma \right\rvert_{q=1}
+        \R_{t,x}(\gamma) = \left. \D_{(m)} \cdot 1 \right\rvert_{q=1} \left. \D_{\gamma'} \cdot 1 \right\rvert_{q=1} + t \left. \D_{(m+1, \gamma'_-)} \cdot 1 \right\rvert_{q=1}
+        = \left. \D_\gamma \cdot 1 \right\rvert_{q=1}
     \]
-    by \Cref{lem:Dgamma_q1} and \Cref{thm:dgamma-recursion}. The thesis follows.
+    by \Cref{lem:Dgamma_q1} and \Cref{thm:dgamma-recursion}. The claim follows.
 \end{proof}
 
 
 \section{Theta operators}
 \label{sec:Theta}
 
-In this section, we define an endomorphism $\Theta$ of $\A_{q,t}$, giving its action on the generators and then showing that the respective images satisfy the appropriate commutation relations.
+In this section, we define an endomorphism $\Theta$ of $\A_{q,t}$, giving its action on the generators and then showing that the images satisfy the appropriate commutation relations.
 
-Then, we show that this operator extends the $\Theta_f$ operators from \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators} to the whole $\A_{q,t}$, and use this extension to prove some commutation relations with the $\D_\gamma$ operators.
+We then show that this operator extends the $\Theta_f$ operators from \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators} to the whole $\A_{q,t}$, and use this extension to prove commutation relations with the $\D_\gamma$ operators.
 
-We tried to the best of our abilities to make the computations in this section easy to follow, but we understand that they can still be hard to read. To increase trust in these results, and spare the reader the necessity to process the computations, we include a Lean formalization of these results in the GitHub repository  \cite{Iraci2026code}, assisted by Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}.
+As an additional check on the computations in this section, the GitHub repository \cite{Iraci2026code} contains a Lean formalization of several finite algebraic identities from this section, assisted by Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}.
+
+We emphasize that this is \emph{not} a formalization of the entire paper or of the complete construction in this section: in particular, it does not construct the concrete symmetric-function action or the level-graded endomorphism on the completion.
+Rather, the formalization checks the correctness of our computations and demonstrates the feasibility of formalizing this kind of mathematics in Lean.
+
+We hope that this will inspire other mathematicians to contribute to the formalization of algebraic combinatorics, which is currently underrepresented in the Lean mathematical library \cite{Mathlib2020}.
 
 
 \subsection{The Theta operator as endomorphism of \texorpdfstring{$\A_{q,t}$}{Aqt}}
@@ -1111,11 +1204,11 @@ It is convenient to define
 
 \begin{remark}
     \label{rmk:u}
-    Since $u$ always appears paired with $y_1$ and vice versa, all that it is doing is to keep track of the increase in (the first component of) the degree: if we set $\A_{q,t}^{(a)}$ to be the submodule of $\A_{q,t}$ consisting of elements that are homogeneous of degree $a$, then
+    Since $u$ always appears paired with $y_1$ and vice versa, its sole role is to keep track of the increase in (the second component of) the degree: if we set $\A_{q,t}^{(a)}$ to be the submodule of $\A_{q,t}$ consisting of elements that are homogeneous of degree $a$, then
     \[ \Theta \left( \A_{q,t}^{(a)} \right) \in \bigoplus_{k \geq 0} u^k \A_{q,t}^{(a+k)}. \]
 \end{remark}
 
-By \Cref{rmk:u}, instead of defining $\Theta$ on $\A_{q,t}[[u]]$, it is completely equivalent to set $u=1$ and work in the completion of $\A_{q,t}$ with respect to the degree. Throughout this section, we will do so to avoid dealing with $u$ (which adds no information) and lighten the notation. The parameter $u$ will be useful when restricting to symmetric functions.
+By \Cref{rmk:u}, instead of defining $\Theta$ on $\A_{q,t}[[u]]$, it is equivalent to set $u=1$ and work in the completion of $\A_{q,t}$ with respect to the degree. Throughout this section, we will do so to avoid dealing with $u$ (which adds no information) and to lighten the notation. The parameter $u$ will be useful when restricting to symmetric functions.
 
 \begin{remark}
     The operator $\Theta$ becomes the identity if $u=0$.
@@ -1127,18 +1220,18 @@ Notice that
 \end{equation}
 
 \begin{lemma}
-    The following commuting relations hold:
+    The following commutation relations hold:
     \begin{align}
-        [T_1, (1-s)(1 - q^{-1} T_1 s T_1)] & = 0 \label{eq:T_comm} \\
-        [T_1, (1+s^*)^{-1}(1 + q T_1^{-1} s^* T_1^{-1})^{-1}] & = 0 \label{eq:T_comm*}
+        [T_1, (1-s)(1 - q^{-1} T_1 s T_1)] & = 0, \label{eq:T_comm} \\
+        [T_1, (1+s^*)^{-1}(1 + q T_1^{-1} s^* T_1^{-1})^{-1}] & = 0 .\label{eq:T_comm*}
     \end{align}
 \end{lemma}
 
 \begin{proof}
-It is easy to check the following identities:
+    It is easy to check the following identities:
     \begin{align}
         & \z_1 T_1 y_1 = y_2 \z_1 T_1 & & y_1 T_1^{-1} \z_1 = \z_2 y_1 T_1^{-1} \label{eq:z1_y1_comm} \\
-        & q s T_1 s T_1 = (-y_1) (1+y_1)^{-1} (-y_2)(1+y_2)^{-1} \z_1 \z_2 & & q^{-1} s^* T_1^{-1} s^* T_1^{-1} = (1 - \z_1) (1 - \z_2) y_1 y_2 \\
+        & q s T_1 s T_1 = (-y_1) (1+y_1)^{-1} (-y_2)(1+y_2)^{-1} \z_1 \z_2 & & q s^* T_1^{-1} s^* T_1^{-1} = (1 - \z_1) (1 - \z_2) y_1 y_2 \\
         & [T_1, y_1+y_2] = 0 & & [T_1, y_1 y_2] = 0 \label{eq:T1_symy_comm} \\
         & [T_1, \z_1+\z_2] = 0 & & [T_1, \z_1 \z_2] = 0 \label{eq:T1_symz_comm}
     \end{align}
@@ -1159,17 +1252,16 @@ It is easy to check the following identities:
     This concludes the proof.
 \end{proof}
 
-Notice that $\z_i= q^i T_{i \searrow 1} \z_1  T_{1 \nearrow i}$ and $\Theta \z_i = T_{i \searrow 1} (1+s^*)^{-1} T_{1 \nearrow i}^* \z_i \Theta$.
-
 \begin{lemma}
-    \label{lemma:proof_r10}
-    \[ T_{i+1 \searrow 1} (1+s^*)^{-1} \z_1 T_{1 \nearrow i+1} (1-s) = (1-s) T_{i+1 \searrow 1} \left( 1 + \left( 1 - \z_1 q^{-1} T^2_1 \right) y_1 \right)^{-1} \z_1 T_{1 \nearrow i+1}\]
+    \label{lemma:proof_Q1}
+    We have the identity
+    \[ T_{i+1 \searrow 1} (1+s^*)^{-1} \z_1 T_{1 \nearrow i+1} (1-s) = (1-s) T_{i+1 \searrow 1} \left( 1 + \left( 1 - \z_1 q^{-1} T^2_1 \right) y_1 \right)^{-1} \z_1 T_{1 \nearrow i+1}.\]
 \end{lemma}
 
 \begin{proof}
-    The elements $T_j$ for $j>1$ commute with $y_1$ and $\z_1$, so we need to prove only the case $i=1$:
+    The elements $T_j$ for $j>1$ commute with $y_1$ and $\z_1$, so it suffices to prove the case $i=1$:
     \begin{equation}
-        \label{eq:r10_step1}
+        \label{eq:Q1_step1}
         T_1(1+s^*)^{-1} \z_1 T_1 (1-s) = (1-s) T_1 \left( 1 + \left( 1 - \z_1 q^{-1} T^2_1 \right) y_1 \right)^{-1} \z_1 T_1.
     \end{equation}
     Notice that
@@ -1177,33 +1269,33 @@ Notice that $\z_i= q^i T_{i \searrow 1} \z_1  T_{1 \nearrow i}$ and $\Theta \z_i
         \left( 1 + \left( 1 - \z_1 q^{-1} T^2_1 \right) y_1 \right)^{-1} \z_1 T_1 &= (1+y_1)^{-1} \left( 1 - \z_1 q^{-1} T^2_1  y_1 (1+y_1)^{-1} \right)^{-1} \z_1 T_1 \\
         & = (1+y_1)^{-1} \z_1 T_1 ( 1 - q^{-1} T_1 s T_1)^{-1} 
     \end{align*}
-    Our claim \eqref{eq:r10_step1} becomes
+    Our claim \eqref{eq:Q1_step1} becomes
     \begin{equation}
-        \label{eq:r10_step2}
+        \label{eq:Q1_step2}
         T_1(1+s^*)^{-1} \z_1 T_1 (1-s) (1 - q^{-1} T_1 s T_1) = (1-s) T_1 (1+y_1)^{-1} \z_1 T_1
     \end{equation}
-    and the left-hand side of \eqref{eq:r10_step2} is
+    and the left-hand side of \eqref{eq:Q1_step2} is
     \begin{align*}
         T_1(1+s^*)^{-1} \z_1 T_1 (1-s) (1 - q^{-1} T_1 s T_1) &= T_1(1+s^*)^{-1} \z_1 (1-s) (1 - q^{-1} T_1 s T_1) T_1  \\
         &= T_1 (1 + y_1)^{-1} \z_1 ( 1 - q^{-1} T_1 s T_1) T_1 
     \end{align*}
     by \eqref{eq:T_comm} and \eqref{eq:z1(1-s)}.
 
-    Now \eqref{eq:r10_step2} simplifies to
+    Now \eqref{eq:Q1_step2} simplifies to
     \[ T_1 (1 + y_1)^{-1} \z_1 (1 - q^{-1} T_1 s T_1) = (1-s) T_1 (1 + y_1)^{-1} \z_1 \]
-    that is equivalent to 
+    which is equivalent to 
     \[ T_1 (1 + y_1)^{-1} \z_1 q^{-1} T_1 s T_1 = s T_1 (1 + y_1)^{-1} \z_1. \]
     Up to a sign, this expands as
     \begin{equation}
-        \label{eq:r10_step3}
+        \label{eq:Q1_step3}
         T_1 (1 + y_1)^{-1} \z_1 q^{-1} T_1 y_1 (1 + y_1)^{-1} \z_1 T_1 = y_1 (1 + y_1)^{-1} \z_1 T_1 (1 + y_1)^{-1} \z_1.
     \end{equation}
-    Using \eqref{eq:z1_y1_comm} the left-hand side of \eqref{eq:r10_step3} is
+    Using \eqref{eq:z1_y1_comm} the left-hand side of \eqref{eq:Q1_step3} is
     \begin{align*}
         T_1 (1 + y_1)^{-1} \z_1 q^{-1} T_1 y_1 (1 + y_1)^{-1} \z_1 T_1  & = q^{-1} T_1 y_2 (1 + y_1)^{-1} \z_1  T_1  (1 + y_1)^{-1} \z_1 T_1 \\
         & = y_1 T_1^{-1} (1 + y_1)^{-1} \z_1  T_1 (1 + y_1)^{-1} \z_1 T_1
     \end{align*}
-    We only need to prove $[T_1, (1 + y_1)^{-1} \z_1 T_1 (1 + y_1)^{-1} \z_1] = 0$.
+    It remains to prove that $[T_1, (1 + y_1)^{-1} \z_1 T_1 (1 + y_1)^{-1} \z_1] = 0$.
     Finally,
     \begin{align*}
         (1 + y_1)^{-1} \z_1 T_1 (1 + y_1)^{-1} \z_1 &= (1 + y_1)^{-1} (1 + y_2)^{-1} \z_1 T_1 \z_1 \\
@@ -1212,17 +1304,16 @@ Notice that $\z_i= q^i T_{i \searrow 1} \z_1  T_{1 \nearrow i}$ and $\Theta \z_i
     and $T_1$ commutes with symmetric polynomials in $y_1, y_2$ and $\z_1, \z_2$. In particular, it commutes with $(1 + y_1)^{-1} (1 + y_2)^{-1}$ and $\z_1  \z_2$, and this completes the proof.
 \end{proof}
 
-Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = T_{i \searrow 1}^* (1-s)^{-1} T_{1 \nearrow i} y_i \Theta$.
-
-\begin{lemma}
-    \label{lemma:proof_r10*}
-    \[ qT^*_{i+1 \searrow 1} (1-s) y_1 T^*_{1 \nearrow i+1} (1+s^*)^{-1} = (1+s^*)^{-1} T^*_{i+1 \searrow 2} \left( 1 - y_2 (1 + y_2)^{-1} T_1^{-1} \z_1 T_1 \right) y_2 T^*_{2 \nearrow i+1}\]
+\begin{lemma} 
+    \label{lemma:proof_Q1*}
+    We have the identity
+    \[ qT^*_{i+1 \searrow 1} (1-s) y_1 T^*_{1 \nearrow i+1} (1+s^*)^{-1} = (1+s^*)^{-1} T^*_{i+1 \searrow 2} \left( 1 - y_2 (1 + y_2)^{-1} T_1^{-1} \z_1 T_1 \right) y_2 T^*_{2 \nearrow i+1}.\]
 \end{lemma}
 
 \begin{proof}
-    The elements $T_j$ for $j>1$ commute with $y_1$ and $\z_1$, so we need to prove only the case $i=1$:
+    The elements $T_j$ for $j>1$ commute with $y_1$ and $\z_1$, so it suffices to prove the case $i=1$:
     \begin{equation}
-        \label{eq:r10*_step1}
+        \label{eq:Q1*_step1}
         qT^{-1}_1 (1-s) y_1 T^{-1}_1 (1+s^*)^{-1} = (1+s^*)^{-1}  \left(1 - y_2 (1 + y_2)^{-1} T_1^{-1} \z_1 T_1 \right) y_2
     \end{equation} 
     Notice that
@@ -1232,43 +1323,34 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
         &= (1 + y_2)^{-1} y_2 \left( 1 + \left( 1 - T_1^{-1} \z_1 T_1 \right) y_2 \right)  \\
         &= (1 + y_2)^{-1} y_2 \left( 1 + qT_1^{-1} s^* T_1^{-1} \right). 
     \end{align*}
-    Our claim \eqref{eq:r10*_step1} becomes
+    Our claim \eqref{eq:Q1*_step1} becomes
     \begin{equation}
-        \label{eq:r10*_step2}
+        \label{eq:Q1*_step2}
         qT^{-1}_1 (1-s) y_1 T^{-1}_1 (1+s^*)^{-1} \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)^{-1} = (1+s^*)^{-1}  (1 + y_2)^{-1} y_2
     \end{equation} 
-    and the left-hand side of \eqref{eq:r10*_step2} is
-    \[ T^{-1}_1 (1-s) y_1 T^{-1}_1 (1+s^*)^{-1} \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)^{-1} = T_1^{-1} (1 + y_1)^{-1} y_1 \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)^{-1} T^{-1}_1 \]
-    % \begin{align*}
-    %     T^{-1}_1 (1-s) y_1 T^{-1}_1 (1+s^*)^{-1} \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)^{-1} &= T^{-1}_1 (1-s) y_1 (1+s^*)^{-1} \left( 1 - qT_1^{-1} s^* T_1^{-1} \right)^{-1} T^{-1}_1 \\
-    %     &= T_1^{-1} (1 + y_1)^{-1} y_1 \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)^{-1} T^{-1}_1
-    % \end{align*}
+    and the left-hand side of \eqref{eq:Q1*_step2} is
+    \[ qT^{-1}_1 (1-s) y_1 T^{-1}_1 (1+s^*)^{-1} \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)^{-1} = T_1^{-1} (1 + y_1)^{-1} y_1 \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)^{-1} T^{-1}_1 \]
     by \eqref{eq:T_comm*} and \eqref{eq:y1(1+s*)}.
-    Now \eqref{eq:r10*_step2} simplifies to
+    Now \eqref{eq:Q1*_step2} simplifies to
     \begin{equation}
-        \label{eq:r10*_step3}
+        \label{eq:Q1*_step3}
         qT_1^{-1} (1 + y_1)^{-1} y_1 = (1+s^*)^{-1} (1 + y_2)^{-1} y_2 T_1 \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)
     \end{equation}
-    and the right-hand side of \eqref{eq:r10*_step3} can be manipulated using the identity
+    and the right-hand side of \eqref{eq:Q1*_step3} can be manipulated using the identity
     \begin{align*}
-        %(1+s^*)^{-1} (1 + y_2)^{-1} 
-        y_2 T_1 \left( 1 + qT_1^{-1} s^* T_1^{-1} \right) 
-        &=  q
-        %(1+s^*)^{-1} (1 + y_2)^{-1} 
-        T_1^{-1} y_1 \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)\\
-        &=  q
-        %(1+s^*)^{-1} (1 + y_2)^{-1} 
-        T_1^{-1}  \left( 1 + (1 - \z_2) y_2 \right) y_1 
+        y_2 T_1 \left( 1 + qT_1^{-1} s^* T_1^{-1} \right)
+        & = q T_1^{-1} y_1 \left( 1 + qT_1^{-1} s^* T_1^{-1} \right) \\
+        & = q T_1^{-1}  \left( 1 + (1 - \z_2) y_2 \right) y_1 
     \end{align*}
-    that follows by \eqref{eq:z1_y1_comm}.
+    which follows by \eqref{eq:z1_y1_comm}.
     We will prove the stronger equality
     \[ T_1^{-1} (1 + y_1)^{-1} =  (1+s^*)^{-1}  (1 + y_2)^{-1} T_1^{-1}  \left( 1 + (1 - \z_2) y_2 \right) \]
-    that is equivalent to
+    which is equivalent to
     \begin{equation}
-        \label{eq:r10*_step4}
+        \label{eq:Q1*_step4}
         T_1 (1 + y_2) (1+s^*) = \left( 1 + (1 - \z_2) y_2 \right) (1 + y_1) T_1.
     \end{equation}
-    The above equation \eqref{eq:r10*_step4} follows from the identities
+    The above equation \eqref{eq:Q1*_step4} follows from the identities
     \begin{align}
         T_1 (1 + y_2) (1 + y_1) &= (1 + y_2) (1 + y_1) T_1 \\
         T_1 (1 + y_2) \z_1 y_1 &= \z_2 y_2 (1 + y_1) T_1
@@ -1295,22 +1377,21 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
 \begin{proof}    
     Recall that \[ s = (1 + y_1)^{-1} y_1 \z_1 \quad \text{ and } \quad s^* = (1 - \z_1) y_1. \]
     We have
-    
-    \begin{minipage}{0.5\textwidth}
+
+    \begin{minipage}{0.48\textwidth}
         \begin{align*}
             y_1 (1 + s^*) & = y_1 (1 + (1 - \z_1) y_1) \\
             & = y_1 (1 + y_1 - \z_1 y_1) \\
             & = (1 + y_1 - y_1 \z_1) y_1 \\
-            % & = (1 + y_1) (1 - (1 + y_1)^{-1} y_1 \z_1) y_1 \\
             & = (1 + y_1) (1 - s) y_1
         \end{align*}      
     \end{minipage}%
-    \begin{minipage}{0.5\textwidth}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
         \begin{align*}
             \z_1 (1-s) & = \z_1 (1 - (1 + y_1)^{-1} y_1 \z_1) \\
             & = (1 - \z_1 y_1 (1 + y_1)^{-1}) \z_1 \\
             & = (1 + y_1 - \z_1 y_1) (1 + y_1)^{-1} \z_1 \\
-            % & = (1 + (1 - \z_1) y_1) (1 + y_1)^{-1} \z_1 \\
             & = (1 + s^*) (1 + y_1)^{-1} \z_1
         \end{align*}        
     \end{minipage}
@@ -1323,7 +1404,7 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
     
     Relations \eqref{eq:skein}, \eqref{eq:braid}, \eqref{eq:commuting}, \eqref{eq:r1}, and \eqref{eq:r4} are preserved since $\Theta$ acts as the identity on $T_i$ and $d_-$. We now go through the remaining relations.
 
-    Equation \eqref{eq:r2}; we have
+    For~\eqref{eq:r2}, we have
     \begin{align*}
         \Theta(d_+ T_i) & = (1-s) d_+ T_i \\
         & = (1-s) T_{i+1} d_+  \\
@@ -1331,7 +1412,7 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
         & = \Theta(T_{i+1} d_+).
     \end{align*}
 
-    Equation \eqref{eq:r3}; we have
+    For~\eqref{eq:r3}, we have
     \begin{align*}
         \Theta(T_1 d_+^2) & = T_1(1-s) d_+ (1-s) d_+ \\
         & = T_1 (1-s)(1-q^{-1}T_1sT_1) d_+^2 \\
@@ -1341,7 +1422,7 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
         & = \Theta(d_+^2).
     \end{align*}
 
-    Equation \eqref{eq:r5}; we have
+    For~\eqref{eq:r5}, we have
     \begin{align*}
         \Theta(d_- [d_+, d_-] T_{k-1}) & = d_- [(1-s) d_+, d_-] T_{k-1} \\
         & = (1-s) d_- [d_+, d_-] T_{k-1} \\
@@ -1350,9 +1431,9 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
         & = \Theta(q [d_+, d_-] d_-).
     \end{align*}
 
-    Equation \eqref{eq:r6}; we have
+    For~\eqref{eq:r6}, we have
     \begin{align*}
-        \Theta(T_1 [d_+, d_-] d_+) & = T_1 [(1-s) d_+,d_-](1-s) d_+ \\
+        \Theta(T_1 [d_+, d_-] d_+) & = T_1 [(1-s) d_+, d_-] (1-s) d_+ \\
         & = T_1^{-1}(1-s)(1 - q^{-1} T_1 s T_1) [d_+,d_-] d_+ \\
         & = (1-s)(1 - q^{-1} T_1 s T_1) T_1^{-1} [d_+,d_-] d_+ \\
         & = (1-s)(1 - q^{-1} T_1 s T_1) q d_+[d_+,d_-] \\
@@ -1360,33 +1441,33 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
         & = \Theta(q d_+ [d_+, d_-]).
     \end{align*}
 
-    The proof of the dual relations for $\A_{q^{-1}}$ is identical to the one for \eqref{eq:r1}--\eqref{eq:r6}, and we omit it.
+    The proofs of the dual relations for $\A_{q^{-1}}$ are analogous to those for \eqref{eq:r1}--\eqref{eq:r6}, and we omit them.
 
-    Equation \eqref{eq:r10}; we have
+    For~\eqref{eq:Q1}, we have
     \begin{align*}
-        \Theta(\z_{i+1} d_+) &= T_{i+1 \searrow 1} (1+s^*)^{-1} T_{1 \nearrow i+1}^* \z_{i+1} (1-s) d_+ \Theta \\
-        &= q^{i+1} T_{i+1 \searrow 1} (1+s^*)^{-1} \z_1 T_{1 \nearrow i+1}  (1-s) d_+ \Theta \\
-        &= q^{i+1} (1-s) T_{i+1 \searrow 1} \left( 1 + \left( 1 - \z_1 q^{-1} T^2_1 \right) y_1 \right)^{-1} \z_1 T_{1 \nearrow i+1} d_+ \Theta \\
-        &= (1-s) T_{i+1 \searrow 1} \left( 1 + \left( 1 - \z_1 q^{-1} T^2_1 \right) y_1 \right)^{-1}  T_{1 \nearrow i+1}^* \z_{i+1} d_+ \Theta \\
-        &= (1-s) d_+ T_{i \searrow 1} (1+s^*)^{-1} T_{1 \nearrow i}^* \z_i \Theta \\
-        &= \Theta(d_+ \z_i).
+        \Theta(\z_{i+1} d_+)
+        & = q^{-i} T_{i+1 \searrow 1} (1+s^*)^{-1} \z_1 T_{1 \nearrow i+1}  (1-s) d_+ \\
+        & = q^{-i} (1-s) T_{i+1 \searrow 1} \left( 1 + \left( 1 - \z_1 q^{-1} T^2_1 \right) y_1 \right)^{-1} \z_1 T_{1 \nearrow i+1} d_+ \\
+        & = (1-s) T_{i+1 \searrow 1} \left( 1 + \left( 1 - \z_1 q^{-1} T^2_1 \right) y_1 \right)^{-1}  T_{1 \nearrow i+1}^* \z_{i+1} d_+ \\
+        & = (1-s) d_+ T_{i \searrow 1} (1+s^*)^{-1} T_{1 \nearrow i}^* \z_i \\
+        & = \Theta(d_+ \z_i).
     \end{align*}
     
-    Equation \eqref{eq:r10*}; we have
+    For~\eqref{eq:Q1*}, we have
     \begin{align*}
-        \Theta(y_{i+1} d^*_+) &= T_{i+1 \searrow 1}^* (1-s) T_{1 \nearrow i+1} y_{i+1} (1+s^*)^{-1} d^*_+ \Theta \\
-        &= q^{i+1} T_{i+1 \searrow 1}^* (1-s) y_1 T_{1 \nearrow i+1}^* (1+s^*)^{-1} d^*_+ \Theta \\
-        &= q^i (1+s^*)^{-1} T^*_{i+1 \searrow 2} \left( 1 - y_2 (1 + y_2)^{-1} T_1^{-1} \z_1 T_1 \right) y_2 T^*_{2 \nearrow i+1} d^*_+ \Theta \\
-        &= (1+s^*)^{-1} T^*_{i+1 \searrow 2} \left( 1 - y_2 (1 + y_2)^{-1} T_1^{-1} \z_1 T_1 \right) T^*_{2 \nearrow i+1} y_{i+1} d^*_+ \Theta \\
-        &= (1+s^*)^{-1} d^*_+ T^*_{i \searrow 1} (1-s) T^*_{1 \nearrow i} y_{i}\Theta \\
-        &= \Theta(d^*_+ y_i).
+        \Theta(y_{i+1} d^*_+)
+        & = q^{i} T_{i+1 \searrow 1}^* (1-s) y_1 T_{1 \nearrow i+1}^* (1+s^*)^{-1} d^*_+ \\
+        & = q^{i-1} (1+s^*)^{-1} T^*_{i+1 \searrow 2} \left( 1 - y_2 (1 + y_2)^{-1} T_1^{-1} \z_1 T_1 \right) y_2 T^*_{2 \nearrow i+1} d^*_+ \\
+        & = (1+s^*)^{-1} T^*_{i+1 \searrow 2} \left( 1 - y_2 (1 + y_2)^{-1} T_1^{-1} \z_1 T_1 \right) T^*_{2 \nearrow i+1} y_{i+1} d^*_+ \\
+        & = (1+s^*)^{-1} d^*_+ T^*_{i \searrow 1} (1-s) T^*_{1 \nearrow i} y_{i} \\
+        & = \Theta(d^*_+ y_i).
     \end{align*}
 
-    Equation \eqref{eq:r11}; we have
+    For~\eqref{eq:Q2}, we have
     \begin{align*}
         \Theta(\z_1 d_+) & = (1+s^*)^{-1} \z_1 (1-s) d_+ \\
         & = (1 + y_1)^{-1} \z_1 d_+ && \text{by } \eqref{eq:z1(1-s)} \\
-        & = -q^k (1 + y_1)^{-1} y_1 d_+^* && \text{by } \eqref{eq:r11} \\
+        & = -q^k (1 + y_1)^{-1} y_1 d_+^* && \text{by } \eqref{eq:Q2} \\
         & = -q^k (1-s) y_1 (1+s^*)^{-1} d_+^* && \text{by } \eqref{eq:y1(1+s*)} \\
         & = \Theta(-q^k y_1 d_+^*).
     \end{align*}
@@ -1397,7 +1478,7 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
 \begin{corollary}
     \label{cor:theta_yz}
     We have the identities \[ \Theta(\z_1 d_+) = (1+y_1)^{-1} \z_1 d_+ \quad \text{ and } \quad \Theta(y_1 d_+^*) = (1+y_1)^{-1} y_1 d_+^*. \]
-    The same identities hold by replacing $d_+$ with $y_1$ and $d_+^*$ with $\z_1$.
+    The same identities hold after replacing $d_+$ with $y_1$ and $d_+^*$ with $\z_1$.
 \end{corollary}
 
 \begin{proof}
@@ -1407,8 +1488,6 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
     \[ \Theta(y_1 d_+^*) = (1-s) y_1 (1+s^*)^{-1} d_+^* = (1 + y_1)^{-1} y_1 (1 + s^*) (1+s^*)^{-1} d_+^* = (1+y_1)^{-1} y_1 d_+^*, \]
     as desired. The identities obtained by replacing $d_+$ with $y_1$ and $d_+^*$ with $\z_1$ follow immediately because $d_-$ commutes with $y_1$ and $\z_1$.
 \end{proof}
-
-% We can extend $\Theta$ to $\A_{q,t}^\pm$.
 
 \begin{proposition}
     The assignment
@@ -1434,7 +1513,7 @@ Notice that $y_i= q^i T_{i \searrow 1} y_1  T_{1 \nearrow i}$ and $\Theta y_i = 
 
 \subsection{The action on symmetric functions}
 
-We want to show that this operator induces an operator on symmetric functions, which we can use to recover the $\Theta_f$ operator from \cite[Equation~(28)]{DAdderioIraciVandenWyngaerd2021ThetaOperators}.
+We will now show that this operator induces an operator on symmetric functions, which we use to recover the $\Theta_f$ operator from \cite[Equation~(28)]{DAdderioIraciVandenWyngaerd2021ThetaOperators}.
 
 We start with the following lemma.
 
@@ -1446,9 +1525,9 @@ We start with the following lemma.
 \begin{proof}
     We have $s^* = (1 - \z_1) y_1$, so it suffices to show that $\z_1$ acts as the identity on $y_1 (d_+^*)^k \epsilon_0$. Indeed,
     \begin{align*}
-        \z_1 y_1 (d_+^*)^k \epsilon_0 & = -q^{-k} \z_1 d_+ (d_+^*)^{k-1} \epsilon_0 && \text{by \eqref{eq:I2}} \\
-        % & = -q^{-k} (-q^k y_1 d_+^*) (d_+^*)^{k-1} \epsilon_0 && \text{by \eqref{eq:r11}} \\
-        & = y_1 (d_+^*)^k \epsilon_0 && \text{by \eqref{eq:r11}} \\
+        \z_1 y_1 (d_+^*)^k \epsilon_0
+        & = -q^{1-k} \z_1 d_+ (d_+^*)^{k-1} \epsilon_0 && \text{by \eqref{eq:I2}} \\
+        & = y_1 (d_+^*)^k \epsilon_0 && \text{by \eqref{eq:Q2}} \\
     \end{align*}
     as desired.
 \end{proof}
@@ -1465,13 +1544,13 @@ The following result proves that $\Theta$ induces an operator on $V$.
 
     First, we check \eqref{eq:I1}. We have
     \[ \Theta((d_- d_+^* - 1) (d_+^*)^k \epsilon_0) = (d_- (1+s^*)^{-1} d_+^* - 1) ((1+s^*)^{-1} d_+^*)^k \epsilon_0, \]
-    but by \Cref{lem:s*_acts_as_0}, we can disregard $s^*$ everywhere and obtain
+    but by \Cref{lem:s*_acts_as_0}, we may omit $s^*$ throughout and obtain
     \[ \Theta((d_- d_+^* - 1) (d_+^*)^k \epsilon_0) = (d_- d_+^* - 1) (d_+^*)^k \epsilon_0 = 0, \]
     so the relation is exactly preserved.
     
     Next, we check \eqref{eq:I2}. We have
     \[ \Theta((d_+ + q^k y_1 d_+^*) d_+^{*k} \epsilon_0) = ((1-s)d_+ + q^k (1-s) y_1 (1+s^*)^{-1} d_+^*) ((1+s^*)^{-1} d_+^*)^k \epsilon_0, \]
-    and again by \Cref{lem:s*_acts_as_0} we can disregard $s^*$ everywhere and obtain
+    and again by \Cref{lem:s*_acts_as_0} we may omit $s^*$ throughout and obtain
     \[ \Theta((d_+ + q^k y_1 d_+^*) d_+^{*k} \epsilon_0) = (1-s) (d_+ + q^k y_1 d_+^*) (d_+^*)^k \epsilon_0 = 0, \]
     as desired.
 \end{proof}
@@ -1485,9 +1564,13 @@ The following result proves that $\Theta$ induces an operator on $V$.
 \end{theorem}
 
 \begin{proof}
-    As in \Cref{rmk:u}, the parameter $u$ is just keeping track of the degree, so it is enough to prove the statement when $u=1$.
+    As in \Cref{rmk:u}, the parameter $u$ merely keeps track of the degree, so it is enough to prove the statement when $u=1$.
 
-    By \Cref{lem:preserve_kernel}, $\Theta$ induces an endomorphism of $V$, denoted by $\Theta'$, such that $\Theta' L = \Theta(L) \Theta'$ as operators on $V$. Taking the compositions with $\underline{e}_1$ and $\D_1$, on $V_0$ we get
+    By \Cref{lem:preserve_kernel}, $\Theta$ induces an endomorphism of $V$, denoted by $\Theta'$, such that $\Theta' L = \Theta(L) \Theta'$ as operators on $V$. 
+
+    Denote by $\underline{e}_1$ the operator of multiplication by $e_1$. It is easy to check that, on $V_0$, $d_- d_+ = \underline{e}_1$.
+    
+    Applying this identity to $\underline{e}_1$ and $\D_1$, we obtain on $V_0$
     \begin{align*}
         \Theta' \underline{e}_1 & = \Theta' d_- d_+ \\
         & = d_- (1 - (1+y_1)^{-1} y_1 \z_1) d_+ \Theta' \\
@@ -1498,7 +1581,7 @@ The following result proves that $\Theta$ induces an operator on $V$.
     and
     \[ \Theta' \D_1 = \Theta' d_- (-y_1) d_+^* = d_- (1+y_1)^{-1} (-y_1) d_+^* \Theta' = \sum_{n \geq 1} \D_n \Theta', \]
     so \[ [\Theta', \underline{e}_1] = \sum_{n \geq 2} \D_n \Theta' \quad \text{ and } \quad [\Theta', \D_1] = \sum_{n \geq 2} \D_n \Theta'. \]   
-    But now by \cite[Proposition~10.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} and \cite[Proposition~1.2]{Romero2022}, up to our redefinition of the signs, these are exactly the commutation relations satisfied by $\Theta(u)$ (the operator on $\Lambda$). Since $\underline{e}_1$ and $\D_1$ generate $\Lambda$, then $\Theta = \Theta'$, as desired.
+    By \cite[Proposition~10.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} and \cite[Proposition~1.2]{Romero2022}, and up to our redefinition of the signs, these are exactly the commutation relations satisfied by $\Theta(u)$ (the operator on $\Lambda$). Since $\underline{e}_1$ and $\D_1$ generate $\Lambda$ \cite[Theorem~2.1]{GarsiaHaimanTesler1999ExplicitPlethysticFormulas}, we deduce that $\Theta = \Theta'$, as desired.
 \end{proof}
 
 \subsection{Relations between \texorpdfstring{$\Theta$}{Theta} and \texorpdfstring{$\D_\gamma$}{Dgamma}}
@@ -1508,34 +1591,48 @@ The goal of this subsection is to derive the commutation relations between $\The
 
 \begin{definition}
     Let $\alpha \vDash n$ and $\ell = \ell(\alpha)$. We define 
-    \[ w(\alpha) = \mathsf{rev}(1 \cdots 1 2 \cdots 23 \cdots (\ell-1) \ell \cdots \ell), \]
+    \[ w(\alpha) = \mathsf{rev}(1 \cdots 1\, 2 \cdots 2\, 3 \cdots 3\, \cdots\, (\ell-1) \cdots (\ell-1)\, \ell \cdots \ell), \]
     where $i$ occurs $\mathsf{rev}(\alpha)_i$ times, and $\mathsf{rev}$ denotes the reverse of a word.
 \end{definition}
+
+For instance, if $\alpha=(2,3)$, then $\mathsf{rev}(\alpha)=(3,2)$, hence $w(\alpha)=\mathsf{rev}(11122)=22111$.
+
+Given two words $v$ and $w$ without common letters, we denote by $v \shuffle w$ the set of all words obtained by \emph{shuffling} the letters of $v$ with those of $w$, while preserving the relative order in the original words. 
+
+For instance, if $v=21$ and $w=\textcolor{red}{3}\textcolor{red}{4}$, then
+\[v \shuffle w = \{21\textcolor{red}{3}\textcolor{red}{4}, 2\textcolor{red}{3}1\textcolor{red}{4},2\textcolor{red}{3}\textcolor{red}{4}1, \textcolor{red}{3}21\textcolor{red}{4},\textcolor{red}{3}2\textcolor{red}{4}1,\textcolor{red}{3}\textcolor{red}{4}21\}. \]
+Finally, we will also use the standard exponential notation for repeated letters. For example, we can denote the word $1111221332$ in the alphabet $\{1,2,3\}$ also by $1^42^21^13^22^1$, or $1^42^213^22$.
 
 \begin{theorem}
     \label{thm:shuffle_theta_D}
     Let $\gamma = (\gamma_1, \dots, \gamma_\ell) \vDash n$. Then
     \[ \Theta \D_\gamma = \sum_{k=0}^\infty \sum_{\substack{w \in (\ell+1)^k \shuffle w(\gamma) \\ w_1 = \ell}} \D_{\Des(w)} \Theta. \]
-    In other words, $\Theta_{e_k}$ is the sum over all $\D_{\tilde{\gamma}}$ where ${\tilde{\gamma}}$ is the descent composition of a word obtained by shuffling $k$ occurrences of $\ell+1$ in $w(\gamma)$.
+    In particular, when applied to $1$, $\Theta_{e_k} \D_\gamma \cdot 1$ is the sum over all $\D_{\tilde{\gamma}} \cdot 1$ for which ${\tilde{\gamma}}$ is the descent composition of a word obtained by shuffling $k$ occurrences of $\ell+1$ into the word $w(\gamma)$.
 \end{theorem}
 
 \begin{example}
-    Consider our operators applied to the constant $1$ and a fixed degree $k$. If $\gamma = (1,2)$ and $k=2$, we have $w(\gamma) = 211$, and the sets of words appearing in the sum is \[ 2|1133, \; 2|13|13, \; 23|113, \; 2|133|1, \; 23|13|1, \; 233|11, \] where the vertical bars denote descents. It follows that \[ \Theta_{e_2} \D_{12} \cdot 1 = (\D_{14} + \D_{122} + \D_{23} + \D_{131} + \D_{221} + \D_{32}) \cdot 1. \] 
+    Consider our operators applied to the constant $1$ and a fixed degree $k$. If $\gamma = (1,2)$ and $k=2$, we have $w(\gamma) = 211$, and the set of words appearing in the sum is \[ 2|1133, \; 2|13|13, \; 23|113, \; 2|133|1, \; 23|13|1, \; 233|11, \] where the vertical bars denote descents. It follows that \[ \Theta_{e_2} \D_{12} \cdot 1 = (\D_{14} + \D_{122} + \D_{23} + \D_{131} + \D_{221} + \D_{32}) \cdot 1. \]
 \end{example}
 
 \begin{proof}
     By definition, \[ \D_\gamma = d_- (-y_1)^{\gamma_1-1} \z_1 (-y_1)^{\gamma_2} \z_1 \cdots (-y_1)^{\gamma_\ell} \z_1 d_+. \]
-    If we think of $\gamma$ as the descent composition of a word, then each $(-y_1)$ corresponds to a letter, we have to add a starting letter, and we have an occurrence of $\z_1$ whenever there is a descent, or at the end of the word.
+    If we think of $\gamma$ as the descent composition of a word, then each $(-y_1)$ corresponds to a letter; we must add an initial letter, and there is an occurrence of $\z_1$ whenever there is a descent or at the end of the word.
 
-    By \Cref{cor:theta_yz}, we have $\Theta(\z_1 y_1) = (1+y_1)^{-1} \z_1 y_1$ and $\Theta(\z_1 d_+) = (1+y_1)^{-1} \z_1 d_+$, so it is convenient to rewrite
-    \[ \D_\gamma = d_- (-y_1)^{\gamma_1-1} \z_1 (-y_1) (-y_1)^{\gamma_2-1} \cdots \z_1 (-y_1) (-y_1)^{\gamma_\ell-1} \z_1 d_+, \] so that
-    \[ \D_\gamma = d_- (\Theta(-y_1))^{\gamma_1-1} (1+y_1)^{-1} \z_1 (-y_1) \cdots (\Theta(-y_1))^{\gamma_\ell-1} (1+y_1)^{-1} \z_1 d_+, \]
+    By \Cref{cor:theta_yz}, we have 
+    $\Theta(\z_1 y_1) = (1+y_1)^{-1} \z_1 y_1$ and $\Theta(\z_1 d_+) = (1+y_1)^{-1} \z_1 d_+$, so it is convenient to rewrite
+    \[ \D_\gamma = d_- (-y_1)^{\gamma_1-1} \z_1 (-y_1) (-y_1)^{\gamma_2-1} \cdots \z_1 (-y_1) (-y_1)^{\gamma_\ell-1} \z_1 d_+. \] Thus,
+    \begin{align*} 
+        \Theta (\D_\gamma) & =\Theta(d_-) \Theta(-y_1)^{\gamma_1-1} \Theta(\z_1 (-y_1)) \Theta(-y_1)^{\gamma_2-1} \cdots \Theta(\z_1 (-y_1)) \Theta(-y_1)^{\gamma_\ell-1} \Theta(\z_1 d_+) \\
+        & = d_- \Theta(-y_1)^{\gamma_1-1} (1+y_1)^{-1} \z_1 (-y_1) \cdots \Theta(-y_1)^{\gamma_\ell-1} (1+y_1)^{-1} \z_1 d_+.
+    \end{align*}
     The factors $(1+y_1)^{-1}$ let us insert an arbitrary number of occurrences of $(-y_1)$ before each $\z_1$, and these correspond to inserting an arbitrary number of occurrences of $\ell+1$ before each descent or at the end of the word.
 
-    Consider a single occurrence of $\Theta(-y_1)$. These correspond to letters that are not descents, as we have already isolated the last occurrence of each letter. We have
+    Consider a single occurrence of $\Theta(-y_1)$. This occurrence corresponds to a letter that is not a descent, as we have already isolated the last occurrence of each letter. We have
     \[ \Theta(-y_1) = (1 - (1 + y_1)^{-1} y_1 \z_1) (-y_1), \]
-    which means that the term $-y_1$ can remain fixed or be preceded by a positive number (say, $r$) of occurrences of $(-y_1)$ and then a $\z_1$. In the word, this corresponds to inserting $r$ occurrences of $\ell+1$ into that position, creating a descent. The starting position is not allowed because there is no $y_1$ that matches the first letter of the word. This completes the proof.
+    which means that the term $-y_1$ can remain fixed or be preceded by a positive number (say, $r$) of occurrences of $(-y_1)$ and then a $\z_1$. In the word, this corresponds to inserting $r$ occurrences of $\ell+1$ into that position, creating a descent. Insertion at the starting position is not allowed because there is no $y_1$ that matches the first letter of the word. This completes the proof.
 \end{proof}
+
+Given $l,k \in \mathbb{N}$, we denote by $W\left(0^l,1^k\right)$ the set of all words in the alphabet $\{0,1\}$ consisting of $l$ letters equal to $0$ and $k$ letters equal to $1$.
 
 \begin{corollary}
     \label{cor:theta_theta_e1}
@@ -1544,48 +1641,56 @@ The goal of this subsection is to derive the commutation relations between $\The
 \end{corollary}
 
 \begin{proof}
-    We have $\Theta_{e_l} e_1 = e_{l+1} = \D_{(l+1)} \cdot 1$. By \Cref{thm:shuffle_theta_D}, up to a shift in the letters,
-    \[ \Theta_{e_k} \D_{(l+1)} \cdot 1 = \sum_{\substack{w \in 1^k \shuffle 0^{l+1} \\ w_1 = 0}} \D_{\Des(w)} \cdot 1 
+    We have 
+    \begin{align*}
+    \Theta_{e_l} e_1 & =\Theta_{e_l} \underline{e}_1 \cdot 1=\langle u^l\rangle \Theta(d_-d_+) \cdot 1 \\
+    & = \langle u^l \rangle d_- (1 - u(1+uy_1)^{-1} y_1\z_1) d_+ \cdot 1 \\
+    & = d_-(-y_1)^l\z_1 d_+\cdot 1 \\
+    & = d_-(-y_1)^{l+1}d_+^* \cdot 1 \\
+    & = \D_{(l+1)} \cdot 1.
+    \end{align*}
+    By \Cref{thm:shuffle_theta_D}, up to a shift in the letters,
+    \[ \Theta_{e_k} \D_{(l+1)} \cdot 1 = \sum_{\substack{w \in 1^k \shuffle \, 0^{l+1} \\ w_1 = 0}} \D_{\Des(w)} \cdot 1 
         = \sum_{w\in W\left(0^l,1^k\right)} \D_{\Des(0w)} \cdot 1, \]
     as desired.
 \end{proof}
 
 
-\section{The Theta Conjecture}
+\section{The Theta conjecture}
 \label{sec:theta_conjecture}
 
-In this section, we use all the stuff above to show that the Theta Conjecture \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} holds, when $q=1$. Namely, we prove the following.
+We now use the results developed in the previous sections to prove the Theta conjecture \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators}. Namely, we prove the following result.
 
 \begin{theorem}
     \label{thm:theta_q1}
     For $n,k,l \in \mathbb{N}$ with $n > k+l$, we have
-    \[ \left.\Theta_{e_k} \Theta_{e_l} \nabla e_{n-k-l} \right|_{q=1} = \sum_{\pi \in \LD(n)^{\ast k, \bullet l}} t^{\area(\pi)} x^\pi. \]
+    \[ \left.\Theta_{e_k} \Theta_{e_l} \nabla e_{n-k-l} \right\rvert_{q=1} = \sum_{\pi \in \LD(n)^{\ast k, \bullet l}} t^{\area(\pi)} x^\pi. \]
 \end{theorem}
 
-The roadmap is the following. First, we give all the combinatorial definitions appearing in this theorem; then, we show that the statement holds for $k+l=n-1$; next, we use this result to prove the statement for paths with touch number $n-k-l$; finally, we use give a combinatorial interpretation of a symmetric function identity that allows us to complete the proof.
+The proof proceeds as follows. First, we give all the combinatorial definitions appearing in this theorem; then, we show that the statement holds for $k+l=n-1$; next, we use this result to prove the statement for paths with touch number $n-k-l$; finally, we give a combinatorial interpretation of a symmetric function identity that allows us to complete the proof.
 
 
-\subsection{The combinatorics of the Theta Conjecture}
+\subsection{The combinatorics of the Theta conjecture}
 
-It is now time to give some more precise definitions of the combinatorics of the Delta conjecture.
+We begin by giving precise definitions for the combinatorics of the Delta and Theta conjectures.
 
 \begin{definition}
-    A \emph{Dyck path} of size $n$ is a lattice path starting at $(0,0)$, ending at $(n,n)$, using only unit vertical up steps and horizontal right steps, and staying weakly above the line $x=y$. A \emph{labeled Dyck path} is a Dyck path together with a positive integer label on each of its vertical steps such that labels on consecutive vertical steps must be strictly increasing (from bottom to top). We will draw the labels of the vertical steps in the square to its right.
+    A \emph{Dyck path} of size $n$ is a lattice path starting at $(0,0)$, ending at $(n,n)$, using only unit up (vertical) steps and right (horizontal) steps, and staying weakly above the line $x=y$. A \emph{labeled Dyck path} is a Dyck path together with a positive integer label on each of its vertical steps, with labels on consecutive vertical steps strictly increasing (from bottom to top). We will draw the labels of the vertical steps in the square immediately to the right of each step.
 
     A \emph{rise} of a labeled Dyck path is a vertical step that is preceded by another vertical step.
 
-    A \emph{valley} of a labeled Dyck path is a vertical step $v$ preceded by a horizontal step. A valley $v$ is \emph{contractible} if it is preceded by either two horizontal steps, or a horizontal step that is itself preceded by a vertical step whose label is strictly smaller than $v$'s label.
+    A \emph{valley} of a labeled Dyck path is a vertical step $v$ preceded by at least one horizontal step. A valley $v$ is \emph{contractible} if it is preceded by either two horizontal steps or a horizontal step that is itself preceded by a vertical step whose label is strictly smaller than $v$'s label.
 
-    A \emph{decorated labeled Dyck path} $\pi$ is a labeled Dyck path, together with a choice of rises and contractible valleys, which are \emph{decorated}.
+    A \emph{decorated labeled Dyck path} $\pi$ is a labeled Dyck path together with a choice of rises and contractible valleys to be \emph{decorated}.
     We set
     \begin{align*}
          & \mathsf{dr}(\pi) = \{i \in [n] \mid \text{the $i\th$ vertical step of $\pi$ is a decorated rise}\}     \\
-         & \mathsf{dv}(\pi) = \{i \in [n] \mid \text{the $i\th$ vertical step of $\pi$ is a decorated valley}\}
+         & \mathsf{dv}(\pi) = \{i \in [n] \mid \text{the $i\th$ vertical step of $\pi$ is a decorated valley}\}.
     \end{align*}
-    We decorate rises with a $\ast$ and valleys with a $\bullet$, and these decorations will be displayed in the square to the left of the vertical step. The set of decorated labeled Dyck paths of size $n$ with $k$ decorated rises and $l$ decorated valleys, is denoted by $\LD(n)^{\ast k, \bullet l}$.
+    We decorate rises with a $\ast$ and valleys with a $\bullet$, and these decorations are displayed in the square to the left of the vertical step. The set of decorated labeled Dyck paths of size $n$ with $k$ decorated rises and $l$ decorated valleys is denoted by $\LD(n)^{\ast k, \bullet l}$.
 \end{definition}
 
-See \Cref{fig:path-example} for an example of an element in $\LD(8)^{\ast 2, \bullet 2}$.
+See \Cref{fig:path-example} for an example of an element of $\LD(8)^{\ast 2, \bullet 2}$.
 
 \begin{figure}
     \centering
@@ -1620,26 +1725,25 @@ See \Cref{fig:path-example} for an example of an element in $\LD(8)^{\ast 2, \bu
 
 \begin{definition}[Area]
     \label{def:area}
-    Given a decorated labeled Dyck path $\pi$ of size $n$, its \emph{area word} is the word of non-negative integers whose $i\th$ letter equals the number of whole squares between the $i\th$ vertical step of the path and the line $x=y$. If $a$ is the area word of $\pi$, the \emph{area} of $\pi$ is \[\area(\pi) \coloneqq \sum_{i \in [n] \setminus \mathsf{dr}(\pi)} a_i.\]
+    Given a decorated labeled Dyck path $\pi$ of size $n$, its \emph{area word} is the word of nonnegative integers whose $i\th$ letter equals the number of unit squares between the $i\th$ vertical step of the path and the line $x=y$. If $a$ is the area word of $\pi$, the \emph{area} of $\pi$ is \[\area(\pi) \coloneqq \sum_{i \in [n] \setminus \mathsf{dr}(\pi)} a_i.\]
 \end{definition}
 
-Since we only consider the specialization when $q=1$, we disregard the dinv statistic.
+For example, the decorated labeled Dyck path in \Cref{fig:path-example} has area $6$. Since we only consider the specialization $q=1$, we disregard the dinv statistic.
 
 \begin{definition}[Touch number]
     The \emph{touch number} of a path $\pi \in \LD(n)^{\ast k, \bullet l}$ is the number of non-decorated vertical steps that touch the main diagonal. We denote it by $\touch(\pi)$, and we let $\LD(n,r)^{\ast k, \bullet l}$ be the subset of $\LD(n)^{\ast k, \bullet l}$ of paths with touch number $r$.
 \end{definition}
 
-Notice that $1 \leq \touch(\pi) \leq n-k-l$. The path in \Cref{fig:path-example} has touch number $2$.
+Notice that $1 \leq \touch(\pi) \leq n-k-l$. 
 
-% \begin{definition}[Diagonal composition]
-%     The \emph{diagonal composition} of a path is the composition $\alpha \vDash n-k-l$ given by the number of non-decorated steps in between each time the path touches the main diagonal with a non-decorated step. We denote by $\LD(\alpha)^{\ast k, \bullet l}$ the subset of $\LD(n)^{\ast k, \bullet l}$ of paths with diagonal composition $\alpha$.
-% \end{definition}
-
-% The path in \Cref{fig:path-example} has diagonal composition $(3,1)$.
+For example, the path in \Cref{fig:path-example} has touch number $2$.
 
 \begin{remark}
 	\label{rmk:rises-falls-correspondence}
-	Note that if we call \emph{fall} a horizontal step that is followed by another horizontal step, then there is a natural way of mapping rises into falls bijectively. Indeed, the joining point of the two vertical steps of a rise is a point where a path $\pi$ vertically crosses a certain diagonal parallel to the main diagonal. Since the path must end at the main diagonal, it must cross the same diagonal horizontally with a fall at least once. We map our rise in the first of such falls: this clearly yields a bijective map (see Figure~\ref{fig:rises-falls-correspondence}). Therefore, we might equivalently decorate falls instead of the corresponding rises. 
+	Note that, if we call a horizontal step followed by another horizontal step a \emph{fall}, then there is a natural bijection between rises and falls.
+    Indeed, the joining point of the two vertical steps of a rise is a point where a path $\pi$ vertically crosses a certain diagonal parallel to the main diagonal.
+    Since the path must end at the main diagonal, it must cross the same diagonal horizontally at least once, via a fall. We map the rise to the first such fall; this yields a bijection (see \Cref{fig:rises-falls-correspondence}).
+    Therefore, we might equivalently decorate falls instead of the corresponding rises.
 \end{remark}
 
 \begin{figure}[ht]
@@ -1658,7 +1762,7 @@ Notice that $1 \leq \touch(\pi) \leq n-k-l$. The path in \Cref{fig:path-example}
 
 \subsection{Case \texorpdfstring{$k+l=n-1$}{k+l=n-1}}
 
-In this subsection, we prove that the statement holds when $k+l=n-1$, that is, when the only non-decorated step is the first one.
+In this subsection, we prove that the statement holds when $k+l=n-1$, that is, when the first vertical step is the only non-decorated one.
 
 \begin{theorem}
     \label{thm:theta_theta_e1}
@@ -1666,69 +1770,68 @@ In this subsection, we prove that the statement holds when $k+l=n-1$, that is, w
     \[ \left.\Theta_{e_k} \Theta_{e_l} e_1 \right\rvert_{q=1} = \sum_{\pi \in \LD(k+l+1)^{\ast k, \bullet l}} t^{\area(\pi)} x^\pi. \]
 \end{theorem}
 
-From the commutation relations between $\Theta$ and $\D_\gamma$ established in Corollary~\ref{cor:theta_theta_e1} and from the combinatorial interpretation of $\D_\gamma\cdot1$ given in Theorem~\ref{thm:D.1_comb} we obtain a combinatorial interpretation for $\left.\Theta_{e_k} \Theta_{e_l} e_1 \right|_{q=1}$.
+Combining the commutation relations between $\Theta$ and $\D_\gamma$ established in \Cref{cor:theta_theta_e1} with the combinatorial interpretation of $\left.\D_\gamma\cdot 1\right\rvert_{q=1}$ given in \Cref{thm:D.1_comb}, we obtain a combinatorial interpretation for $\left.\Theta_{e_k} \Theta_{e_l} e_1 \right\rvert_{q=1}$.
 
 \begin{proposition}
     For $k,l \in \mathbb{N}$, we have
     \[ 
-        \left.\Theta_{e_k} \Theta_{e_l} e_1 \right|_{q=1} 
-        = \sum_{w\in W\left(0^l,1^k\right)} \left. \D_{\Des(0w)}\cdot 1\right|_{q=1}=\sum_{w\in W\left(0^l,1^k\right)}\sum_{\tau\in \R(\Des(0w))}t^{\area(\tau)}e_{\mu(\tau)}
+        \left.\Theta_{e_k} \Theta_{e_l} e_1 \right\rvert_{q=1} 
+        = \sum_{w\in W\left(0^l,1^k\right)} \left. \D_{\Des(0w)}\cdot 1\right\rvert_{q=1}=\sum_{w\in W\left(0^l,1^k\right)}\sum_{\tau\in \R(\Des(0w))}t^{\area(\tau)}e_{\mu(\tau)}
     \]
 \end{proposition}
 
 \begin{proof}
-    The first equality follows by specializing \Cref{cor:theta_theta_e1} at $q=1$, while the second follows by applying Theorem~\ref{thm:D.1_comb} to each term of the sum.
+    The first equality follows by specializing \Cref{cor:theta_theta_e1} at $q=1$, while the second follows by applying \Cref{thm:D.1_comb} to each term of the sum.
 \end{proof}
 
 \begin{definition}
-    Given a decorated Dyck path $\pi$, %starting in $(0,0)$ and ending in $(\ell,n)$, 
-    we define its \emph{contracted path $\cc(\pi)$} as the lattice path obtained by deleting every horizontal step that precedes a decorated valley of $\pi$. 
+    Given a decorated Dyck path $\pi$, we define its \emph{contracted path $\cc(\pi)$} as the lattice path obtained by deleting every horizontal step that precedes a decorated valley of $\pi$. 
 \end{definition}
 
 \begin{example}
-    The contracted path of $\pi$ in Figure~\ref{fig:path-example} is the path $(3,6,7,7,7,8)$, expressed in the notation of \Cref{rmk:heights}.
+    The contracted path of $\pi$ in \Cref{fig:path-example} is the path $(3,6,7,7,7,8)$, expressed in the notation of \Cref{rmk:heights}.
 \end{example}
 
 \begin{remark}
-    In the definition of $\LD(n)^{\ast k, \bullet l}$, the restrictions on the labels depend solely on the rise composition of the contracted paths. In particular, by grouping labeled paths according to their contracted paths and observing that the $\area$ is independent of the labels, we may rewrite
+    In the definition of $\LD(n)^{\ast k, \bullet l}$, the restrictions on the labels depend solely on the rise composition of the contracted paths. In particular, by grouping labeled paths according to their contracted paths and observing that the area statistic is independent of the labels, we may rewrite
     \[
         \sum_{\pi \in \LD(k+l+1)^{\ast k, \bullet l}} t^{\area(\pi)} x^\pi
         = \sum_{\pi \in \DP(k+l+1)^{\ast k, \bullet l}} t^{\area(\pi)} e_{\mu(\cc(\pi))}
     \]
-    where $\DP(n)^{\ast k, \bullet l}$ is the set of decorated Dyck paths (with no labels), where, in the unlabeled setting, every valley is considered contractible.
+    where $\DP(n)^{\ast k, \bullet l}$ is the set of decorated Dyck paths without labels and, in the unlabeled setting, every valley is considered contractible.
 \end{remark}
 
-From now on, we will refer to the elements of $\DP(k+l+1)^{\ast k, \bullet l}$ by indicating only their paths, with the understanding that every vertical step except the first is decorated.
+From now on, we will refer to the elements of $\DP(k+l+1)^{\ast k, \bullet l}$ by indicating only their paths, with the understanding that every vertical step other than the first is decorated.
 
-To prove Theorem~\ref{thm:theta_theta_e1}, it is enough to find a bijection $\Psi$ between $\DP(k+l+1)^{\ast k, \bullet l}$ and the set
+To prove \Cref{thm:theta_theta_e1}, it is enough to find a bijection $\Psi$ between $\DP(k+l+1)^{\ast k, \bullet l}$ and the set
 \[ \{ (w, \tau) \mid w\in W \left(0^l,1^k\right), \tau \in \R(\Des(0w)) \} \]
-that preserves both the area and the rise composition. This bijection has been implemented and proof-checked in Lean 4 \cite{Iraci2026code}.
+that preserves both the area and the rise composition. In other words, for every $\pi \in \DP(k+l+1)^{\ast k, \bullet l}$ with $\Psi(\pi) = (w,\tau)$ for some $w \in W\left(0^l,1^k\right)$ and $\tau \in \R(\Des(0w))$, we want to have $\area(\pi)=\area(\tau)$ and $\mu(\cc(\pi))=\mu(\tau)$.
 
-In other words, for every $\pi \in \DP(k+l+1)^{\ast k, \bullet l}$ with $\Psi(\pi) = (w,\tau)$ for some $w \in W\left(0^l,1^k\right)$ and $\tau \in \R(\Des(0w))$, we have $\area(\pi)=\area(\tau)$ and $\mu(\cc(\pi))=\mu(\tau)$.
-
-Notice that $\area(\tau)$ depends on $\Des(0w)$, and thus on $w$. We define the map $\Psi$ recursively, according to the following algorithm.
+Notice that $\area(\tau)$ depends on $\Des(0w)$, and thus on $w$. We now define such a map $\Psi$ recursively via the following algorithm. The definition of $\Psi$ and the fact that it provides a bijection have been implemented and formally verified in Lean 4 \cite{Iraci2026code}.
 
 \begin{definition}
     \label{def:psi}
-    Let $\pi \in \DP(k+l+1)^{\ast k, \bullet l}$. We want to define a word $0w$ for $w \in W(0^l, 1^k)$ and a path $\tau \in \R(\Des(0w))$. 
+    Let $\pi \in \DP(k+l+1)^{\ast k, \bullet l}$. We construct a word $w_0 = 0w$, with $w \in W(0^l, 1^k)$, and a path $\tau \in \R(\Des(0w))$.
     
-    We start with $(\epsilon, \varnothing)$, where $\epsilon$ denotes the empty word and $\varnothing$ is the empty path. Then, apply the following algorithm.
+    We start with $(\varepsilon, \varnothing)$, where $\varepsilon$ denotes the empty word and $\varnothing$ is the empty path. We then apply the following algorithm.
 
     \begin{enumerate}
       \setcounter{enumi}{-1}
-        \item Append $0$ to $w$. \label{step:0}
+        \item Append $0$ to $w_0$. \label{step:0}
 
-        \item Let $a$ be the maximum integer such that $\pi = (UD)^a \overline{\pi}$, for some (non-empty) Dyck path $\overline{\pi}$. Append $0^a$ to $w$. \label{step:valleys}
+        \item Let $a$ be the maximum integer such that $\pi = (UR)^a \pi_0$, for some nonempty Dyck path $\pi_0$. Append $0^a$ to $w_0$. \label{step:valleys}
 
-        \item Let $b$ be the maximum integer such that $\overline{\pi} = U \pi_1 \,U^b D^{b+1} \pi_2$, for some lattice paths $\pi_1$ and $\pi_2$ such that $\pi_1$ contains no two consecutive horizontal steps. Append $1^b$ to $w$. \label{step:rises}
+        \item Let $b$ be the maximum integer such that $\pi_0 = U \pi_1 \,U^b R^{b+1} \pi_2$, for some lattice paths $\pi_1$ and $\pi_2$ such that $\pi_1$ contains no two consecutive horizontal steps. Append $1^b$ to $w_0$. \label{step:rises}
 
-        \item Let $h$ be the height (that is, the number of vertical steps) of $\pi_1$. Append $(\ell(0w)+h)$ to $\tau$ and repeat the process with $\pi' = \pi_1 \pi_2$. Notice that we are removing one $U$ step and one $D$ step. \label{step:induction}
+        \item Let $h$ be the height (that is, the number of vertical steps) of $\pi_1$. Append $(\ell(0w)+h)$ to $\tau$ and repeat the process with $\pi' = \pi_1 \pi_2$. \label{step:induction}
     \end{enumerate}
 
-    We end when $\pi_1 \pi_2$ is empty, and we define $\Psi(\pi) = (w,\tau)$.
+    The algorithm terminates when $\pi_1 \pi_2$ is empty, and we define $\Psi(\pi) = (w,\tau)$, where $w_0 = 0w$.
 \end{definition}
 
-At the end of each iteration, we appended a non-decreasing string to $w$, and determined the height of a column of $\tau$. Inductively, we decomposed $0w$ as $0 0^a 1^b w'$, where $w'$ is either empty or starts with a $0$. We now prove some properties of $\Psi$.
+The path $\pi$ is transformed as follows. In Step~\ref{step:valleys} we remove $a$ valleys from the beginning of $\pi$; in Step~\ref{step:rises} we remove the first $b$ falls of $\pi$; in Step~\ref{step:induction} we remove the first $U$ step and the $R$ step that is a fall (overall, we remove a valley, cf.\ \Cref{lem:well-defined}).
+
+At the end of each iteration, we append a nondecreasing string to $w$ and determine the height of a column of $\tau$. Inductively, we decompose $0w$ as $0 0^a 1^b w'$, where $w'$ is either empty or starts with a $0$. We now prove some properties of $\Psi$.
 
 \begin{lemma}
     \label{lem:well-defined}
@@ -1736,17 +1839,16 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
 \end{lemma}
 
 \begin{proof}
-    In order to prove this statement, it is convenient to change framework and work with falls and valleys instead, as in \Cref{rmk:rises-falls-correspondence}. We also identify the valleys of $\pi$ with the horizontal steps that precede them, and compute the area by counting the number of whole squares under the valleys.
+    To prove this statement, it is convenient to change perspective and work with falls and valleys instead, as in \Cref{rmk:rises-falls-correspondence}. We also identify the valleys of $\pi$ with the horizontal steps that precede them, and compute the area by counting the number of unit squares below the valleys.
 
-    In Step~\ref{step:valleys} of \Cref{def:psi}, we remove exactly $a$ valleys from $\pi$, and we append $0^a$ to the word $w$, so the numbers match; in Step~\ref{step:rises}, we remove exactly $b$ decorated falls and append $1^b$, so the numbers match again.
+    In Step~\ref{step:valleys} of \Cref{def:psi}, we remove exactly $a$ valleys from $\pi$ and append $0^a$ to $w$. In Step~\ref{step:rises}, we remove exactly $b$ decorated falls and append $1^b$. Thus, in both cases the numbers agree.
 
     Finally, we need to show that, in Step~\ref{step:induction} of \Cref{def:psi},
-    we either complete the process by going from $UD$ to the empty path, or we
-    remove exactly one valley: we can equivalently think of its contribution to $w$ as either the starting $0$ in $0w$ (which does not correspond to a valley) or as the starting $0$ of $w'$, if it is non-empty.
+    we either complete the process by going from $UR$ to the empty path, or we remove exactly one valley: we can equivalently think of its contribution to $w$ as either the starting $0$ in $0w$ (which does not correspond to a valley) or as the starting $0$ of $w'$, if it is nonempty.
     
-    If the $D$ step between $\pi_1$ and $\pi_2$ is a valley in $\overline{\pi}$, then we remove exactly one valley. If it is not a valley, then it is a fall, so it is followed by a horizontal step. Then by construction $\pi_1$ must end with a horizontal step (otherwise $b$ is not maximal), and that step is a valley that becomes a fall in $U \pi_1 D \pi_2$ after removing $U^b D^b$, so in the end we remove exactly one valley.
+    If the $R$ step between $\pi_1$ and $\pi_2$ is a valley in $\pi_0$, then we remove exactly one valley. If it is not a valley, then it is a fall and is therefore followed by a horizontal step. By construction, $\pi_1$ must then end with a horizontal step (otherwise $b$ is not maximal), and that step is a valley that becomes a fall in $U \pi_1 R \pi_2$ after removing $U^b R^b$, so we ultimately remove exactly one valley.
 
-    If $\pi_1 \pi_2$ is empty, the thesis follows. Otherwise, by induction, $\Psi(\pi_1 \pi_2) = (w',\tau')$ for some $w' \in W(0^{l-a},1^{k-b})$ and $\tau' \in \R(\Des(0w'))$. Since $w = 0^a 1^b 0 w'$, we have $w \in W(0^l,1^k)$. The only thing to check is that $\tau_1 \leq \tau'_1 + a + b + 1$, which is true because $\tau_1 = a + b + h + 1$ and $h \leq \tau'_1$ by construction. Therefore, $\tau \in \R(\Des(0w))$, as desired.
+    If $\pi_1 \pi_2$ is empty, the claim follows. Otherwise, by induction, $\Psi(\pi_1 \pi_2) = (w',\tau')$ for some $w' \in W(0^{l-a},1^{k-b})$ and $\tau' \in \R(\Des(0w'))$. Since $w = 0^a 1^b 0 w'$, we have $w \in W(0^l,1^k)$. It remains to verify that $\tau_1 \leq \tau'_1 + a + b + 1$, which is true because $\tau_1 = a + b + h + 1$ and $h \leq \tau'_1$ by construction. Therefore, $\tau \in \R(\Des(0w))$, as desired.
 \end{proof}
 
 \begin{lemma}
@@ -1755,11 +1857,11 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
 \end{lemma}
 
 \begin{proof}
-    In Step~\ref{step:0}, the path doesn't change; in Step~\ref{step:valleys} of \Cref{def:psi}, the area does not change because we are only removing steps on the main diagonal; in Step~\ref{step:rises}, we only removed decorated falls, and these do not contribute to the area.
+    In Step~\ref{step:0}, the path does not change; in Step~\ref{step:valleys} of \Cref{def:psi}, the area does not change because we remove only steps on the main diagonal; in Step~\ref{step:rises}, we remove only decorated falls, and these do not contribute to the area.
 
-    Let $v$ be the number of valleys in $\pi_1$. Each of these valleys now contributes one less to the area, since we removed the first vertical step. The valley that gets removed (or converted into a rise) in Step~\ref{step:induction} is at height $h$, and it is preceded by $v$ horizontal steps, so it contributes $h-v$ to the area. Ultimately, the area goes down by $h$.
+    Let $v$ be the number of valleys in $\pi_1$. Each of these valleys now contributes one less to the area, since we removed the first vertical step. The valley that is removed (or converted into a rise) in Step~\ref{step:induction} is at height $h$, and it is preceded by $v$ horizontal steps, so it contributes $h-v$ to the area. Altogether, the area decreases by $h$.
 
-    Since there are $h$ cells in the first column between $\tau$ and $\delta(\Des(0w))$, the thesis follows by induction.
+    Since there are $h$ cells in the first column between $\tau$ and $\delta(\Des(0w))$, the claim follows by induction.
 \end{proof}
 
 \begin{lemma}
@@ -1770,21 +1872,20 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
 \begin{proof}
     By construction, $\mu(\cc(\pi))_1 = \mu(\tau)_1 = a+b+h+1$, and inductively $\mu(\cc(\pi')) = \mu(\tau')$.
     
-    We have that $\pi = (UD)^a U \pi_1 U^b D^{b+1} \pi_2$. $\pi_1$ has no two consecutive $D$ steps, so $\cc(\pi) = U^a U U^h U^b D^b \cc(\pi_2)$. We distinguish two cases.
+    We have $\pi = (UR)^a U \pi_1 U^b R^{b+1} \pi_2$. By construction, $\pi_1$ has no two consecutive $R$ steps, so $\cc(\pi) = U^a U U^h U^b R^b \cc(R \pi_2)$; in particular, note that
+    \[ \mu(\cc(\pi)) = (a+b+h+1, \mu(\cc(\pi_2))). \]    
+    We distinguish two cases.
 
-    \textbf{Case 1: $\pi_2$ starts with a $D$ step.}    
-    If $\pi_2$ starts with a $D$ step, then $\pi_1$ must end with a $D$ step (by maximality of $b$), so $\mu(\cc(\pi')) = (h, \mu(\cc(\pi_2)))$. In this case, since $\pi_1$ and $\pi_2$ are separated by at least two $D$ steps,
-    \[ \mu(\cc(\pi)) = (a+b+h+1, \mu(\cc(\pi_2))). \]
+    \textbf{Case 1: $\pi_2$ starts with an $R$ step.}    
+    If $\pi_2$ starts with an $R$ step, then $\pi_1$ must end with an $R$ step (by maximality of $b$), so $\pi_1$ and $\pi_2$ are separated by at least two $R$ steps, and $\mu(\cc(\pi')) = (h, \mu(\cc(\pi_2)))$.
     By construction, $\tau'_1 = \mu(\cc(\pi'))_1 = h$, and since $\tau'_1 = \tau_2 - (a+b+1)$, we have $\tau_1 = \tau_2$ and so
     \[ \mu(\tau) = (a+b+h+1, \mu(\tau')_2, \dots). \]
 
     \textbf{Case 2: $\pi_2$ starts with a $U$ step.}
-    If $\pi_2$ starts with a $U$ step instead, then $\pi_1$ and $\pi_2$ are separated by at most one $D$ step in $\pi'$, so their contractions join and we have
+    If $\pi_2$ starts with a $U$ step instead, then $\pi_1$ and $\pi_2$ are separated by at most one $R$ step in $\pi'$, so their contractions join and we have
     \[ \mu(\cc(\pi')) = (h+\mu(\cc(\pi_2))_1, \mu(\cc(\pi_2))_2, \dots). \]
-    In $\pi$, the two are separated by at least two $D$ steps, so we have
-    \[ \mu(\cc(\pi)) = (a+b+h+1, \mu(\cc(\pi_2))_1, \mu(\cc(\pi_2))_2, \dots). \]    
-    By construction, $\tau'_1 = \mu(\cc(\pi'))_1 = h + \mu(\cc(\pi_2))_1$, which implies that $\tau_1 < \tau_2$, and so
-    \[ \mu(\tau) = (a+b+h+1, \mu(\tau')_1 - h, \mu(\tau')_2, \dots). \]
+    By construction, $\tau'_1 = \mu(\cc(\pi'))_1 = h + \mu(\cc(\pi_2))_1$, so $\mu(\cc(\pi_2))_1=\tau'_1-h$. This also implies that $\tau_1 < \tau_2$, and hence
+    \[ \mu(\tau) = (a+b+h+1, \mu(\tau')_1-h, \mu(\tau')_2, \dots). \]
 
     In either case, by induction we have $\mu(\cc(\pi')) = \mu(\tau')$, and so $\mu(\cc(\pi)) = \mu(\tau)$, as desired.
 \end{proof}
@@ -1800,25 +1901,25 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
         \draw[ud, ultra thick, -sharp >, sharp angle = 45] (6,8) -- (7,8);
         \draw[rhoprime, ultra thick, sharp <-, sharp angle = 45] (7,8) -- (7,9) -- (8,9) -- (8,10) -- (10,10);
     \end{tikzpicture}
-	\caption{The decomposition of $\pi = \textcolor{valleys}{{(UD)}^2} U \textcolor{rho}{{UDU}} \textcolor{rises}{U^3 D^3} D \textcolor{rhoprime}{U D U D D}$ into the subpaths prescribed by \Cref{def:psi}.}
+	\caption{The decomposition of $\pi = \textcolor{valleys}{{(UR)}^2} U \textcolor{rho}{{URU}} \textcolor{rises}{U^3 R^3} R \textcolor{rhoprime}{U R U R R}$ into the subpaths prescribed by \Cref{def:psi}.}
     \label{fig:pp0}
 \end{figure}
 
 \begin{example}
     \label{ex:psi}
-    Let us compute $\Psi$ on the path $\pi=(1,2,4,7,7,7,8,10,10,10)$, as in Figure~\ref{fig:pp0}. Notice that $\pi$ has $4$ rises, $5$ valleys, $\area(\pi) = 3$, and $\mu(\cc(\pi)) = (8,2)$. We will compute $\Psi(\pi) = (w,\tau)$, where $w \in W(0^5, 1^4)$ and $\tau \in \R(\Des(0w))$.
+    Let us compute $\Psi$ for the path $\pi=(1,2,4,7,7,7,8,10,10,10)$, shown in \Cref{fig:pp0}. Notice that $\pi$ has $4$ rises, $5$ valleys, $\area(\pi) = 3$, and $\mu(\cc(\pi)) = (8,2)$. We will compute $\Psi(\pi) = (w,\tau)$, where $w \in W(0^5, 1^4)$ and $\tau \in \R(\Des(0w))$.
 
-    We start with $\varepsilon$ the empty word and with $\tau=()$ the empty path. After Step~\ref{step:0}, we have $0w = 0$.
+    We start with the empty word $\varepsilon$ and the empty path $\tau=()$. After Step~\ref{step:0}, we have $0w = 0$.
 
-    Now, we write $\pi=(UD)^2\overline{\pi}$ where $\overline{\pi}$ is the path $(2,5,5,5,6,8,8,8)$, so $a=2$. After Step~\ref{step:valleys}, we obtain $0w = 000$.
+    We then write $\pi=(UR)^2\pi_0$ where $\pi_0$ is the path $(2,6,6,6,6,7,8,8)$, so $a=2$. After Step~\ref{step:valleys}, we obtain $0w = 000$.
 
-    Then, we write $\overline{\pi}=U \pi_1 U^3 D^4 \pi_2$ with $\pi_1 = UDU$ and $\pi_2 = UDUDD$ the subpaths in orange and violet, respectively, in Figure~\ref{fig:pp0}. We have $b=3$, so we update $0w$ to $0w = 000111$.
+    Then, we write $\pi_0 = U \pi_1 U^3 R^4 \pi_2$ where $\pi_1 = URU$ and $\pi_2 = URURR$ are the subpaths in orange and violet, respectively, in \Cref{fig:pp0}. We have $b=3$, so we update $0w$ to $0w = 000111$.
 
-    Next, in Step~\ref{step:induction}, we compute the height of $\pi_1$, which is $h=2$, and we append $6+2=8$ to $\tau$. We restart the iteration with the path $\pi' = \pi_1\pi_2 = UDUUDUDD$.
+    Next, in Step~\ref{step:induction}, we compute the height of $\pi_1$, which is $h=2$, and we append $6+2=8$ to $\tau$. We restart the iteration with the path $\pi' = \pi_1\pi_2 = URUURURR$.
 
-    Its decomposition is $\pi' = (UD)^1 U (UD) (U^1 D^1) D$, so we have $a=1$, $b=1$, and $h = 1$, so we update $0w$ to $0w = 000111001$ and $\tau$ to $\tau = (8, 10)$. We have $\pi'_1 = UD$ and $\pi'_2 = \varnothing$.
+    Its decomposition is $\pi' = (UR)^1 U (UR) (U^1 R^1) R$, so we have $a=1$, $b=1$, and $h = 1$, and we update $0w$ to $0w = 000111001$ and $\tau$ to $\tau = (8, 10)$. We have $\pi'_1 = UR$ and $\pi'_2 = \varnothing$.
 
-    Iterating one more time, we get $\pi'' = \pi'_1\pi'_2 = UD$, so $a=0$, $b=0$, and $h=0$. We update $0w$ to $0w = 0001110010$ and $\tau$ to $\tau = (8, 10, 10)$. Now $\pi''_1\pi''_2$ is empty, so we stop and obtain $\Psi(\pi) = (w,\tau)$ with $w = 001110010$ and $\tau=(8,10,10)$.
+    Iterating one more time, we get $\pi'' = \pi'_1\pi'_2 = UR$, so $a=0$, $b=0$, and $h=0$. We update $0w$ to $0w = 0001110010$ and $\tau$ to $\tau = (8, 10, 10)$. At this point, $\pi''_1\pi''_2$ is empty, so we stop and obtain $\Psi(\pi) = (w,\tau)$ with $w = 001110010$ and $\tau=(8,10,10)$.
 
     Indeed, $\Psi(\pi) = (w,\tau)$ satisfies the required properties: $w \in W(0^5,1^4)$, $\Des(0w) = (6, 9, 10)$ and $\tau \in \R(\Des(0w))$. The area of $\tau$ is $(8-6) + (10-9) = 2 + 1 = 3$, which equals $\area(\pi)$, and the rise composition of $\tau$ is $(8,2)$, which equals the rise composition of $\cc(\pi)$.
 \end{example}
@@ -1838,60 +1939,96 @@ At the end of each iteration, we appended a non-decreasing string to $w$, and de
             \draw[red!60, line width = 1.6 pt] (0,-0.05) -- (0,8) -- (1,8) -- (1,10) -- (3.05,10);
         \end{scope}
     \end{tikzpicture}
-    \caption{On the left, the path $\pi'$ obtained from $\pi$ after one iteration of the algorithm in \Cref{def:psi}. On the right, the path $\tau$ in red, over the path $\delta(0w)$ in blue.}
+    \caption{The path $\pi'$ obtained from $\pi$ after one iteration of the algorithm in \Cref{def:psi} (left), and the path $\tau$ in red above $\delta(\Des(0w))$ in blue (right).}
 \end{figure}
 
 We can finally prove the main statement of this section.
 
 \begin{theorem}
     The map $\Psi$ is a bijection between $\DP(k+l+1)^{\ast k, \bullet l}$ and the set
-    \[ \{ (w, \tau) \mid w\in W \left(0^l,1^k\right), \tau \in \R(\Des(0w)) \} \]
+    \[ \{ (w, \tau) \mid w \in W \left(0^l,1^k\right), \tau \in \R(\Des(0w)) \} \]
     that preserves both the area and the rise composition.
 \end{theorem}
 
 \begin{proof}
-    We prove that $\Psi$ is bijective by exhibiting an inverse, inductively on the number of descents of $w$.
+    We prove that $\Psi$ is bijective by exhibiting an inverse, using induction on the number of descents of $w$. Let $w \in W(0^l, 1^k)$ and $\tau \in \R(\Des(0w))$.
     
-    If $w$ has no descents, then $w = 0^l 1^k$ for some $k,l \in \mathbb{N}$, and $\tau = (k+l+1)$. In this case, we can recover $\pi$ as $\pi = (UD)^l U^{k+1} D^{k+1}$, which has $l$ valleys, $k$ rises, area $0$, and rise composition $(k+l+1)$, as desired.
+    If $w$ has no descents, then $w = 0^l 1^k$ for some $k,l \in \mathbb{N}$, and $\tau = (k+l+1)$. In this case, we can recover $\pi$ as $\pi = (UR)^l U^{k+1} R^{k+1}$, which has $l$ valleys, $k$ rises, area $0$, and rise composition $(k+l+1)$, as desired.
 
-    Otherwise, let $w = 0^a 1^b 0 w'$ for some $a,b \in \mathbb{N}$ and some word $w' \in W \left(0^{l-a},1^{k-b}\right)$, and let $\tau'$ be such that $\tau - \delta(\Des(0w)) = (h, \tau' - \delta(\Des(0w')))$ for some $h \in \mathbb{N}$ and some path $\tau' \in \R(\Des(0w'))$. 
+    Otherwise, let $w = 0^a 1^b 0 w'$ for some $a,b \in \mathbb{N}$ and some word $w' \in W \left(0^{l-a},1^{k-b}\right)$, and let $\tau' \in \R(\Des(0w'))$ be such that $\tau - \delta(\Des(0w)) = (h, \tau' - \delta(\Des(0w')))$ for some $h \in \mathbb{N}$. 
 
-    Notice that these vectors encode the area of the paths (as in number of cells contributing to the area in each column), so $\area(\tau) = \area(\tau') + h$.
+    These vectors encode the area of the paths, namely the number of area cells in each column, so $\area(\tau) = \area(\tau') + h$.
 
     By induction, we can find a unique path $\pi' \in \DP(k-b+l-a+1)^{\ast k-b, \bullet l-a}$ such that $\Psi(\pi') = (w',\tau')$, with $\area(\pi') = \area(\tau')$ and $\mu(\cc(\pi')) = \mu(\tau')$.
 
-    By construction, since $\mu(\cc(\pi')) = \mu(\tau')$, $\pi'$ has no two consecutive horizontal steps in the first $\mu(\tau')_1 \geq h$ rows. Consider the vertical step in the $h\th$ row of $\pi'$, and call it $U_h$. If it is followed by a vertical step, let $\pi_1$ be the path ending at $U_h$ (included), and $\pi_2$ be the path starting after $U_h$; if it is followed by a horizontal step, call it $D_h$, and let $\pi_1$ be the path ending at $D_h$ (included), and $\pi_2$ be the path starting after $D_h$. Split $\pi' = \pi_1 \pi_2$. By construction, $\pi_1$ has height $h$ and no two consecutive horizontal steps.
+    By construction, since $\mu(\cc(\pi')) = \mu(\tau')$, $\pi'$ has no two consecutive horizontal steps in the first $\mu(\tau')_1 \geq h$ rows. Consider the vertical step in the $h\th$ row of $\pi'$, and call it $U_h$. If it is followed by a vertical step, let $\pi_1$ be the path ending with $U_h$, and $\pi_2$ be the path starting after $U_h$; if it is followed by a horizontal step, call it $R_h$, and let $\pi_1$ be the path ending with $R_h$, and $\pi_2$ be the path starting after $R_h$. Split $\pi' = \pi_1 \pi_2$. By construction, $\pi_1$ has height $h$ and no two consecutive horizontal steps.
 
-    Let $\pi = (UD)^a U \pi_1 U^b D^{b+1} \pi_2$. By construction, $\Psi(\pi) = (w, \tau)$: the only non-trivial check is that $b$ is maximal, but either $\pi_1$ ends with a $D$ step or $\pi_2$ starts with a $U$ step, so $b$ is indeed maximal.
+    Let $\pi = (UR)^a U \pi_1 U^b R^{b+1} \pi_2$. By construction, $\Psi(\pi) = (w, \tau)$: the only nontrivial check is that $b$ is maximal, but either $\pi_1$ ends with an $R$ step or $\pi_2$ starts with a $U$ step, so $b$ is indeed maximal.
 
-    The thesis now follows by \Cref{lem:well-defined,lem:area,lem:comp}.
+    The result now follows by \Cref{lem:well-defined,lem:area,lem:comp}.
 \end{proof}
 
 
 \subsection{Case with touch number \texorpdfstring{$n-k-l$}{n-k-l}}
 
-In this subsection, we give a combinatorial interpretation to a symmetric function identity that lets us move from the case $k+l=n-1$ to the general case.
+In this subsection, we give a combinatorial interpretation of a symmetric-function identity that allows us to prove the general case from the case $k+l=n-1$.
 
-First we prove that, when $q=1$, the operators involved are multiplicative. 
+
+First, we need to prove that specialization at $q=1$ commutes with the Theta operators. This is not immediate, since the Theta operators include a plethystic evaluation $f[X/M]$, which is not defined at $q=1$.
+
+\begin{lemma}
+    \label{lem:theta_commutes_with_q1_eval}
+    If $F \in \Lambda$ is regular at $q=1$ (i.e.\ its coefficients when expanded in the Schur basis have no poles at $q=1$), then $\Theta_{e_k} F$ is also regular at $q=1$, and we have
+    \[ \left. \left( \Theta_{e_k} F \right) \right\rvert_{q=1} = \left. \left( \Theta_{e_k} \left( \left. F \right\rvert_{q=1} \right) \right) \right\rvert_{q=1}. \]
+\end{lemma}
+
+\begin{proof}
+    Recall that the modified Macdonald polynomials are Schur-positive \cite{Haiman2001nFactorial}, so the transition matrix from the Macdonald basis to the Schur basis has entries in $\mathbb{N}[q,t]$ (and thus no poles at $q=1$).
+    By Cramer's rule, the inverse transition matrix (from the Schur basis to the Macdonald basis) is also regular at $q=1$. Therefore, if $F$ is regular at $q=1$, its expansion $F = \sum_\nu c_\nu(q,t) \Ht_\nu$ in the Macdonald basis has coefficients $c_\nu(q,t)$ that are regular at $q=1$.
+
+    It suffices to prove regularity for $F = \Ht_\nu$, since the $\Ht_\nu$ form a basis of $\Lambda$. By \Cref{def:theta}, we have
+    \begin{align*}
+        \Theta_{e_k} \Ht_\nu & = \mathbf{\Pi} e_k \left[\frac{X}{M}\right] \mathbf{\Pi}^{-1} \Ht_\nu \\
+        & = \mathbf{\Pi} e_k \left[\frac{X}{M}\right] \Pi_{\nu}^{-1} \Ht_\nu \\
+        & = \mathbf{\Pi} \sum_{\mu} d^{(k)}_{\mu,\nu}(q,t) \Pi_{\nu}^{-1}  \Ht_\mu \\
+        & = \sum_{\mu} \frac{\Pi_{\mu}}{\Pi_{\nu}} d^{(k)}_{\mu,\nu}(q,t) \Ht_\mu,
+    \end{align*}
+    where the sum is over partitions $\mu \supset \nu$ with $|\mu| - |\nu| = k$, and $d^{(k)}_{\mu,\nu}(q,t)$ is the Macdonald Pieri coefficient for $e_k^\ast \Ht_\nu = \sum_\mu d^{(k)}_{\mu,\nu} \Ht_\mu$.
+    
+    We refer to \cite{GarsiaHaglundXinZabrocki2016PieriRules} for notation. Explicitly, by \cite[Equation~(3.23)]{GarsiaHaglundXinZabrocki2016PieriRules} we have
+    \[ d^{(k)}_{\mu,\nu}(q,t) = \frac{w_\nu}{w_\mu} c^{(k)}_{\mu,\nu}(q,t), \]
+    where $w_\nu$ is the Macdonald weight of $\nu$, and by \cite[Theorem~3.2]{GarsiaHaglundXinZabrocki2016PieriRules},
+    \[ c^{(k)}_{\mu,\nu}(q,t) = \frac{1}{B_{\mu/\nu}} \sum_{\nu \subset_1 \alpha \subset_{k-1} \mu} c^{(k-1)}_{\mu, \alpha}(q,t) c^{(1)}_{\alpha,\nu}(q,t) \frac{T_\alpha}{T_\nu}, \]
+    where $B_{\mu/\nu} = B_\mu - B_\nu$.
+    
+    Combining these expressions, up to the global factor $B_{\mu/\nu}^{-1}$ (which is regular at $q=1$ since $B_{\mu/\nu}(1,t) \neq 0$), the coefficient $\frac{\Pi_\mu}{\Pi_\nu} d^{(k)}_{\mu,\nu}(q,t)$ of $\Ht_\mu$ in $\Theta_{e_k} \Ht_\nu$ decomposes into a sum of products over chains $\nu \subset_1 \dots \subset_1 \mu$ of terms of the form
+    \[ \frac{\Pi_\beta T_\alpha w_\alpha}{\Pi_\alpha T_\beta w_\beta} c^{(1)}_{\beta, \alpha}(q,t) \qquad (\text{for } \alpha \subset_1 \beta). \]
+    By the proof of \cite[Lemma~5.3]{DAdderioIraciLeBorgneRomeroVandenWyngaerd2022TieredTrees}, each of these terms is regular at $t=1$; applying partition conjugation $\mu \mapsto \mu'$ (which interchanges $q$ and $t$ in Macdonald polynomials) yields regularity at $q=1$.
+
+    Finally, expanding any regular $F = \sum_\nu c_\nu(q,t) \Ht_\nu$ yields 
+    \[ \left( \Theta_{e_k} F \right)_{q=1} = \sum_\nu c_\nu(1,t) \left( \Theta_{e_k} \Ht_\nu \right)_{q=1} = \left( \Theta_{e_k} \left( \left. F \right\rvert_{q=1} \right) \right)_{q=1}, \]
+    as the Pieri coefficients for the modified Hall--Littlewood polynomials $\Ht_\mu[X;1,t]$ are the $q=1$ specializations of the corresponding Macdonald Pieri coefficients. This completes the proof.
+\end{proof}
+
+
+Next, we show that, when $q=1$, the operators involved are multiplicative. 
 
 \begin{theorem}
     \label{thm:theta_q1_multiplicative}
-    For $n,k,l \in \mathbb{N}$ with $k+l < n$, we have \[ \left. \Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l} \right|_{q=1} = \left. \prod_{\Sigma k_i = k} \prod_{\Sigma l_i = l} \prod_{i=1}^{n-k-l} \Theta_{e_{k_i}} \Theta_{e_{l_i}} e_1 \right|_{q=1}, \]
+    For $n,k,l \in \mathbb{N}$ with $k+l < n$, we have \[ \left. \Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l} \right\rvert_{q=1} = \left. \sum_{\sum k_i = k} \sum_{\sum l_i = l} \prod_{i=1}^{n-k-l} \Theta_{e_{k_i}} \Theta_{e_{l_i}} e_1 \right\rvert_{q=1}, \]
     where the $k_i$ and $l_i$ are nonnegative integers for $1 \leq i \leq n-k-l$.  
 \end{theorem}
 
 \begin{proof}
-    Recall that the evaluation at $q=1$ commutes with $\Theta_{e_k}$, that is, for any $f \in \Lambda$ we have
-    \[ \left( \Theta_{e_k} F \right)_{q=1} = \left( \Theta_{e_k} F \rvert_{{q=1}} \right)_{q=1}. \]
-    In particular, since $ \left. \nabla E_{n-k-l, n-k-l} \right|_{q=1} = e_1^{n-k-l}$, we have
-    \[ \left. \Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l} \right|_{q=1} = \left. \Theta_{e_k} \Theta_{e_l} e_1^{n-k-l} \right|_{q=1}. \]
+    By \Cref{lem:theta_commutes_with_q1_eval} and \Cref{rem:Enk},
+    \[ \left. \Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l} \right\rvert_{q=1} = \left. \Theta_{e_k} \Theta_{e_l} e_1^{n-k-l} \right\rvert_{q=1}. \]
     When $q=1$, the $\D_a$ operators are multiplicative by \Cref{lem:Dgamma_q1} and $\D_1$ coincides with $\underline{e}_1$, so
-    \[ \left. \Theta_{e_k} \Theta_{e_l} e_1^{n-k-l} \right|_{q=1} = \left. \Theta_{e_k} \Theta_{e_l} \D_1^{n-k-l} \cdot 1\right|_{q=1}. \]
-    Let \[ \mathsf{\D}(u) = \sum_{a \geq 1} u^a \D_a. \] Switching to the generating series, by the proofs of \Cref{thm:theta_e1_D1,thm:shuffle_theta_D} we have 
-    \[ \Theta(u) \Theta(u) u \D_1 = \Theta(u) \mathsf{\D}(u) \Theta(u) = \sum_{w \text{ binary word}} u^{\ell(w)+1} \D_{\Des(0w)} \Theta(u) \Theta(u), \]
-    so when $q=1$ by multiplicativity we obtain
-    \[ \left. \Theta(u) \Theta(u) u^{n-k-l} \D_1^{n-k-l} \cdot 1 \right\rvert_{q=1} = \left( \sum_{w \text{ binary word}} u^{\ell(w)+1} \D_{\Des(0w)} \cdot 1 \right)_{q=1}^{n-k-l}. \]
-    Now the thesis follows from \Cref{cor:theta_theta_e1} by taking the coefficient of $u^n$.
+    \[ \left. \Theta_{e_k} \Theta_{e_l} e_1^{n-k-l} \right\rvert_{q=1} = \left. \Theta_{e_k} \Theta_{e_l} \D_1^{n-k-l} \cdot 1\right\rvert_{q=1}. \]
+    Introduce the generating series \[ \mathsf{\D}(u) = \sum_{a \geq 1} u^a \D_a. \] Passing to generating series and using the proofs of \Cref{thm:theta_e1_D1,thm:shuffle_theta_D}, we obtain
+    \[ \Theta(v) \Theta(u) u \D_1 = \Theta(v) \mathsf{\D}(u) \Theta(u) = \sum_{k=0}^\infty \sum_{l=0}^\infty \sum_{w \in W(0^l, 1^k)} u^{l+1} v^k \D_{\Des(0w)} \Theta(v) \Theta(u), \]
+    so, when $q=1$, multiplicativity gives
+    \[ \left. \Theta(v) \Theta(u) u^{n-k-l} \D_1^{n-k-l} \cdot 1 \right\rvert_{q=1} = \left( \sum_{k'=0}^\infty \sum_{l'=0}^\infty \sum_{w \in W(0^{l'}, 1^{k'})} u^{l'+1} v^{k'} \D_{\Des(0w)} \cdot 1 \right)_{q=1}^{n-k-l}. \]
+    The result follows from \Cref{cor:theta_theta_e1} by taking the coefficient of $u^{n-k} v^k$.
 \end{proof}
 
 In particular, we can conclude the following.
@@ -1899,15 +2036,15 @@ In particular, we can conclude the following.
 \begin{theorem}
     \label{thm:theta_theta_Enn}
     For $n,k,l \in \mathbb{N}$ with $n > k+l$, we have
-    \[ \left. \Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l} \right|_{q=1} = \sum_{\pi \in \LD(n, n-k-l)^{\ast k, \bullet l}} t^{\area(\pi)} x^\pi. \]
+    \[ \left. \Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l} \right\rvert_{q=1} = \sum_{\pi \in \LD(n, n-k-l)^{\ast k, \bullet l}} t^{\area(\pi)} x^\pi. \]
 \end{theorem}
 
 \begin{proof}
-    By \Cref{thm:theta_q1_multiplicative}, we can rewrite the left-hand side as a product of expressions of type
-    \[ \left.\Theta_{e_k'} \Theta_{e_l'} e_1 \right|_{q=1} \]
+    By \Cref{thm:theta_q1_multiplicative}, we can rewrite the left-hand side as a sum of products of expressions of the form
+    \[ \left.\Theta_{e_k'} \Theta_{e_l'} e_1 \right\rvert_{q=1} \]
     for some $k', l'$. By \Cref{thm:theta_theta_e1}, these can be interpreted as the generating series
     \[ \sum_{\pi \in \LD(k'+l'+1)^{\ast k', \bullet l'}} t^{\area(\pi)} x^\pi. \]
-    But now a path with touch number exactly $n-k-l$ is the concatenation of $n-k-l$ paths in which only the first step is not decorated. Since we are disregarding the dinv, and the area of the larger path is the sum of the areas of the smaller $n-k-l$ paths, the thesis follows by multiplying the generating series.
+    A path with touch number exactly $n-k-l$ is the concatenation of $n-k-l$ paths in which only the first (vertical) step is not decorated. Since we are disregarding the dinv and the area of the larger path is the sum of the areas of the $n-k-l$ smaller paths, the result follows by multiplying the generating series.
 \end{proof}
 
 \subsection{Proof of the theorem}
@@ -1924,23 +2061,23 @@ The following symmetric function identity is \cite[Theorem~8.2]{DAdderioRomero20
     \end{align*}
 \end{theorem}
 
-We now state the following.
+We now prove the following result.
 
 \begin{theorem}
     \label{thm:combinatorial_recursion}
-    For $n,k,l,b \in \mathbb{N}$ with $n > k+l+b$, we have
-    \[ \left.\Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l-b} \right|_{q=1} = \sum_{\pi \in \LD(n, n-k-l-b)^{\ast k, \bullet l}} t^{\area(\pi)} x^\pi. \]  
+    For $n,k,l,u \in \mathbb{N}$ with $n > k+l+u$, we have
+    \[ \left.\Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l-u} \right\rvert_{q=1} = \sum_{\pi \in \LD(n, n-k-l-u)^{\ast k, \bullet l}} t^{\area(\pi)} x^\pi. \]  
 \end{theorem}
 
-We recommend checking \cite[Theorem~4.8]{IraciNadeauVandenWyngaerd2024Smirnov} for a similar but simpler argument.
+For a similar but simpler argument, see \cite[Theorem~4.8]{IraciNadeauVandenWyngaerd2024Smirnov}.
 
 \begin{proof}
-    We proceed by strong induction on $b$. The base case $b=0$ is exactly the statement of 
-    \Cref{thm:theta_theta_Enn}. If $b > 0$, let $j=b$ in the statement of \Cref{thm:full_recursion}: there is only one term in which $E_{m, m-b}$ (for some number $m$) does not vanish, namely when $a=r=j$ and $i=0$, (so $m=n+j$); it is straightforward to check that in all the other cases there is some vanishing binomial.
+    We proceed by strong induction on $u$. The base case $u=0$ is exactly the statement of 
+    \Cref{thm:theta_theta_Enn}. If $u > 0$, set $j=u$ in \Cref{thm:full_recursion}. There is, among the terms whose summation index $b$ equals the induction parameter $u$, only one term for which $E_{m,m-b}$ (for some $m$) does not vanish, namely the term with $a=r=j$ and $i=0$ (so $m=n+j$). In every other case, at least one binomial coefficient vanishes.
     
-    It follows that $\Theta_{e_{k-b}} \Theta_{e_{l-b}} \nabla E_{n+b, n}$, which is generic for suitable choices of $n, k, l \in \mathbb{N}$, can be written in terms of expression of type $\Theta_{e_{k'}} \Theta_{e_{l'}} \nabla E_{n', n'-b'}$ for appropriate values of $n', k', l' \in \mathbb{N}$ and $b' < b$, which we can interpret combinatorially by induction.
+    It follows that $\Theta_{e_{k-u}} \Theta_{e_{l-u}} \nabla E_{n+u,n}$, which represents the general case after a suitable choice of $n,k,l \in \mathbb{N}$, can be written in terms of expressions of the form $\Theta_{e_{k'}} \Theta_{e_{l'}} \nabla E_{n',n'-b'}$ for appropriate $n',k',l' \in \mathbb{N}$ and $b'<u$. Each such expression has a combinatorial interpretation by the induction hypothesis. 
 
-    All that is left to do is to check that \Cref{thm:full_recursion} admits a combinatorial interpretation that is compatible with the statement of the theorem. We can interpret the operator $h_j^\perp$ as removing exactly the $j$ occurrences of the maximal label, say $M$, in a path with touch number $n-k-l$.
+    It remains to check that \Cref{thm:full_recursion} admits a combinatorial interpretation that is compatible with the statement of the theorem. We can interpret the operator $h_j^\perp$ as removing exactly the $j$ occurrences of the maximal label, say $M$, in a path with touch number $n-k-l$.
     
     We interpret the indices $b, i, r, a$, and the value $j-r-a+i-b$, as follows (see \Cref{fig:recursion_indices}):
     \begin{itemize}
@@ -1951,23 +2088,25 @@ We recommend checking \cite[Theorem~4.8]{IraciNadeauVandenWyngaerd2024Smirnov} f
         \item $j-r-a+i+b$, given the other interpretations, must be the number of non-decorated steps labeled $M$, which must all be on the main diagonal since they are not decorated.
     \end{itemize}
 
-    In either of these cases, the combinatorial interpretation of the identity is obtained by removing the vertical step labeled $M$, the following horizontal step, and the associated decoration (if any); for $i$ and the second part of $b$, we also remove the decoration appearing in the next row with respect to $M$; for the first part of $b$, a bit more care is needed.
+    In each case, the combinatorial interpretation of the identity is obtained by removing the vertical step labeled $M$, the following horizontal step, and any associated decoration. For $i$ and the second contribution to $b$, we also remove the decoration in the row immediately above $M$; the first contribution to $b$ requires additional care.
 
-    If a maximal label $M$ is assigned to a decorated valley that is not on the main diagonal; since $M$ is maximal, it must be a peak, and since it is not on the main diagonal, it must be followed by another horizontal step: if that were not the case, then the next vertical step would also be a decorated valley (as every step not on the main diagonal is decorated), so in particular it would be contractible, but then it would need to have a label larger than $M$, a contradiction. Since $M$ is followed by another horizontal step, it is followed by a double fall, so it is paired with some double rise, which must be decorated as all double rises are decorated. We also remove that decoration.
-
-    To understand the combinatorial interpretation, we start from a path in \[ \LD(n-k-l-j+r+a, n-k-l-j+r+a-b)^{\ast k-r, \bullet l-a} \] and try to obtain a path in $\LD(n, n-k-l)^{\ast k, \bullet l}$ with exactly $j$ maximal labels.
+    Suppose that a maximal label $M$ is assigned to a decorated valley off the main diagonal. Since $M$ is maximal, it must be a peak. It must also be followed by another horizontal step: otherwise, the next vertical step would be a decorated, hence contractible, valley (because every step off the main diagonal is decorated), and would therefore require a label larger than $M$, a contradiction. Thus, $M$ is followed by a double fall and is paired with a double rise. Since all double rises are decorated, we remove that decoration as well.
+ 
+    To understand the combinatorial interpretation, we start from a path in
+    \[ \LD(n-j, n-k-l-j+r+a-b)^{\ast k-r, \bullet l-a} \]
+    and try to obtain a path in $\LD(n, n-k-l)^{\ast k, \bullet l}$ with exactly $j$ maximal labels.
     
-    First, for each non-decorated step off the main diagonal (of which we have $b$), we decorated it appropriately: if it is a rise, we also insert a decorated valley labeled $M$ in between the corresponding double fall; if it is a valley, we also insert a decorated rise labeled $M$ in the previous row. This can be done in a single way. After this operation, all the non-decorated steps are on the main diagonal, the size increased by $b$, and so did the number of decorated rises and valleys.
-
-    Then, among the $n-k-l-j+r+a-b$ non-decorated steps on the main diagonal, we choose $i$ of them (except the very first), we insert a decorated rise labeled $M$ in the previous row, and we decorate them (they must now be contractible valleys, as we inserted a new horizontal step right before them). The number of possible choices is \[ \binom{n-k-l-(j-r-a+b)-1}{i}. \]
+    First, for each of the $b$ non-decorated steps off the main diagonal, we decorate it appropriately: if it is a rise, we also insert a decorated valley labeled $M$ into the corresponding double fall; if it is a valley, we also insert a decorated rise labeled $M$ in the previous row. This can be done in a unique way. After this operation, all the non-decorated steps are on the main diagonal, the size increases by $b$, as do the numbers of decorated rises and valleys.
+    
+    Then, among the $n-k-l-j+r+a-b$ non-decorated steps on the main diagonal, we choose $i$ of them (excluding the first). For each chosen step, we insert a decorated rise labeled $M$ in the previous row and decorate the chosen step (they must now be contractible valleys, as we inserted a new horizontal step right before them). The number of possible choices is \[ \binom{n-k-l-(j-r-a+b)-1}{i}. \]
     %
-    Next, among the $n-k-l-j+r+a-b-i$ remaining non-decorated steps on the main diagonal, except the first but possibly counting the endpoint of the path, we choose $r-i-b$ of them, and we insert decorated rises labeled $M$ in the row right before them. The number of ways in which this can be done is \[ \binom{n-k-l-(j-r-a+i+b)}{r-i-b}. \]
+    Next, among the $n-k-l-j+r+a-b-i$ remaining non-decorated steps on the main diagonal, excluding the first step but allowing the endpoint of the path, we choose $r-i-b$ of them and insert decorated rises labeled $M$ in the row right before them. The number of ways in which this can be done is \[ \binom{n-k-l-(j-r-a+i+b)}{r-i-b}. \]
     %
-    Afterward, among the same $n-k-l-j+r+a-b-i$ remaining non-decorated steps on the main diagonal, again except the first but possibly counting the endpoint of the path, we choose $a-i-b$ of them, and we insert decorated valleys labeled $M$ right before them. These valleys are necessarily contractible since their label is maximal. The number of possible choices is \[ \binom{n-k-l-(j-r-a+i+b)}{a-i-b}. \]
+    Afterward, among the same $n-k-l-j+r+a-b-i$ remaining non-decorated steps on the main diagonal, again excluding the first step but allowing the endpoint of the path, we choose $a-i-b$ of them and insert decorated valleys labeled $M$ right before them. These valleys are necessarily contractible since their label is maximal. The number of possible choices is \[ \binom{n-k-l-(j-r-a+i+b)}{a-i-b}. \]
     %
-    Finally, again among the $n-k-l-j+r+a-b-i$ remaining non-decorated steps on the main diagonal, we choose $j-r-a+i+b$ (not necessarily distinct) spots, including possibly the endpoint of the path, and we insert non-decorated steps labeled $M$ right before them. The number of ways in which this can be done is \[ \binom{n-k-l}{j-r-a+i+b}. \]
+    Finally, again among the $n-k-l-j+r+a-b-i$ remaining non-decorated steps on the main diagonal, we choose $j-r-a+i+b$ spots, with repetition allowed and possibly including the endpoint of the path, and insert non-decorated steps labeled $M$ right before them. The number of ways in which this can be done is \[ \binom{n-k-l}{j-r-a+i+b}. \]
     %
-    We end up with a path in $\LD(n,n-k-l)^{\ast k, \bullet l}$ with exactly $j$ maximal labels, as expected. Since $q=1$, the binomials coincide with the $q$-analogs, matching the symmetric function identity which we can now interpret combinatorially.
+    We end up with a path in $\LD(n,n-k-l)^{\ast k, \bullet l}$ with exactly $j$ maximal labels, as expected. Since $q=1$, the binomials coincide with the $q$-analogs, matching the symmetric-function identity, which we can now interpret combinatorially.
 \end{proof}
 
 \begin{figure}
@@ -2086,12 +2225,23 @@ We recommend checking \cite[Theorem~4.8]{IraciNadeauVandenWyngaerd2024Smirnov} f
 The proof of \Cref{thm:theta_q1} is now straightforward.
 
 \begin{proof}[Proof of \Cref{thm:theta_q1}]
-    The thesis follows from \Cref{thm:combinatorial_recursion} by taking the sum over $b$.
+    The result follows from \Cref{thm:combinatorial_recursion} by taking the sum over $b$, recalling that
+    \[ \sum_{b=0}^{n-k-l-1} E_{n-k-l,n-k-l-b} = \sum_{b=1}^{n-k-l} E_{n-k-l,b} = e_{n-k-l}. \]
 \end{proof}
 
-It is worth noticing that \Cref{thm:combinatorial_recursion} gives a lot of information on how a dinv statistic should look like on our objects. Indeed, the operation in \Cref{subfig:decorate-rise-add-valley,subfig:decorate-valley-add-rise} should not change the dinv at all, while the other operations should be described by a $q$-binomial. For \Cref{sub@subfig:add-rise,sub@subfig:add-valley,sub@subfig:add-non-dec} the interpretation is relatively straightforward even for the dinv inherited from the valley version of the Delta conjecture (disregarding the decorations on the rises), but for \Cref{sub@subfig:decorate-valley-on-diagonal-add-rise} the behavior should be significantly more complicated, and similar to the one for the sdinv statistic on segmented Smirnov words (cf.\ \cite[Lemma~3.7]{IraciNadeauVandenWyngaerd2024Smirnov}), or any variation of it.
+It is worth noting that \Cref{thm:combinatorial_recursion} provides substantial information about the form that a dinv statistic on our objects might take. Indeed, the operations in \Cref{subfig:decorate-rise-add-valley,subfig:decorate-valley-add-rise} should not change the dinv at all, while the contributions of the other operations should be described by $q$-binomial coefficients. For \Cref{subfig:add-rise,subfig:add-valley,subfig:add-non-dec} the interpretation is relatively straightforward, even for the dinv inherited from the valley version of the Delta conjecture (disregarding the decorations on the rises), but for \Cref{subfig:decorate-valley-on-diagonal-add-rise} the behavior should be significantly more complicated and similar to that of the sdinv statistic on segmented Smirnov words (cf.\ \cite[Lemma~3.7]{IraciNadeauVandenWyngaerd2024Smirnov}), or a variant thereof.
 
-Indeed, if we had a global dinv statistic for the $k+l=n-1$ case, we could use this combinatorial interpretation to derive one in general. This reduces the problem to a much simpler one, which is solved in the case when the area is $0$, but there is still a missing step to formulate a conjecture in the general case.
+Indeed, if we had a global dinv statistic for the $k+l=n-1$ case, we could use this combinatorial interpretation to derive one in general. This reduces the problem to a much simpler one. Although that problem is solved when the area is $0$, a further step is still needed to formulate a conjecture in general.
+
+
+\section{Acknowledgments}
+
+The authors would like to thank Giovanni Paolini for some helpful discussions about the extension of $\Theta$ to $\A_{q,t}$.
+
+D'Adderio and Pagaria are partially supported by PRIN 2022A7L229 ALTOP, and by GNSAGA--INdAM.
+
+Iraci is partially supported by the GNSAGA--INdAM, project CUP E53C25002010001.
+
 
 \bibliographystyle{amsalpha}
 \bibliography{references}
