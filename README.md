@@ -1,16 +1,7 @@
-This project was edited by [Aristotle](https://aristotle.harmonic.fun).
-
-To cite Aristotle:
-- Tag @Aristotle-Harmonic on GitHub PRs/issues
-- Add as co-author to commits:
-```
-Co-authored-by: Aristotle (Harmonic) <aristotle-harmonic@harmonic.fun>
-```
-
 # Dyck path algebra, `Θ`, and the `Ψ` bijection in Lean
 
 This Lean 4 project formalizes two related parts of the mathematics developed in
-[`main.tex`](main.tex):
+[`source.tex`](source.tex):
 
 1. a generators-and-relations model of the Dyck path algebra `𝒜_{q,t}`, its
    abstract operator representations, the `Θ` transformation, descent through a
@@ -99,3 +90,15 @@ lake build RequestProject
 ```
 
 All checked Lean modules are intended to compile without `sorry` or `admit`.
+
+
+## Acknowledgements
+
+This project was edited by [Aristotle](https://aristotle.harmonic.fun).
+
+To cite Aristotle:
+- Tag @Aristotle-Harmonic on GitHub PRs/issues
+- Add as co-author to commits:
+```
+Co-authored-by: Aristotle (Harmonic) <aristotle-harmonic@harmonic.fun>
+```
