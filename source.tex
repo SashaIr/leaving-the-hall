@@ -9,8 +9,11 @@
 
 % Other packages
 \usepackage{geometry}
-\usepackage{thmtools}
-\usepackage{hyperref}
+% Before June 2026, thmtools supplies the theorem-counter aliases needed by
+% cleveref. Newer LaTeX formats provide them natively, and loading an older
+% thmtools alias patch there can define the same counters twice.
+\IfFormatAtLeastTF{2026-06-01}{}{\usepackage{thmtools}}
+\usepackage[pdfpagelabels]{hyperref}
 \usepackage{cleveref}
 \usepackage{subcaption}
 \usepackage{parskip}
@@ -34,20 +37,43 @@
 
 % Environments
 \theoremstyle{plain}
-
-\theoremstyle{definition}
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{conjecture}[theorem]{Conjecture}
 \newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{definition}[theorem]{Definition}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{problem}[theorem]{Problem}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
 
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem{example}[theorem]{Example}
 \newtheorem*{note}{Note}
+
+% Older LaTeX/Hyperref releases do not propagate the section component of
+% theorem anchors to environments that share the theorem counter. Give each
+% environment an explicitly section-qualified PDF destination so that, e.g.,
+% Proposition 2.6 and Proposition 4.6 cannot both become `proposition.6`.
+\providecommand*{\theHtheorem}{}
+\renewcommand*{\theHtheorem}{\theHsection.\arabic{theorem}}
+\providecommand*{\theHconjecture}{}
+\renewcommand*{\theHconjecture}{\theHtheorem}
+\providecommand*{\theHcorollary}{}
+\renewcommand*{\theHcorollary}{\theHtheorem}
+\providecommand*{\theHlemma}{}
+\renewcommand*{\theHlemma}{\theHtheorem}
+\providecommand*{\theHproposition}{}
+\renewcommand*{\theHproposition}{\theHtheorem}
+\providecommand*{\theHproblem}{}
+\renewcommand*{\theHproblem}{\theHtheorem}
+\providecommand*{\theHdefinition}{}
+\renewcommand*{\theHdefinition}{\theHtheorem}
+\providecommand*{\theHremark}{}
+\renewcommand*{\theHremark}{\theHtheorem}
+\providecommand*{\theHexample}{}
+\renewcommand*{\theHexample}{\theHtheorem}
 
 % Bold math in titles
 \makeatletter%
@@ -240,7 +266,7 @@
 \makeatother
 
 
-\title{Leaving the Hall: explicit formulas for Negu\c{t} operators}
+\title{Leaving the Hall: explicit formulas for Negu\textcommabelow{t} operators}
 
 \author{Michele D'Adderio}
 \address{
@@ -274,15 +300,18 @@
 }
 \email{roberto.pagaria@unibo.it}
 
+\subjclass[2020]{Primary 05E05; Secondary 05A19, 05E10}
+\keywords{Macdonald polynomials, Dyck path algebra, Negu\textcommabelow{t} operators, Theta operators, rational shuffle theorem, Theta conjecture}
+
 
 \begin{document}
 
 \begin{abstract}
     Recent major breakthroughs in $q,t$-combinatorics include the introduction of the Dyck path algebra $\A_{q,t}$ by Carlsson and Mellit and of the Catalanimals by Blasiak et al., both of which led, among other things, to independent proofs of different extensions of the rational shuffle conjecture of Bergeron et al.
 
-    The first main contribution of this paper is a simple, explicit formula inside the algebra $\A_{q,t}$ for the Negu\c{t} operators, yielding a direct, elementary connection between the original operators of the rational shuffle conjecture and the corresponding Catalanimals. Our formula bypasses the elliptic Hall algebra, turning these operators into transparent, workable tools whose action we can compute exactly and efficiently on any symmetric function, not just constants.
+    The first main contribution of this paper is a simple, explicit formula inside the algebra $\A_{q,t}$ for the Negu\textcommabelow{t} operators, yielding a direct, elementary connection between the original operators of the rational shuffle conjecture and the corresponding Catalanimals. Our formula bypasses the elliptic Hall algebra, turning these operators into transparent, workable tools whose action we can compute exactly and efficiently on any symmetric function, not just constants.
 
-    Our second main contribution consists of a series of explicit formulas relating the Negu\c{t} operators to the Theta operators introduced by D'Adderio et al. To prove these formulas, we provide an extension of the aforementioned Theta operators to the entire algebra $\A_{q,t}$, allowing us to obtain a series of new combinatorial results. The algebraic computations underlying this extension have been formalized in Lean.
+    Our second main contribution consists of a series of explicit formulas relating the Negu\textcommabelow{t} operators to the Theta operators introduced by D'Adderio et al. To prove these formulas, we provide an extension of the aforementioned Theta operators to the entire algebra $\A_{q,t}$, allowing us to obtain a series of new combinatorial results. The algebraic computations underlying this extension have been formalized in Lean.
 
     To showcase the power of our results, we give a proof, also partially formalized in Lean, of the Theta conjecture of D'Adderio et al., first stated in 2019.
 \end{abstract}
@@ -296,7 +325,7 @@ In the 1990s, Garsia and Haiman set out to prove the Schur positivity of the (mo
 
 Over the years, this subject has revealed itself to be extremely fruitful and to have striking connections to other fields of mathematics, including elliptic Hall algebras \cites{SchiffmannVasserot2011EllipticHallAlgebra,BHMPS2023ShuffleAnyLine}, affine Hecke algebras \cite{CarlssonMellit2018ShuffleConjecture}, Springer fibers \cite{Mellit2020SpringerFibers}, the homology of torus knots \cites{GorskyNegut2015RefinedKnotInvariants, Mellit2022HomologyTorusKnots}, and the shuffle algebra of symmetric functions \cite{Negut2014ShuffleAlgebra}. This rich framework is a strength of the field and often leads to theorems whose proofs draw on different theories.
 
-The combinatorial side of this story solidified when Haglund et al.\ formulated their \emph{shuffle conjecture} \cite{HaglundHaimanLoehrRemmelUlyanov2005ShuffleConjecture}: they predicted a combinatorial formula for $\nabla e_n$ in terms of labeled Dyck paths, which are lattice paths using north and east steps going from $(0,0)$ to $(n,n)$ and staying weakly above the line connecting these two points (called the \emph{main diagonal}). This remarkable conjecture, which resisted all attempts at proof for many years, opened the way to several refinements and extensions. Notably, Haglund, Morse, and Zabrocki conjectured a \emph{compositional} refinement of the shuffle conjecture, which also specified all the points where the Dyck paths return to the main diagonal \cite{HaglundMorseZabrocki2012CompositionalShuffleConjecture}. Not long after, Gorsky and Negu\c{t} (cf.\ \cites{GorskyNegut2015RefinedKnotInvariants,Negut2014ShuffleAlgebra}) formulated a \emph{rational shuffle conjecture}, whose combinatorial side involved rectangular labeled Dyck paths, i.e.\ labeled lattice paths going from $(0,0)$ to $(m,n)$ and staying weakly above the line connecting these two points. The symmetric function side is obtained by acting on the constant symmetric function $1$ with suitable elements of the elliptic Hall algebra $\mathcal{E}$ of Burban and Schiffman. Soon after, in \cite{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures} Bergeron et al.\ formulated a \emph{compositional} refinement of the rational shuffle conjecture, at the same time making the symmetric function side more explicit, i.e.\ relying only on basic facts that do not require any understanding of the elliptic Hall algebra $\mathcal{E}$.
+The combinatorial side of this story solidified when Haglund et al.\ formulated their \emph{shuffle conjecture} \cite{HaglundHaimanLoehrRemmelUlyanov2005ShuffleConjecture}: they predicted a combinatorial formula for $\nabla e_n$ in terms of labeled Dyck paths, which are lattice paths using north and east steps going from $(0,0)$ to $(n,n)$ and staying weakly above the line connecting these two points (called the \emph{main diagonal}). This remarkable conjecture, which resisted all attempts at proof for many years, opened the way to several refinements and extensions. Notably, Haglund, Morse, and Zabrocki conjectured a \emph{compositional} refinement of the shuffle conjecture, which also specified all the points where the Dyck paths return to the main diagonal \cite{HaglundMorseZabrocki2012CompositionalShuffleConjecture}. Not long after, Gorsky and Negu\textcommabelow{t} (cf.\ \cites{GorskyNegut2015RefinedKnotInvariants,Negut2014ShuffleAlgebra}) formulated a \emph{rational shuffle conjecture}, whose combinatorial side involved rectangular labeled Dyck paths, i.e.\ labeled lattice paths going from $(0,0)$ to $(m,n)$ and staying weakly above the line connecting these two points. The symmetric function side is obtained by acting on the constant symmetric function $1$ with suitable elements of the elliptic Hall algebra $\mathcal{E}$ of Burban and Schiffmann. Soon after, in \cite{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures} Bergeron et al.\ formulated a \emph{compositional} refinement of the rational shuffle conjecture, at the same time making the symmetric function side more explicit, i.e.\ relying only on basic facts that do not require any understanding of the elliptic Hall algebra $\mathcal{E}$.
 
 The first breakthrough occurred in \cite{CarlssonMellit2018ShuffleConjecture}, where Carlsson and Mellit proved the compositional shuffle conjecture. For their proof, they introduced their algebra $\A_{q,t}$, which turned out to be a powerful tool for proving several other conjectures. For example, in \cite{Mellit2021Rational} Mellit used the algebra $\A_{q,t}$ to prove the compositional rational shuffle conjecture as well.
 
@@ -304,11 +333,11 @@ Around the time of the announcement of the proof of Carlsson and Mellit \cite{Ca
 
 It should be noted that in \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators}, the authors tried to merge the two versions of the Delta conjecture into what they called the \emph{Theta conjecture}, suggesting a combinatorial interpretation for $\left. \Theta_{e_k} \Theta_{e_l} \nabla e_{n-k-l} \right\rvert_{q=1}$ in terms of labeled Dyck paths supporting decorations on both rises and valleys, via a formula that specializes to the two versions of the Delta conjecture when $k$ or $l$ is set to $0$. The suggested formula still lacks a dinv statistic, which justifies the specialization $q=1$. Due to its conjectural connection to the coinvariants of the diagonal action of $\mathfrak{S}_n$ on polynomials in two sets of $n$ commuting variables and two sets of $n$ anticommuting variables (cf. \cite[Section 8]{DAdderioIraciVandenWyngaerd2021ThetaOperators}), we consider finding such a statistic an outstanding open problem in $q,t$-combinatorics (cf.\ \cite{IraciNadeauVandenWyngaerd2024Smirnov} for some partial progress).
 
-Soon after the proof of the rise version of the compositional Delta conjecture in \cite{DAdderioMellit2022CompositionalDelta}, Blasiak et al.\ provided an independent proof of the rational shuffle conjecture (which encompasses the shuffle conjecture) in \cite{BHMPS2023ShuffleAnyLine}, extending these formulas to labeled Dyck paths staying weakly above ``any line''. This initiated a remarkable series of articles by the same authors \cites{BHMPS2023ProofExtendedDelta,BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}, which settle and extend several outstanding conjectures in the field. The proofs in \cite{BHMPS2023ShuffleAnyLine} are divided into two steps. The first step shows that the combinatorial side of the formulas coincides with a certain Hall-Littlewood series. The second step consists of proving that this Hall-Littlewood series matches the symmetric-function side of the earlier conjectures: to achieve this, the authors have to use an action of the elliptic Hall algebra $\mathcal{E}$, via an implicit isomorphism with the shuffle algebra studied by Negu\c{t} in \cite{Negut2014ShuffleAlgebra}. In particular, it is shown that certain elements $\D_\gamma$ in $\mathcal{E}$ (called Negu\c{t} elements in \cites{BHMPS2023ShuffleAnyLine,BHMPS2023ProofExtendedDelta} and \cite{BenDaliBonzomDoulega2026PathOperators}) act as the relevant operators on the constant symmetric function $1$. Generalizations of these Hall-Littlewood series are called \emph{Catalanimals} in \cites{BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}.
+Soon after the proof of the rise version of the compositional Delta conjecture in \cite{DAdderioMellit2022CompositionalDelta}, Blasiak et al.\ provided an independent proof of the rational shuffle conjecture (which encompasses the shuffle conjecture) in \cite{BHMPS2023ShuffleAnyLine}, extending these formulas to labeled Dyck paths staying weakly above ``any line''. This initiated a remarkable series of articles by the same authors \cites{BHMPS2023ProofExtendedDelta,BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}, which settle and extend several outstanding conjectures in the field. The proofs in \cite{BHMPS2023ShuffleAnyLine} are divided into two steps. The first step shows that the combinatorial side of the formulas coincides with a certain Hall-Littlewood series. The second step consists of proving that this Hall-Littlewood series matches the symmetric-function side of the earlier conjectures: to achieve this, the authors have to use an action of the elliptic Hall algebra $\mathcal{E}$, via an implicit isomorphism with the shuffle algebra studied by Negu\textcommabelow{t} in \cite{Negut2014ShuffleAlgebra}. In particular, it is shown that certain elements $\D_\gamma$ in $\mathcal{E}$ (called Negu\textcommabelow{t} elements in \cites{BHMPS2023ShuffleAnyLine,BHMPS2023ProofExtendedDelta} and \cite{BenDaliBonzomDoulega2026PathOperators}) act as the relevant operators on the constant symmetric function $1$. Generalizations of these Hall-Littlewood series are called \emph{Catalanimals} in \cites{BHMPS2024LLT,BHMPS2025LoehrWarrington,BHMPS2025RaisingOperatorFormula}.
 
-The first main contribution of the present article is to connect the two approaches to the rational shuffle conjecture that we recalled above: we provide a simple, explicit formula on symmetric functions for the operators corresponding to the Negu\c{t} elements $\D_\gamma$, thereby identifying them inside the $\A_{q,t}$ algebra of Carlsson and Mellit. The advantage of our formula is threefold: (1) since we reprove in an elementary way that $\D_\gamma$ acting on $1$ gives the Hall-Littlewood series (Catalanimal) obtained in \cite{BHMPS2023ShuffleAnyLine}, our results connect this series to the original operators of the rational shuffle conjecture, completely bypassing the elliptic Hall algebra $\mathcal{E}$; (2) our formula enables the exact evaluation of $\D_\gamma$ on arbitrary symmetric functions (rather than constants alone), yielding an algorithm (computable, e.g., in SageMath) requiring a number of operator steps that is linear, rather than exponential, in the length of $\gamma$; (3) our formula allows us to commute the action of $\D_\gamma$ with other operators, yielding new formulas.
+The first main contribution of the present article is to connect the two approaches to the rational shuffle conjecture that we recalled above: we provide a simple, explicit formula on symmetric functions for the operators corresponding to the Negu\textcommabelow{t} elements $\D_\gamma$, thereby identifying them inside the $\A_{q,t}$ algebra of Carlsson and Mellit. The advantage of our formula is threefold: (1) since we reprove in an elementary way that $\D_\gamma$ acting on $1$ gives the Hall-Littlewood series (Catalanimal) obtained in \cite{BHMPS2023ShuffleAnyLine}, our results connect this series to the original operators of the rational shuffle conjecture, completely bypassing the elliptic Hall algebra $\mathcal{E}$; (2) our formula enables the exact evaluation of $\D_\gamma$ on arbitrary symmetric functions (rather than constants alone), yielding an algorithm (computable, e.g., in SageMath) requiring a number of operator steps that is linear, rather than exponential, in the length of $\gamma$; (3) our formula allows us to commute the action of $\D_\gamma$ with other operators, yielding new formulas.
 
-The second main contribution of this paper is related to point (3) above: we derive explicit commutation relations between the Negu\c{t} operators $\D_\gamma$ and the Theta operators $\Theta_{e_k}$ introduced in \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators}, and exploit these relations to prove new formulas about both. To achieve this, we first extend the definition of the Theta operators to the entire algebra $\A_{q,t}$, broadening their scope; in this context, the Theta operators are easier to compute and manipulate, allowing us to obtain a series of new combinatorial results in the form of explicit formulas. The computations used to define this extension have been formalized in Lean 4 using Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}, an AI system for formal verification.
+The second main contribution of this paper is related to point (3) above: we derive explicit commutation relations between the Negu\textcommabelow{t} operators $\D_\gamma$ and the Theta operators $\Theta_{e_k}$ introduced in \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators}, and exploit these relations to prove new formulas about both. To achieve this, we first extend the definition of the Theta operators to the entire algebra $\A_{q,t}$, broadening their scope; in this context, the Theta operators are easier to compute and manipulate, allowing us to obtain a series of new combinatorial results in the form of explicit formulas. The computations used to define this extension have been formalized in Lean 4 using Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}, an AI system for formal verification.
 
 As a notable application of our new formulas, we prove the Theta conjecture \cite[Conjecture~9.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} using (among other tools) a bijective argument that we also formalized in Lean 4 using \emph{Aristotle}.
 
@@ -428,7 +457,7 @@ It is clear that $\Theta_f$ is linear. In addition, if $f$ is homogeneous of deg
 Finally, we need to refer to \cite[Algorithm~4.1]{BergeronGarsiaSergelXin2015CompositionalShuffleConjectures} (see also \cite[Definition~1.1, Theorem~2.5]{BergeronGarsiaSergelXin2016PlethysticOperators}).
 
 \begin{definition}
-    Let $m, n > 0$. Let $a,b,c,d \in \mathbb{N}$ be such that $a+c=m$, $b+d=n$, and $ad-bc = \gcd(m,n)$. We recursively define $Q_{m,n}$ as an operator on $\Lambda$ by \[ Q_{m,n} = \frac{1}{M} \left( Q_{c,d} Q_{a,b} - Q_{a,b} Q_{c,d} \right), \] with the base cases \[ Q_{1,0} = \D_0 = \mathsf{id} - M \Delta_{e_1} \quad \text{ and } \quad Q_{0,1} = - \underline{e_1} \] (where $\underline{f}$ denotes multiplication by $f$).
+    Let $m, n > 0$. Let $a,b,c,d \in \mathbb{N}$ be such that $a+c=m$, $b+d=n$, and $ad-bc = \gcd(m,n)$. We recursively define $Q_{m,n}$ as an operator on $\Lambda$ by \[ Q_{m,n} = \frac{1}{M} \left( Q_{c,d} Q_{a,b} - Q_{a,b} Q_{c,d} \right), \] with the base cases \[ Q_{1,0} = \D_0 = \mathsf{id} - M \Delta_{e_1} \quad \text{ and } \quad Q_{0,1} = - e_1^\bullet \] (where $f^\bullet$ denotes multiplication by $f$).
 \end{definition}
 
 \begin{definition}
@@ -658,7 +687,7 @@ Given $\alpha=(\alpha_1,\alpha_2,\dots,\alpha_r) \in \Z^r$ and $\beta=(\beta_1,\
 
 \begin{theorem}
     \label{thm:dgamma-recursion}
-    The operators $\D_\gamma$ satisfy the relations
+    For $F\in\Lambda$, $m\in\Z$, and nonempty integer sequences $\alpha$ and $\beta$, the operators $\D_\gamma$ satisfy the relations
     \begin{enumerate}
         \item \label{dop:onepart} $\D_{(m)} F = \D_m F = (-1)^m \langle z^m \rangle \Exp[-zX] F[X + M/z]$ for $m \in \mathbb{Z}$;
         \item \label{dop:neg} $\D_{\alpha (m)} F = 0$ if $m < -\deg(F)$;
@@ -715,16 +744,7 @@ Given $\alpha=(\alpha_1,\alpha_2,\dots,\alpha_r) \in \Z^r$ and $\beta=(\beta_1,\
     Let $\deg F = n$. We proceed by double induction on $\ell(\gamma)$ and $\gamma_\ell$. If $\ell(\gamma) = 1$, then \eqref{dop:onepart} uniquely determines $\D_\gamma F$; if $\gamma_\ell < -n$, then by \eqref{dop:neg} we have $\D_\gamma F = 0$, so the base cases are covered. If $\ell(\gamma) > 1$ and $\gamma_\ell \geq -n$, by \eqref{dop:recursion} we have \[ \D_\gamma F = \D_{(\gamma_1, \dots, \gamma_{\ell-1})} \D_{(\gamma_\ell)} F + qt \D_{(\gamma_1, \dots, \gamma_{\ell-1}+1, \gamma_\ell-1)} F, \] and now the right-hand side of the equation is uniquely determined by induction.
 \end{proof}
 
-\begin{corollary}
-    \label{cor:same_operators}
-    The operators $\D_\gamma$ coincide with the corresponding operators from \cite[Equation~(52)]{BHMPS2023ShuffleAnyLine}.
-\end{corollary}
-
-\begin{proof}
-    The two families of operators satisfy the same recurrence relations, and these relations completely determine them, so they must coincide.
-\end{proof}
-
-In the rest of this work, we do not use \Cref{cor:same_operators}. Instead, we reprove every statement using our definition. The following result is an example of a statement that is known for the operators from \cite{BHMPS2023ShuffleAnyLine}, but which we reprove for our operators.
+In the rest of this work, we reprove every statement using our definition. The following result is an example of a statement that is known for the operators from \cite{BHMPS2023ShuffleAnyLine}, but which we reprove for our operators.
 
 \begin{lemma}
     \label{lem:Dgamma_q1}
@@ -743,6 +763,117 @@ In the rest of this work, we do not use \Cref{cor:same_operators}. Instead, we r
     if $m \geq 0$ and $0$ otherwise, so the base case for the length holds. If $\gamma_{\ell(\gamma)} < - \deg(F)$, then $\D_\gamma F = 0$ by \Cref{thm:dgamma-recursion}. Finally, if $\gamma = (\gamma', m)$, we have
     \[ \left. \D_\gamma F \right\rvert_{q=1} = \left. \left( \D_{\gamma'} \D_{(m)} + qt \D_{(\gamma'_+, m-1)} \right) F \right\rvert_{q=1} \]
     and the claim follows by induction.
+\end{proof}
+
+
+\subsection{Identification with the \texorpdfstring{Negu\textcommabelow{t}}{Negut} operators}
+
+In this subsection, we show that the operators $\D_\gamma$ defined in \Cref{def:D_gamma} coincide with the operators $\D_\gamma$ defined in \cite[Equation~(52)]{BHMPS2023ShuffleAnyLine}.
+Until this identification is proved, $\D_\gamma$ in this subsection denotes the latter operators. In particular, the two lemmas below are proved independently of \Cref{def:D_gamma}.
+
+Notice that the results in this paper are completely independent from this identification and hold for the operators in \Cref{def:D_gamma}: outside of this subsection, we do not rely on any results from \cite{BHMPS2023ShuffleAnyLine} or \cite{Negut2014ShuffleAlgebra} related to the $\D_\gamma$ operators.
+
+\begin{theorem}
+    \label{thm:same-operators}
+    The operators $\D_\gamma$ defined in \cite[Equation~(52)]{BHMPS2023ShuffleAnyLine} satisfy the relations \eqref{dop:onepart}, \eqref{dop:neg}, and \eqref{dop:recursion}.
+    In particular, they coincide with the operators $\D_\gamma$ from \Cref{def:D_gamma}.
+\end{theorem}
+
+Relation~\eqref{dop:onepart} is \cite[Proposition~3.3.4]{BHMPS2023ShuffleAnyLine}, and relation~\eqref{dop:recursion} is \cite[Equation~(47)]{BHMPS2023ProofExtendedDelta}. Relation~\eqref{dop:neg} is more involved, and its proof is going to take the rest of this subsection.
+
+\begin{lemma}
+    \label{lem:on-one}
+    If $\gamma \in \Z^\ell$ and $\gamma_\ell<0$, then $\D_{\gamma} \cdot 1 = 0$.
+\end{lemma}
+
+\begin{proof}
+    By \cite[Corollary~3.7.2 and Equation~(46)]{BHMPS2023ShuffleAnyLine},
+    \[
+        (\omega(\D_\gamma\cdot 1))(x_1,\dots,x_\ell)
+        =\left[\boldsymbol{\sigma}\left(
+        x^\gamma\frac{\prod_{i+1<j}(1-qt x_i/x_j)}
+        {\prod_{i<j}(1-q x_i/x_j)(1-t x_i/x_j)}
+        \right)\right]_{\mathrm{pol}},
+    \]
+    where $\boldsymbol{\sigma}$ is Weyl symmetrization and the denominator factors are expanded geometrically in $x_i/x_j$ for $i<j$. Every monomial $x^\mu$ inside this Weyl symmetrization has exponent vector
+    \[ \mu=\gamma+\sum_{i<j} a_{ij}(\mathbf e_i-\mathbf e_j),\qquad a_{ij}\geq 0. \]
+    Hence $\mu_\ell=\gamma_\ell-\sum_{i<\ell}a_{i\ell}<0$.
+
+    To see that such a monomial has zero polynomial part after symmetrization, set $\rho=(\ell-1,\dots,1,0)$. If $\mu+\rho$ has repeated coordinates, then $\boldsymbol{\sigma}(x^\mu)=0$. Otherwise, Weyl straightening gives $\boldsymbol{\sigma}(x^\mu)=\pm\chi_\lambda$, where $\lambda+\rho$ is the decreasing rearrangement of $\mu+\rho$. In particular,
+    \[ \lambda_\ell=\min_i(\mu_i+\rho_i)\leq\mu_\ell<0, \]
+    so $\chi_\lambda$ has zero polynomial part. Thus the displayed specialization of $\omega(\D_\gamma\cdot 1)$ vanishes. The Schur-length bound in the same corollary says that this symmetric function is determined by its specialization to $\ell$ variables, and therefore $\D_\gamma\cdot 1=0$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem:commutator}
+    For every $\gamma=(\gamma_1,\dots,\gamma_\ell)\in\Z^\ell$ and $k\geq 1$,
+    \begin{equation}        
+        \label{eq:commutator}
+        [\D_{\gamma}, p_k^\bullet] = (-1)^k (1-q^k)(1-t^k) \sum_{i=1}^{\ell} \D_{\gamma+k\mathbf{e}_i},
+    \end{equation}
+    where $p_k^\bullet$ denotes multiplication by $p_k$ and $\mathbf{e}_i$ is the $i$-th standard basis vector of $\Z^\ell$.
+\end{lemma}
+
+\begin{proof}
+    If $\gamma = (m)$, by \cite[Lemma~3.3.3]{BHMPS2023ShuffleAnyLine} we have
+    \[ \left[\bigl(\omega p_k[-X/M]\bigr)^\bullet, \D_m \right] = -\D_{m+k}. \]
+    Since
+    \[ \omega p_k[-X/M] = \frac{(-1)^k}{(1-q^k)(1-t^k)} p_k[X], \]
+    we can rewrite this as
+    \begin{equation}
+        [\D_m, p_k^\bullet] = (-1)^k (1-q^k)(1-t^k) \D_{m+k}, \label{eq:one-part-final}
+    \end{equation}
+    which is the desired relation in the one-part case. Now let
+    \[ \psi \colon \mathcal{S} \longrightarrow \mathcal{E}^+ \]
+    be the shuffle-algebra isomorphism of \cite[Proposition~3.5.1]{BHMPS2023ShuffleAnyLine}. We use the tensor-algebra quotient presentation from \cite[Section~3.5]{BHMPS2023ShuffleAnyLine}, and write $\psi(\phi)$ for the image of the class of a Laurent polynomial $\phi$. In this presentation, the monomial $x_1^{a_1}\cdots x_\ell^{a_\ell}$ acts as the ordered product $\D_{a_1}\cdots\D_{a_\ell}$. Set
+    \[ c_k=(-1)^k(1-q^k)(1-t^k),\qquad P_k(x)=\sum_{i=1}^\ell x_i^k. \]
+    The Leibniz rule for commutators and \eqref{eq:one-part-final} give
+    \[
+        [\D_{a_1}\cdots\D_{a_\ell},p_k^\bullet]
+        =c_k\sum_{i=1}^\ell
+        \D_{a_1}\cdots\D_{a_{i-1}}\D_{a_i+k}\D_{a_{i+1}}\cdots\D_{a_\ell}.
+    \]
+    Since tensor monomials span the Laurent polynomials, it follows by linearity that
+    \[ [\psi(\phi),p_k^\bullet]=c_k\,\psi(P_k\phi) \]
+    as operators on $\Lambda$, for every Laurent polynomial $\phi$ in $\ell$ variables. Multiplication by $P_k$ is well-defined on the quotient: its symmetry implies
+    $\mathbf H_{q,t}^{(\ell)}(P_k\phi)=P_k\mathbf H_{q,t}^{(\ell)}(\phi)$, so it preserves the kernel defining $\mathcal S$.
+
+    For completeness, the distinguished element $\D_{\gamma}$ is represented
+    in~\cite[(51)--(52)]{BHMPS2023ShuffleAnyLine} by the rational shuffle expression
+    \[ R_{\gamma}(x)
+        = \frac{x_1^{\gamma_1}\cdots x_\ell^{\gamma_\ell}} {\prod_{j=1}^{\ell-1}(1-qt\,x_j/x_{j+1})}.
+    \]
+    More precisely, the construction in \cite[Section~3.6]{BHMPS2023ShuffleAnyLine}, using \cite[Proposition~6.1]{Negut2014ShuffleAlgebra}, provides a Laurent polynomial $\eta_{\gamma}$ such that
+    \[
+        \mathbf{H}_{q,t}^{(\ell)}(\eta_{\gamma}) =\mathbf{H}_{q,t}^{(\ell)}(R_{\gamma}),
+        \qquad \D_{\gamma}=\psi(\eta_{\gamma}).
+    \]
+    Applying this construction also to each $\gamma+k\mathbf e_i$, choose corresponding Laurent polynomials $\eta_{\gamma+k\mathbf e_i}$. Because $p_k(x_1,\dots,x_\ell)$ is symmetric, it can be pulled through the symmetrization operator, so
+    \begin{align*}
+        \mathbf{H}_{q,t}^{(\ell)}(p_k(x_1,\dots,x_\ell) \eta_{\gamma})
+        & = p_k(x_1,\dots,x_\ell) \mathbf{H}_{q,t}^{(\ell)}(\eta_{\gamma})\\
+        & = p_k(x_1,\dots,x_\ell) \mathbf{H}_{q,t}^{(\ell)}(R_{\gamma})\\
+        & = \mathbf{H}_{q,t}^{(\ell)}(p_k(x_1,\dots,x_\ell) R_{\gamma})\\
+        & = \sum_{i=1}^{\ell} \mathbf{H}_{q,t}^{(\ell)}(R_{\gamma + k\mathbf{e}_i}).
+    \end{align*}
+    Thus the Laurent polynomial $P_k\eta_\gamma-\sum_i\eta_{\gamma+k\mathbf e_i}$ lies in the kernel defining $\mathcal S$. Applying $\psi$ and the commutator formula for Laurent polynomials proves~\eqref{eq:commutator}.
+\end{proof}
+
+\begin{proof}[Proof of \Cref{thm:same-operators}]
+    We already know that the operators $\D_\gamma$ from \cite{BHMPS2023ShuffleAnyLine} satisfy relations~\eqref{dop:onepart} and~\eqref{dop:recursion}. By \Cref{prop:dgamma-uniquely-determined}, it suffices to show that they also satisfy relation~\eqref{dop:neg}, that is, 
+    \[ m < -\deg(F) \implies \D_{\alpha (m)} F = 0. \]
+    It suffices to prove this when $F \in \Lambda^{(n)}$ is homogeneous; we proceed by strong induction on $n$. If $n=0$, the assertion reduces to \Cref{lem:on-one}.
+
+    Now let $n>0$ and suppose that the assertion holds in every degree smaller than $n$. The power-sum monomials $p_\lambda$, for $\lambda\vdash n$, form a basis of $\Lambda^{(n)}$, so it is enough by linearity to take $F=p_kG$ with $1\leq k\leq n$ and $G\in\Lambda^{(n-k)}$. By \Cref{lem:commutator}, for any $\gamma\in\Z^\ell$,
+    \begin{equation}
+        \label{eq:induction}
+        \D_{\gamma}(p_kG) = p_k \D_{\gamma} G + (-1)^k (1-q^k)(1-t^k) \sum_{i=1}^{\ell}\D_{\gamma + k \mathbf{e}_i} G.
+    \end{equation}
+    If $\gamma_\ell=m<-n$, then the last component of $\gamma$ and of every $\gamma+k\mathbf e_i$ is at most
+    \[ m+k<-n+k=-(n-k). \]
+    All operators on the right-hand side of \eqref{eq:induction} therefore annihilate $G$ by the induction hypothesis.
+
+    The identification with \Cref{def:D_gamma} now follows.
 \end{proof}
 
 
@@ -796,6 +927,8 @@ We evaluated both implementations (\texttt{D\_new} for \Cref{def:D_gamma} and \t
     \caption{Benchmark Part B: small compositions evaluated on nontrivial input symmetric functions $F \in \Lambda$.}
     \label{tab:benchmarks_b}
 \end{table}
+
+The code is available at \cite[{\texttt{benchmarks.ipynb}}]{Iraci2026Code}. The implementation of the $\A_{q,t}$ algebra is based on code originally written by Anton Mellit.
 
 
 \subsection{Commutation with skewing operators}
@@ -862,7 +995,7 @@ The following lemma is a straightforward consequence of \cite[Lemma~2.3.1, Equat
 \begin{lemma}
     \label{lem:poly_part}
     For any Laurent series $f(x)$ in $x_1,x_2,\dots,x_\ell$, we have
-    \[\textbf{$\sigma$} (f(x))_{\text{pol}}=\langle w^0 \rangle f(w_1,w_2,\dots,w_\ell) \Exp[\overline{W}X]\prod_{i<j}(1-w_i/w_j),\]
+    \[\boldsymbol{\sigma} (f(x))_{\text{pol}}=\langle w^0 \rangle f(w_1,w_2,\dots,w_\ell) \Exp[\overline{W}X]\prod_{i<j}(1-w_i/w_j),\]
     where $X=x_1+x_2+\cdots +x_\ell$ and $\overline{W}=w_1^{-1}+w_2^{-1}+\cdots +w_\ell^{-1}$.
 \end{lemma}
 
@@ -1174,7 +1307,7 @@ In this section, we define an endomorphism $\Theta$ of $\A_{q,t}$, giving its ac
 
 We then show that this operator extends the $\Theta_f$ operators from \cite{DAdderioIraciVandenWyngaerd2021ThetaOperators} to the whole $\A_{q,t}$, and use this extension to prove commutation relations with the $\D_\gamma$ operators.
 
-As an additional check on the computations in this section, the GitHub repository \cite{Iraci2026code} contains a Lean formalization of several finite algebraic identities from this section, assisted by Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}.
+As an additional check on the computations in this section, the GitHub repository \cite{Iraci2026Code} contains a Lean formalization of several finite algebraic identities from this section, assisted by Harmonic's \emph{Aristotle} \cite{Achim2025Aristotle}.
 
 We emphasize that this is \emph{not} a formalization of the entire paper or of the complete construction in this section: in particular, it does not construct the concrete symmetric-function action or the level-graded endomorphism on the completion.
 Rather, the formalization checks the correctness of our computations and demonstrates the feasibility of formalizing this kind of mathematics in Lean.
@@ -1568,20 +1701,20 @@ The following result proves that $\Theta$ induces an operator on $V$.
 
     By \Cref{lem:preserve_kernel}, $\Theta$ induces an endomorphism of $V$, denoted by $\Theta'$, such that $\Theta' L = \Theta(L) \Theta'$ as operators on $V$. 
 
-    Denote by $\underline{e}_1$ the operator of multiplication by $e_1$. It is easy to check that, on $V_0$, $d_- d_+ = \underline{e}_1$.
+    Denote by $e_1^\bullet$ the operator of multiplication by $e_1$. It is easy to check that, on $V_0$, $d_- d_+ = e_1^\bullet$.
     
-    Applying this identity to $\underline{e}_1$ and $\D_1$, we obtain on $V_0$
+    Applying this identity to $e_1^\bullet$ and $\D_1$, we obtain on $V_0$
     \begin{align*}
-        \Theta' \underline{e}_1 & = \Theta' d_- d_+ \\
+        \Theta' e_1^\bullet & = \Theta' d_- d_+ \\
         & = d_- (1 - (1+y_1)^{-1} y_1 \z_1) d_+ \Theta' \\
         & = d_- d_+ \Theta' + d_- (1+y_1)^{-1} (-y_1) \z_1 d_+ \Theta' \\
         & = d_- d_+ \Theta' + d_- (1+y_1)^{-1} (-y_1)^2 d_+^* \Theta' \\
-        & = \underline{e}_1 \Theta' + \sum_{n \geq 2} \D_n \Theta',
+        & = e_1^\bullet \Theta' + \sum_{n \geq 2} \D_n \Theta',
     \end{align*}
     and
     \[ \Theta' \D_1 = \Theta' d_- (-y_1) d_+^* = d_- (1+y_1)^{-1} (-y_1) d_+^* \Theta' = \sum_{n \geq 1} \D_n \Theta', \]
-    so \[ [\Theta', \underline{e}_1] = \sum_{n \geq 2} \D_n \Theta' \quad \text{ and } \quad [\Theta', \D_1] = \sum_{n \geq 2} \D_n \Theta'. \]   
-    By \cite[Proposition~10.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} and \cite[Proposition~1.2]{Romero2022}, and up to our redefinition of the signs, these are exactly the commutation relations satisfied by $\Theta(u)$ (the operator on $\Lambda$). Since $\underline{e}_1$ and $\D_1$ generate $\Lambda$ \cite[Theorem~2.1]{GarsiaHaimanTesler1999ExplicitPlethysticFormulas}, we deduce that $\Theta = \Theta'$, as desired.
+    so \[ [\Theta', e_1^\bullet] = \sum_{n \geq 2} \D_n \Theta' \quad \text{ and } \quad [\Theta', \D_1] = \sum_{n \geq 2} \D_n \Theta'. \]
+    By \cite[Proposition~10.1]{DAdderioIraciVandenWyngaerd2021ThetaOperators} and \cite[Proposition~1.2]{Romero2022}, and up to our redefinition of the signs, these are exactly the commutation relations satisfied by $\Theta(u)$ (the operator on $\Lambda$). Since $e_1^\bullet$ and $\D_1$ generate $\Lambda$ \cite[Theorem~2.1]{GarsiaHaimanTesler1999ExplicitPlethysticFormulas}, we deduce that $\Theta = \Theta'$, as desired.
 \end{proof}
 
 \subsection{Relations between \texorpdfstring{$\Theta$}{Theta} and \texorpdfstring{$\D_\gamma$}{Dgamma}}
@@ -1643,7 +1776,7 @@ Given $l,k \in \mathbb{N}$, we denote by $W\left(0^l,1^k\right)$ the set of all 
 \begin{proof}
     We have 
     \begin{align*}
-    \Theta_{e_l} e_1 & =\Theta_{e_l} \underline{e}_1 \cdot 1=\langle u^l\rangle \Theta(d_-d_+) \cdot 1 \\
+    \Theta_{e_l} e_1 & =\Theta_{e_l} e_1^\bullet \cdot 1=\langle u^l\rangle \Theta(d_-d_+) \cdot 1 \\
     & = \langle u^l \rangle d_- (1 - u(1+uy_1)^{-1} y_1\z_1) d_+ \cdot 1 \\
     & = d_-(-y_1)^l\z_1 d_+\cdot 1 \\
     & = d_-(-y_1)^{l+1}d_+^* \cdot 1 \\
@@ -1675,7 +1808,7 @@ The proof proceeds as follows. First, we give all the combinatorial definitions 
 We begin by giving precise definitions for the combinatorics of the Delta and Theta conjectures.
 
 \begin{definition}
-    A \emph{Dyck path} of size $n$ is a lattice path starting at $(0,0)$, ending at $(n,n)$, using only unit up (vertical) steps and right (horizontal) steps, and staying weakly above the line $x=y$. A \emph{labeled Dyck path} is a Dyck path together with a positive integer label on each of its vertical steps, with labels on consecutive vertical steps strictly increasing (from bottom to top). We will draw the labels of the vertical steps in the square immediately to the right of each step.
+    A \emph{Dyck path} of size $n$ is a lattice path starting at $(0,0)$, ending at $(n,n)$, using only unit up (vertical) steps and right (horizontal) steps, and staying weakly above the line $x=y$. A \emph{labeled Dyck path} is a Dyck path $\pi$ together with a labeling $w \colon [n] \to \mathbb{Z}_+$ of its vertical steps, such that consecutive vertical steps have strictly increasing labels (from bottom to top). We will draw the labels of the vertical steps in the square immediately to the right of each step.
 
     A \emph{rise} of a labeled Dyck path is a vertical step that is preceded by another vertical step.
 
@@ -1722,6 +1855,11 @@ See \Cref{fig:path-example} for an example of an element of $\LD(8)^{\ast 2, \bu
     \caption{An element of $\LD(8)^{\ast 2, \bullet 2}$.}
     \label{fig:path-example}
 \end{figure}
+
+\begin{definition}[Monomial]
+    \label{def:monomial}
+    For a decorated labeled Dyck path $\pi$, we define the monomial $x^\pi = \prod_{i=1}^n x_{w_i}$, where $w_i$ is the label of the $i\th$ vertical step of $\pi$.
+\end{definition}
 
 \begin{definition}[Area]
     \label{def:area}
@@ -1807,7 +1945,7 @@ To prove \Cref{thm:theta_theta_e1}, it is enough to find a bijection $\Psi$ betw
 \[ \{ (w, \tau) \mid w\in W \left(0^l,1^k\right), \tau \in \R(\Des(0w)) \} \]
 that preserves both the area and the rise composition. In other words, for every $\pi \in \DP(k+l+1)^{\ast k, \bullet l}$ with $\Psi(\pi) = (w,\tau)$ for some $w \in W\left(0^l,1^k\right)$ and $\tau \in \R(\Des(0w))$, we want to have $\area(\pi)=\area(\tau)$ and $\mu(\cc(\pi))=\mu(\tau)$.
 
-Notice that $\area(\tau)$ depends on $\Des(0w)$, and thus on $w$. We now define such a map $\Psi$ recursively via the following algorithm. The definition of $\Psi$ and the fact that it provides a bijection have been implemented and formally verified in Lean 4 \cite{Iraci2026code}.
+Notice that $\area(\tau)$ depends on $\Des(0w)$, and thus on $w$. We now define such a map $\Psi$ recursively via the following algorithm. The definition of $\Psi$ and the fact that it provides a bijection have been implemented and formally verified in Lean 4 \cite{Iraci2026Code}.
 
 \begin{definition}
     \label{def:psi}
@@ -1927,11 +2065,11 @@ At the end of each iteration, we append a nondecreasing string to $w$ and determ
 \begin{figure}
     \centering
     \begin{tikzpicture}[scale=0.8]
-        \draw[draw=none, use as bounding box] (-2,-3) rectangle (6,7);
+        \draw[draw=none, use as bounding box] (0,-3) rectangle (4,7);
 		\draw[gray!60, thin] (0,0) grid (4,4) (0,0) -- (4,4);
         \draw[rho, ultra thick] (0,0) -- (0,1) -- (1,1) -- (1,2);
         \draw[rhoprime, ultra thick] (1,2) -- (1,3) -- (2,3) -- (2,4) -- (4,4);
-    \end{tikzpicture}
+    \end{tikzpicture}\hspace{2 cm}
     \begin{tikzpicture}[scale=0.8]
         \draw[step=1.0, gray!60, thin] (0,0) grid (3,10);
         \draw[blue!60, line width = 1.6 pt] (0,0) -- (0,6) -- (1,6) -- (1,9) -- (2,9) -- (2,10) -- (3,10);
@@ -2022,7 +2160,7 @@ Next, we show that, when $q=1$, the operators involved are multiplicative.
 \begin{proof}
     By \Cref{lem:theta_commutes_with_q1_eval} and \Cref{rem:Enk},
     \[ \left. \Theta_{e_k} \Theta_{e_l} \nabla E_{n-k-l, n-k-l} \right\rvert_{q=1} = \left. \Theta_{e_k} \Theta_{e_l} e_1^{n-k-l} \right\rvert_{q=1}. \]
-    When $q=1$, the $\D_a$ operators are multiplicative by \Cref{lem:Dgamma_q1} and $\D_1$ coincides with $\underline{e}_1$, so
+    When $q=1$, the $\D_a$ operators are multiplicative by \Cref{lem:Dgamma_q1} and $\D_1$ coincides with $e_1^\bullet$, so
     \[ \left. \Theta_{e_k} \Theta_{e_l} e_1^{n-k-l} \right\rvert_{q=1} = \left. \Theta_{e_k} \Theta_{e_l} \D_1^{n-k-l} \cdot 1\right\rvert_{q=1}. \]
     Introduce the generating series \[ \mathsf{\D}(u) = \sum_{a \geq 1} u^a \D_a. \] Passing to generating series and using the proofs of \Cref{thm:theta_e1_D1,thm:shuffle_theta_D}, we obtain
     \[ \Theta(v) \Theta(u) u \D_1 = \Theta(v) \mathsf{\D}(u) \Theta(u) = \sum_{k=0}^\infty \sum_{l=0}^\infty \sum_{w \in W(0^l, 1^k)} u^{l+1} v^k \D_{\Des(0w)} \Theta(v) \Theta(u), \]
@@ -2041,7 +2179,7 @@ In particular, we can conclude the following.
 
 \begin{proof}
     By \Cref{thm:theta_q1_multiplicative}, we can rewrite the left-hand side as a sum of products of expressions of the form
-    \[ \left.\Theta_{e_k'} \Theta_{e_l'} e_1 \right\rvert_{q=1} \]
+    \[ \left.\Theta_{e_{k'}} \Theta_{e_{l'}} e_1 \right\rvert_{q=1} \]
     for some $k', l'$. By \Cref{thm:theta_theta_e1}, these can be interpreted as the generating series
     \[ \sum_{\pi \in \LD(k'+l'+1)^{\ast k', \bullet l'}} t^{\area(\pi)} x^\pi. \]
     A path with touch number exactly $n-k-l$ is the concatenation of $n-k-l$ paths in which only the first (vertical) step is not decorated. Since we are disregarding the dinv and the area of the larger path is the sum of the areas of the $n-k-l$ smaller paths, the result follows by multiplying the generating series.
@@ -2236,11 +2374,13 @@ Indeed, if we had a global dinv statistic for the $k+l=n-1$ case, we could use t
 
 \section{Acknowledgments}
 
-The authors would like to thank Giovanni Paolini for some helpful discussions about the extension of $\Theta$ to $\A_{q,t}$.
+The authors would like to thank Anton Mellit for providing a SageMath implementation of the $\A_{q,t}$ algebra, and Giovanni Paolini for some helpful discussions about the extension of $\Theta$ to $\A_{q,t}$.
 
-D'Adderio and Pagaria are partially supported by PRIN 2022A7L229 ALTOP, and by GNSAGA--INdAM.
+The authors used OpenAI GPT-5.6 Sol and GPT-6 Astra to assist with proofreading, LaTeX consistency, and checking and clarifying the proof of \Cref{thm:same-operators}; the authors verified all resulting changes and take full responsibility for the final content.
 
-Iraci is partially supported by the GNSAGA--INdAM, project CUP E53C25002010001.
+D'Adderio, Iraci and Pagaria are partially supported by PRIN 2022A7L229 ALTOP, and by the GNSAGA--INdAM research group.
+
+Iraci is partially supported by the GNSAGA--INdAM research group, CUP E53C25002010001.
 
 
 \bibliographystyle{amsalpha}
